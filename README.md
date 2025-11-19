@@ -2,8 +2,8 @@
 
 > **Professional email template management with rich text editing, AI assistance, and variable management**
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://echomt.jskennedy.net/)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/snarky1980/echo_BT_CTD_V1.0.5)
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://echo-bt-ctd.jskennedy.net/)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/snarky1980/echo-bt-ctd)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
@@ -74,8 +74,8 @@ Visit **[https://echomt.jskennedy.net/](https://echomt.jskennedy.net/)** to use 
 
 ```bash
 # Clone the repository
-git clone https://github.com/snarky1980/echo_BT_CTD_V1.0.5.git
-cd echo_BT_CTD_V1.0.5
+git clone https://github.com/snarky1980/echo-bt-ctd.git
+cd echo-bt-ctd
 
 # Install dependencies
 npm install
@@ -275,7 +275,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/snarky1980/echo_BT_CTD_V1.0.5/issues)
+- **Issues**: [GitHub Issues](https://github.com/snarky1980/echo-bt-ctd/issues)
 - **Documentation**: Check the `/docs` folder
 - **Help Center**: Available in-app at `help.html`
 
