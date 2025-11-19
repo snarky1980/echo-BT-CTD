@@ -18526,7 +18526,7 @@ const Toast = ({ toast, onRemove }) => {
     }
   );
 };
-const __vite_import_meta_env__ = { "BASE_URL": "/echo_BT_CTD_V1.0.5/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false };
+const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false };
 const NAVY_TEXT = "#1c2f4a";
 const CATEGORY_BADGE_STYLES = {
   Annulations: { bg: "#ffe4e6", border: "#fecdd3", text: NAVY_TEXT },
@@ -20332,7 +20332,7 @@ function App() {
       if (debug) console.log("[EA][Debug] Fetching templates (prefer raw main data)...");
       const REPO_RAW_URL = (__vite_import_meta_env__ == null ? void 0 : __vite_import_meta_env__.VITE_TEMPLATES_URL) || "https://raw.githubusercontent.com/snarky1980/echo_BT_CTD_V1.0.5/main/complete_email_templates.json";
       const LOCAL_URL = "./complete_email_templates.json";
-      const BASE_URL = typeof import.meta !== "undefined" && __vite_import_meta_env__ && "/echo_BT_CTD_V1.0.5/" ? "/echo_BT_CTD_V1.0.5/" : "/";
+      const BASE_URL = typeof import.meta !== "undefined" && __vite_import_meta_env__ && "/" ? "/" : "/";
       const ABSOLUTE_URL = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "complete_email_templates.json";
       const ts = Date.now();
       const withBust = (u) => u + (u.includes("?") ? "&" : "?") + "cb=" + ts;
@@ -24048,4 +24048,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-CnqKr_L8.js.map
+//# sourceMappingURL=main-kHzSTqBN.js.map
