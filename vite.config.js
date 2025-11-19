@@ -12,8 +12,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig(({ mode }) => {
-  // For gh-pages deployment with custom domain, use root path
-  const base = '/';
+  // For gh-pages deployment, use repository name as base path
+  const base = mode === 'production' ? '/echo_BT_CTD_V1.0.5/' : '/';
   const writeTemplatesPlugin = {
     name: 'write-templates-plugin',
     apply: 'serve', // dev only
