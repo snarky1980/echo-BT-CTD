@@ -962,7 +962,7 @@ function expandQuery(q) {
 const interfaceTexts = {
   fr: {
   title: 'echo',
-    subtitle: 'Studio de modèles interactifs',
+    subtitle: 'Studio de modèles intelligents',
     selectTemplate: 'Sélectionnez un modèle',
     templatesCount: `modèles disponibles`,
   searchPlaceholder: 'Rechercher un modèle...',
@@ -1013,7 +1013,7 @@ const interfaceTexts = {
   },
   en: {
   title: 'echo',
-    subtitle: 'Interactive Template Studio',
+    subtitle: 'Smart Template Studio',
     selectTemplate: 'Select a template',
     templatesCount: `templates available`,
   searchPlaceholder: 'Search for a template...',
