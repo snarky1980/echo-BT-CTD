@@ -73,6 +73,29 @@ const SimplePillEditor = React.forwardRef(({
     return resolveVariableValue(variables, name, templateLanguage);
   }, [variables, templateLanguage]);
 
+  const clearActivePillPlaceholder = useCallback(() => {
+    if (!editorRef.current) return false;
+    const selection = document.getSelection?.();
+    if (!selection?.anchorNode) return false;
+    const anchor = selection.anchorNode;
+    const pillElement = anchor.nodeType === Node.ELEMENT_NODE
+      ? anchor.closest?.('.var-pill')
+      : anchor.parentElement?.closest?.('.var-pill');
+    if (!pillElement) return false;
+    const varName = pillElement.getAttribute('data-var');
+    if (!varName) return false;
+    const placeholderToken = `<<${varName}>>`;
+    const currentText = (pillElement.textContent || '').trim();
+    if (currentText === placeholderToken) {
+      pillElement.textContent = '';
+      pillElement.setAttribute('data-display', '');
+      pillElement.classList.add('empty');
+      pillElement.classList.remove('filled');
+      return true;
+    }
+    return false;
+  }, []);
+
   const renderContent = (text) => {
     if (!text) return '';
     const regex = /<<([^>]+)>>/g;
@@ -125,6 +148,37 @@ const SimplePillEditor = React.forwardRef(({
     requestAnimationFrame(() => selectEntirePill(pill));
   }, []);
 
+  const syncSiblingPills = useCallback((varName, newValue) => {
+    if (!editorRef.current || !varName) return;
+
+    const selection = document.getSelection?.();
+    let activePill = null;
+    if (selection?.anchorNode) {
+      const anchor = selection.anchorNode;
+      activePill = anchor.nodeType === Node.ELEMENT_NODE
+        ? anchor.closest?.('.var-pill')
+        : anchor.parentElement?.closest?.('.var-pill');
+    }
+
+    const normalizedValue = newValue ?? '';
+    const trimmed = normalizedValue.trim();
+    const displayValue = trimmed.length > 0 ? normalizedValue : `<<${varName}>>`;
+    const displayHtml = convertPlainTextToHtml(displayValue);
+    const isFilled = trimmed.length > 0;
+
+    editorRef.current.querySelectorAll('.var-pill').forEach((pill) => {
+      if (pill.getAttribute('data-var') !== varName) return;
+      if (activePill && pill === activePill) return;
+
+      if (pill.innerHTML !== displayHtml) {
+        pill.innerHTML = displayHtml;
+      }
+      pill.classList.toggle('filled', isFilled);
+      pill.classList.toggle('empty', !isFilled);
+      pill.setAttribute('data-display', isFilled ? normalizedValue : '');
+    });
+  }, []);
+
   useImperativeHandle(ref, () => ({
     focus: () => editorRef.current?.focus(),
     getHtml: () => editorRef.current?.innerHTML ?? '',
@@ -170,17 +224,58 @@ const SimplePillEditor = React.forwardRef(({
     const text = extractText();
     const pillElements = editorRef.current?.querySelectorAll('.var-pill');
     const updates = {};
+    const seenVars = new Set();
     let hasChanges = false;
+    
+    // Get the currently active/focused pill to prioritize its value
+    const selection = document.getSelection?.();
+    let activePill = null;
+    if (selection?.anchorNode) {
+      const anchor = selection.anchorNode;
+      activePill = anchor.nodeType === Node.ELEMENT_NODE
+        ? anchor.closest?.('.var-pill')
+        : anchor.parentElement?.closest?.('.var-pill');
+    }
+    
+    // First pass: collect value from active pill
+    if (activePill && pillElements) {
+      const varName = activePill.getAttribute('data-var');
+      if (varName) {
+        const rawText = activePill.textContent ?? '';
+        const normalizedText = rawText.replace(/\u00a0/g, ' ').replace(/[\r\n]+/g, ' ');
+        const placeholder = `<<${varName}>>`;
+        const withoutPlaceholder = normalizedText.split(placeholder).join('');
+        const trimmedValue = withoutPlaceholder.trim();
+        let newValue = trimmedValue;
+        if (!trimmedValue) {
+          newValue = '';
+          if (rawText !== placeholder) activePill.textContent = placeholder;
+          activePill.classList.remove('filled');
+          activePill.classList.add('empty');
+        } else {
+          activePill.classList.add('filled');
+          activePill.classList.remove('empty');
+        }
+        activePill.setAttribute('data-display', newValue);
+        if ((variables?.[varName] || '') !== newValue) hasChanges = true;
+        updates[varName] = newValue;
+        seenVars.add(varName);
+      }
+    }
+    
+    // Second pass: collect values from other pills (but skip if varName already collected)
     if (pillElements) {
       pillElements.forEach((pill) => {
         const varName = pill.getAttribute('data-var');
-        if (!varName) return;
+        if (!varName || seenVars.has(varName)) return;
+        
         const rawText = pill.textContent ?? '';
         const normalizedText = rawText.replace(/\u00a0/g, ' ').replace(/[\r\n]+/g, ' ');
-        const trimmed = normalizedText.trim();
         const placeholder = `<<${varName}>>`;
-        let newValue = normalizedText;
-        if (!trimmed || trimmed === placeholder) {
+        const withoutPlaceholder = normalizedText.split(placeholder).join('');
+        const trimmedValue = withoutPlaceholder.trim();
+        let newValue = trimmedValue;
+        if (!trimmedValue) {
           newValue = '';
           if (rawText !== placeholder) pill.textContent = placeholder;
           pill.classList.remove('filled');
@@ -192,8 +287,14 @@ const SimplePillEditor = React.forwardRef(({
         pill.setAttribute('data-display', newValue);
         if ((variables?.[varName] || '') !== newValue) hasChanges = true;
         updates[varName] = newValue;
+        seenVars.add(varName);
       });
     }
+    
+    Object.entries(updates).forEach(([varName, newValue]) => {
+      syncSiblingPills(varName, newValue);
+    });
+
     if (hasChanges && typeof onVariablesChange === 'function') onVariablesChange(updates);
     onChange?.({ target: { value: text } });
   };
@@ -207,6 +308,7 @@ const SimplePillEditor = React.forwardRef(({
       const pillElement = anchor.nodeType === Node.ELEMENT_NODE ? anchor.closest?.('.var-pill') : anchor.parentElement?.closest?.('.var-pill');
       const varName = pillElement?.getAttribute('data-var') || null;
       if (varName) {
+        clearActivePillPlaceholder();
         applyFocusedPill(varName);
         if (Date.now() >= (autoSelectSuppressedUntilRef.current || 0)) queueAutoSelectForPill(pillElement, varName);
       }
@@ -272,8 +374,22 @@ const SimplePillEditor = React.forwardRef(({
   // Update pill display values when variables change, even when focused
   useEffect(() => {
     if (!editorRef.current) return;
+    
+    // Get currently active pill to avoid overwriting user input
+    const selection = document.getSelection?.();
+    let activePill = null;
+    if (selection?.anchorNode) {
+      const anchor = selection.anchorNode;
+      activePill = anchor.nodeType === Node.ELEMENT_NODE
+        ? anchor.closest?.('.var-pill')
+        : anchor.parentElement?.closest?.('.var-pill');
+    }
+    
     const pills = editorRef.current.querySelectorAll('.var-pill');
     pills.forEach((pill) => {
+      // Skip the pill user is currently editing
+      if (activePill && pill === activePill) return;
+      
       const varName = pill.getAttribute('data-var');
       if (!varName) return;
       const varValue = getVarValue(varName);
@@ -316,6 +432,17 @@ const SimplePillEditor = React.forwardRef(({
     if (pillElement) event.preventDefault();
   };
 
+  const handleBeforeInput = useCallback((event) => {
+    const inputType = event?.inputType || '';
+    if (!inputType || inputType.startsWith('insert') || inputType === 'deleteContentBackward') {
+      clearActivePillPlaceholder();
+    }
+  }, [clearActivePillPlaceholder]);
+
+  const handleCompositionStart = useCallback(() => {
+    clearActivePillPlaceholder();
+  }, [clearActivePillPlaceholder]);
+
   return (
     <div
       ref={editorRef}
@@ -335,6 +462,8 @@ const SimplePillEditor = React.forwardRef(({
       onInput={handleInput}
       onFocus={handleFocus}
       onBlur={handleBlur}
+      onBeforeInput={handleBeforeInput}
+      onCompositionStart={handleCompositionStart}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}

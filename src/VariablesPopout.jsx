@@ -1,31 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Edit3, X, RotateCcw, Pin, PinOff } from 'lucide-react'
-import { normalizeVarKey, varKeysMatch, resolveVariableValue } from './utils/variables'
-
-const LANGUAGE_SUFFIXES = ['FR', 'EN']
-
-const expandVariableAssignment = (varName, value, preferredLanguage = null) => {
-  const assignments = {}
-  if (!varName) return assignments
-  assignments[varName] = value
-  const match = varName.match(/^(.*)_(FR|EN)$/i)
-  if (match) {
-    const base = match[1]
-    assignments[base] = value
-  } else {
-    const targetLang = (preferredLanguage && LANGUAGE_SUFFIXES.includes(preferredLanguage.toUpperCase()))
-      ? preferredLanguage.toUpperCase()
-      : null
-    if (targetLang) {
-      assignments[`${varName}_${targetLang}`] = value
-    } else {
-      LANGUAGE_SUFFIXES.forEach((suffix) => {
-        assignments[`${varName}_${suffix}`] = value
-      })
-    }
-  }
-  return assignments
-}
+import {
+  LANGUAGE_SUFFIXES,
+  expandVariableAssignment,
+  normalizeVarKey,
+  resolveVariableValue,
+  varKeysMatch
+} from './utils/variables'
 
 const applyAssignments = (prev = {}, assignments = {}) => {
   const keys = Object.keys(assignments || {})
@@ -467,7 +448,10 @@ export default function VariablesPopout({
   }
 
   const updateVariable = (varName, value) => {
-    const assignments = expandVariableAssignment(varName, value, activeLanguageCode)
+    const assignments = expandVariableAssignment(varName, value, {
+      preferredLanguage: activeLanguageCode,
+      variables
+    })
     // Compute the next snapshot synchronously to avoid race conditions
     const snapshot = applyAssignments(variables || {}, assignments)
     setVariables(snapshot)
@@ -476,7 +460,10 @@ export default function VariablesPopout({
 
   const removeVariable = (varName) => {
     // Compute next snapshot synchronously to avoid race conditions
-    const assignments = expandVariableAssignment(varName, '', activeLanguageCode)
+    const assignments = expandVariableAssignment(varName, '', {
+      preferredLanguage: activeLanguageCode,
+      variables
+    })
     const snapshot = applyAssignments(variables || {}, assignments)
     setVariables(snapshot)
     enqueueVariableUpdate(varName, '', snapshot)
@@ -499,7 +486,10 @@ export default function VariablesPopout({
     const targetName = targetVarForLanguage(varName)
     const exampleValue = guessSampleValue(templatesData, targetName)
     // Compute next snapshot synchronously to avoid race conditions
-    const assignments = expandVariableAssignment(varName, exampleValue, activeLanguageCode)
+    const assignments = expandVariableAssignment(varName, exampleValue, {
+      preferredLanguage: activeLanguageCode,
+      variables
+    })
     const snapshot = applyAssignments(variables || {}, assignments)
     setVariables(snapshot)
     enqueueVariableUpdate(varName, exampleValue, snapshot)

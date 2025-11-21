@@ -1,7 +1,12 @@
 /* eslint-disable no-console, no-prototype-builtins, no-unreachable, no-undef, no-empty */
 /* DEPLOY: 2025-10-15 07:40 - FIXED: Function hoisting error resolved */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { normalizeVarKey, resolveVariableValue } from './utils/variables'
+import {
+  expandVariableAssignment,
+  LANGUAGE_SUFFIXES,
+  normalizeVarKey,
+  resolveVariableValue
+} from './utils/variables'
 import canonicalTemplatesRaw from '../complete_email_templates.json'
 import { createPortal } from 'react-dom'
 import Fuse from 'fuse.js'
@@ -538,8 +543,6 @@ const extractVariableWithAnchors = (text = '', templateText = '', varName = '') 
   return extracted
 }
 
-const LANGUAGE_SUFFIXES = ['FR', 'EN']
-
 const resolveVariableInfo = (templatesData, name = '') => {
   if (!templatesData?.variables || !name) return null
   if (templatesData.variables[name]) return templatesData.variables[name]
@@ -793,29 +796,6 @@ const buildInitialVariables = (template, templatesData, langOverride) => {
     })
   })
   return seed
-}
-
-const expandVariableAssignment = (varName, value, preferredLanguage = null) => {
-  const assignments = {}
-  if (!varName) return assignments
-  assignments[varName] = value
-  const match = varName.match(/^(.*)_(FR|EN)$/i)
-  if (match) {
-    const base = match[1]
-    assignments[base] = value
-  } else {
-    const targetLang = (preferredLanguage && LANGUAGE_SUFFIXES.includes(preferredLanguage.toUpperCase()))
-      ? preferredLanguage.toUpperCase()
-      : null
-    if (targetLang) {
-      assignments[`${varName}_${targetLang}`] = value
-    } else {
-      LANGUAGE_SUFFIXES.forEach((suffix) => {
-        assignments[`${varName}_${suffix}`] = value
-      })
-    }
-  }
-  return assignments
 }
 
 const applyAssignments = (prev = {}, assignments = {}) => {
@@ -1349,12 +1329,18 @@ function App() {
 
   const handleInlineVariableChange = useCallback((updates) => {
     if (!updates) return
-    const assignments = {}
-    Object.entries(updates).forEach(([key, rawValue]) => {
-      const normalized = (rawValue ?? '').toString()
-      Object.assign(assignments, expandVariableAssignment(key, normalized))
+    setVariables((prev) => {
+      const assignments = {}
+      const preferredLang = (templateLanguageRef.current || 'fr').toUpperCase()
+      Object.entries(updates).forEach(([key, rawValue]) => {
+        const normalized = (rawValue ?? '').toString()
+        Object.assign(assignments, expandVariableAssignment(key, normalized, {
+          preferredLanguage: preferredLang,
+          variables: prev
+        }))
+      })
+      return applyAssignments(prev, assignments)
     })
-    setVariables(prev => applyAssignments(prev, assignments))
   }, [])
 
   // Refresh outlines if content updates while focused
@@ -1682,7 +1668,10 @@ function App() {
           varsRemoteUpdateRef.current = true
           flagSkipPopoutBroadcast()
           setVariables(prev => {
-            const assignments = expandVariableAssignment(varName, value)
+            const assignments = expandVariableAssignment(varName, value, {
+              preferredLanguage: (templateLanguageRef.current || 'fr').toUpperCase(),
+              variables: prev
+            })
             const next = applyAssignments(prev, assignments)
             variablesRef.current = next
             return next
@@ -2035,11 +2024,17 @@ function App() {
       if (target) map[target] = val
     }
     if (Object.keys(map).length) {
-      const assignments = {}
-      Object.entries(map).forEach(([varName, value]) => {
-        Object.assign(assignments, expandVariableAssignment(varName, value))
+      setVariables(prev => {
+        const assignments = {}
+        const preferredLang = (templateLanguageRef.current || 'fr').toUpperCase()
+        Object.entries(map).forEach(([varName, value]) => {
+          Object.assign(assignments, expandVariableAssignment(varName, value, {
+            preferredLanguage: preferredLang,
+            variables: prev
+          }))
+        })
+        return applyAssignments(prev, assignments)
       })
-      setVariables(prev => applyAssignments(prev, assignments))
       // focus first mapped field
       const first = Object.keys(map)[0]
       const el = varInputRefs.current[first]
@@ -2919,8 +2914,12 @@ function App() {
     
     // Normalize extracted values using assignment helper to ensure suffix/base parity
     const normalizedExtracted = {}
+    const preferredLang = (templateLanguage || templateLanguageRef.current || 'fr').toUpperCase()
     Object.entries(extracted).forEach(([name, value]) => {
-      Object.assign(normalizedExtracted, expandVariableAssignment(name, value))
+      Object.assign(normalizedExtracted, expandVariableAssignment(name, value, {
+        preferredLanguage: preferredLang,
+        variables
+      }))
     })
 
     // Update variables state and return merged result
@@ -4304,7 +4303,7 @@ ${cleanBodyHtml}
                         <span>{t.subject}</span>
                       </div>
                       <SimplePillEditor
-                        key={`subject-${selectedTemplate?.id}-${Object.keys(variables).length}`}
+                        key={`subject-${selectedTemplate?.id || 'none'}-${templateLanguage}`}
                         ref={subjectEditorRef}
                         value={finalSubject}
                         onChange={(e) => { setFinalSubject(e.target.value); manualEditRef.current.subject = true; }}
@@ -4343,7 +4342,7 @@ ${cleanBodyHtml}
                         <span>{t.body}</span>
                       </div>
                       <RichTextPillEditor
-                        key={`body-${selectedTemplate?.id}-${Object.keys(variables).length}`}
+                        key={`body-${selectedTemplate?.id || 'none'}-${templateLanguage}`}
                         value={finalBody}
                         onChange={(e) => { setFinalBody(e.target.value); manualEditRef.current.body = true; }}
                         ref={bodyEditorRef}
@@ -4739,11 +4738,17 @@ ${cleanBodyHtml}
                   <Button
                     onClick={() => {
                       if (!selectedTemplate) return
-                      const cleared = {}
-                      selectedTemplate.variables.forEach(vn => {
-                        Object.assign(cleared, expandVariableAssignment(vn, ''))
+                      setVariables(prev => {
+                        const assignments = {}
+                        const preferredLang = (templateLanguageRef.current || 'fr').toUpperCase()
+                        selectedTemplate.variables.forEach((vn) => {
+                          Object.assign(assignments, expandVariableAssignment(vn, '', {
+                            preferredLanguage: preferredLang,
+                            variables: prev
+                          }))
+                        })
+                        return applyAssignments(prev, assignments)
                       })
-                      setVariables(prev => applyAssignments(prev, cleared))
                     }}
                     variant="outline"
                     size="sm"
@@ -4867,16 +4872,28 @@ ${cleanBodyHtml}
                               title={interfaceLanguage==='fr'?'Remettre l’exemple':'Reset to example'}
                               onClick={() => {
                                 const exampleValue = guessSampleValue(templatesData, targetVarForLanguage(varName))
-                                const assignments = expandVariableAssignment(varName, exampleValue, (templateLanguage || 'fr').toUpperCase())
-                                setVariables(prev => applyAssignments(prev, assignments))
+                                const preferredLang = (templateLanguage || templateLanguageRef.current || 'fr').toUpperCase()
+                                setVariables(prev => {
+                                  const assignments = expandVariableAssignment(varName, exampleValue, {
+                                    preferredLanguage: preferredLang,
+                                    variables: prev
+                                  })
+                                  return applyAssignments(prev, assignments)
+                                })
                               }}
                             >Ex.</button>
                             <button
                               className="text-[11px] px-2 py-0.5 rounded border border-[#e6eef5] text-[#7f1d1d] hover:bg-[#fee2e2]"
                               title={interfaceLanguage==='fr'?'Effacer ce champ':'Clear this field'}
                               onClick={() => {
-                                const assignments = expandVariableAssignment(varName, '', (templateLanguage || 'fr').toUpperCase())
-                                setVariables(prev => applyAssignments(prev, assignments))
+                                const preferredLang = (templateLanguage || templateLanguageRef.current || 'fr').toUpperCase()
+                                setVariables(prev => {
+                                  const assignments = expandVariableAssignment(varName, '', {
+                                    preferredLanguage: preferredLang,
+                                    variables: prev
+                                  })
+                                  return applyAssignments(prev, assignments)
+                                })
                               }}
                             >X</button>
                           </div>
@@ -4900,8 +4917,14 @@ ${cleanBodyHtml}
                             const newValue = e.target.value
                             // Only update if value actually changed
                             if (newValue !== currentValue) {
-                              const assignments = expandVariableAssignment(varName, newValue, (templateLanguage || 'fr').toUpperCase())
-                              setVariables(prev => applyAssignments(prev, assignments))
+                              const preferredLang = (templateLanguage || templateLanguageRef.current || 'fr').toUpperCase()
+                              setVariables(prev => {
+                                const assignments = expandVariableAssignment(varName, newValue, {
+                                  preferredLanguage: preferredLang,
+                                  variables: prev
+                                })
+                                return applyAssignments(prev, assignments)
+                              })
                             }
                             // Auto-resize (max 2 lines)
                             const lines = (newValue.match(/\n/g) || []).length + 1
@@ -4909,8 +4932,14 @@ ${cleanBodyHtml}
                           }}
                           onInput={(e) => {
                             const newValue = e.target.value
-                            const assignments = expandVariableAssignment(varName, newValue, (templateLanguage || 'fr').toUpperCase())
-                            setVariables(prev => applyAssignments(prev, assignments))
+                            const preferredLang = (templateLanguage || templateLanguageRef.current || 'fr').toUpperCase()
+                            setVariables(prev => {
+                              const assignments = expandVariableAssignment(varName, newValue, {
+                                preferredLanguage: preferredLang,
+                                variables: prev
+                              })
+                              return applyAssignments(prev, assignments)
+                            })
                           }}
                           onFocus={() => setFocusedVar(varName)}
                           onKeyDown={(e) => {

@@ -12,6 +12,103 @@ export const varKeysMatch = (a, b) => {
   return normalizeVarKey(a) === normalizeVarKey(b)
 }
 
+export const LANGUAGE_SUFFIXES = ['FR', 'EN']
+
+const toCanonicalVarKey = (name = '') => {
+  if (!name) return ''
+  const trimmed = String(name).trim()
+  if (!trimmed) return ''
+
+  const withoutAngles = trimmed.replace(/[<>]/g, '')
+  const withUnderscores = withoutAngles
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/[-\s]+/g, '_')
+
+  return withUnderscores
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase()
+}
+
+const collectMatchingVariableKeys = (variables = {}, varName = '') => {
+  if (!variables || typeof variables !== 'object') return []
+  const target = normalizeVarKey(varName)
+  if (!target) return []
+  const matches = []
+  for (const key of Object.keys(variables)) {
+    if (normalizeVarKey(key) === target) {
+      matches.push(key)
+    }
+  }
+  return matches
+}
+
+const joinWithSuffix = (base = '', suffix = '') => {
+  if (!base) return ''
+  const trimmedBase = String(base).replace(/_+$/g, '')
+  const upperSuffix = String(suffix || '').toUpperCase()
+  if (!upperSuffix) return trimmedBase
+  return `${trimmedBase}_${upperSuffix}`
+}
+
+export const expandVariableAssignment = (varName, rawValue, options = {}) => {
+  const assignments = {}
+  if (!varName) return assignments
+
+  const value = rawValue == null ? '' : String(rawValue)
+  const preferredLanguage = options?.preferredLanguage
+    ? String(options.preferredLanguage).toUpperCase()
+    : null
+  const variables = options?.variables && typeof options.variables === 'object'
+    ? options.variables
+    : {}
+
+  const normalizedTarget = normalizeVarKey(varName)
+  const suffixMatch = String(varName).match(/_(FR|EN)$/i)
+  const suffix = suffixMatch ? suffixMatch[1].toUpperCase() : null
+  const baseOriginal = suffix ? String(varName).slice(0, -1 * (suffix.length + 1)) : String(varName)
+  const canonicalBase = toCanonicalVarKey(baseOriginal)
+
+  const addKey = (key) => {
+    if (!key) return
+    const trimmedKey = String(key).trim()
+    if (!trimmedKey) return
+    if (!Object.prototype.hasOwnProperty.call(assignments, trimmedKey)) {
+      assignments[trimmedKey] = value
+    }
+  }
+
+  addKey(String(varName))
+
+  collectMatchingVariableKeys(variables, varName).forEach(addKey)
+
+  if (suffix) {
+    addKey(baseOriginal)
+    if (canonicalBase) {
+      addKey(canonicalBase)
+      addKey(joinWithSuffix(canonicalBase, suffix))
+    }
+  } else {
+    if (canonicalBase) {
+      addKey(canonicalBase)
+    }
+
+    const suffixes = preferredLanguage && LANGUAGE_SUFFIXES.includes(preferredLanguage)
+      ? [preferredLanguage]
+      : LANGUAGE_SUFFIXES
+
+    suffixes.forEach((suf) => {
+      addKey(joinWithSuffix(baseOriginal, suf))
+      if (canonicalBase) {
+        addKey(joinWithSuffix(canonicalBase, suf))
+      }
+    })
+  }
+
+  return assignments
+}
+
 export const resolveVariableValue = (variables = {}, name = '', templateLanguage = 'fr') => {
   if (!variables || typeof variables !== 'object' || !name) return ''
 
