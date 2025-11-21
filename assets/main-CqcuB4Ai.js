@@ -7084,15 +7084,66 @@ const normalizeVarKey = (name) => {
   const trimmed = String(name ?? "").trim();
   if (!trimmed) return "";
   const lowered = trimmed.toLowerCase();
-  return lowered.replace(/_(fr|en)$/i, "");
+  const withoutSuffix = lowered.replace(/_(fr|en)$/i, "");
+  return withoutSuffix.replace(/[^a-z0-9]+/g, "");
 };
 const varKeysMatch = (a, b) => {
   if (!a || !b) return false;
   return normalizeVarKey(a) === normalizeVarKey(b);
 };
-const templates = /* @__PURE__ */ JSON.parse(`[{"id":"ctd001","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Devis à approbation requise","en":"Project <<ProjectNumber_FR>>- requesting approval on quote"},"description":{"fr":"Devis avant le lancement d'un projet - approbation requise","en":"Quotes – approval required"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>. \\r\\n\\r\\nSa réalisation est évaluée à environ <<NbDays_FR>> jour(s) de travail. L’estimation des coûts s’élève à <<Cost_FR>>$. Le montant estimé pourrait varier de plus ou moins 10 %, selon l’évaluation finale du volume et de la complexité des documents.\\r\\n \\r\\nDes frais d’urgence de 50 % s’appliqueront si le projet doit être livré dans un délai de moins de <<NbDays_FR>> jour(s) ouvrable(s) ou de moins de 24 heures. Le coût révisé serait alors de <<UrgentCost_FR>> $.\\r\\n\\r\\nNous vous confirmons que ce projet sera traité uniquement après réception de votre approbation. Afin d’assurer un résultat fidèle et professionnel, et compte tenu de la disponibilité des ressources, la date de livraison pourrait être ajustée une fois l’approbation reçue.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nBased on our assessment, it will take approximately <<NbDays_EN>> working day(s) to complete. The estimated cost is $<<Cost_EN>>. The amount may vary by up to 10%, depending on our final assessment of the size and complexity of the documents.\\r\\n\\r\\nA 50% rush premium will apply if the project needs to be delivered in under <<NbDays_EN>> working day(s) or within 24 hours, and the revised cost would be $<<UrgentCost_EN>>.\\r\\n\\r\\nPlease note that we will begin work on this project only after receiving your approval. To ensure accurate and professional results, and depending on the availability of resources, the delivery date may be adjusted once we receive your approval.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<NbDays_FR>>:Nombre estimé de jours ouvrables(2)\\r\\n<<Cost_FR>>:Coût estimé en dollars(1500)\\r\\n<<UrgentCost_FR>>:Coût estimé avec prime d’urgence(2250)"]},{"id":"ctd002","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Devis et confirmation","en":"Project <<ProjectNumber_FR>> – quote and confirmation"},"description":{"fr":"Devis avant le lancement d'un projet - approbation non requise","en":"Quotes – no approval required"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.  Sa réalisation est estimée à environ <<NbDays_FR>> jour(s) de travail. Conformément à vos instructions, nous procédons dès maintenant au traitement de votre projet et assurerons la livraison dans le délai prévu.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.  Based on our assessment, it will take approximately <<NbDays_EN>> working day(s) to complete. As per your instructions, we have immediately begun working on the project and will deliver it by the expected deadline.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<NbDays_FR>>:Nombre estimé de jours ouvrables(2)"]},{"id":"ctd003","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Suivi d’approbation","en":"Project <<ProjectNumber_FR>> – follow-up for approval"},"description":{"fr":"Devis - suivi d'approbation","en":"Project on hold – follow-up for approval"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous aimerions faire un suivi au sujet du projet <<ProjectNumber_FR>>. Nous attendons toujours une confirmation du devis envoyé le <<Date_FR>>.\\r\\n\\r\\nOr, les projets en attente ne peuvent être conservés au-delà d’une certaine période. Si aucune réponse n’est reçue d’ici <<DeadlineTime_FR>> le <<DeadlineDate_FR>>, le projet sera annulé.\\r\\n\\r\\nVous pourrez toutefois soumettre un nouveau projet lorsque vous souhaiterez aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe would like to follow up on Project <<ProjectNumber_EN>>. We are currently waiting for you to confirm the quote sent on <<Date_EN>>.\\r\\n\\r\\nPlease note that we can put projects on hold only for a limited time. If we do not receive a response by <<DeadlineTime_EN>> on <<DeadlineDate_EN>>, the project will be cancelled.\\r\\n\\r\\nYou may however submit a new request whenever you would like to move forward.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<Date_FR>>:Date d’envoi du devis(15 janvier 2025)\\r\\n<<DeadlineTime_FR>>:Heure limite pour recevoir une réponse(17 h)\\r\\n<<DeadlineDate_FR>>:Date limite pour recevoir une réponse(22 janvier 2025)"]},{"id":"ctd004","category":"","title":{"fr":"Devis – en attente de document ","en":"Quote – awaiting document "},"description":{"fr":"Estimation des coûts - aucun document envoyé","en":"Quotes – no document received"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception de votre courriel. Il nous est difficile de fournir une estimation sans avoir accès au document à traiter. \\r\\n\\r\\nÀ titre indicatif, un document d’environ <<PageCount_FR>> pages nécessiterait environ <<NbDays_FR>> jour(s) de travail. Les frais estimés sont de l’ordre de <<EstimatedCost_FR>> $.\\r\\n\\r\\nSi des frais d’urgence s’appliquent — notamment si le projet doit être livré dans un délai de moins de <<NbDays_FR>> jour(s) ouvrable(s) ou de moins de 24 heures —, le coût pourrait s’élever à <<UrgentCost_FR>> $.\\r\\n\\r\\nPour obtenir une estimation plus précise, veuillez soumettre vos documents à traduire dans GClingua. \\r\\n\\r\\nPour toute question ou information complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received your email. It is difficult for us to provide an estimate without access to the document to be translated. \\r\\n\\r\\nAs a general guideline, a document of approximately <<PageCount_EN>> pages would require around <<NbDays_EN>> working day(s) to complete, and the estimated cost would be $<<EstimatedCost_EN>>.\\r\\n\\r\\nIf a rush premium applies, particularly if the project needs to be delivered in under <<NbDays_EN>> working day(s) or within 24 hours, the cost could increase to $<<UrgentCost_EN>>.\\r\\n\\r\\nPlease upload your documents to be translated into GClingua to receive a more precise estimate.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<PageCount_FR>>:Nombre approximatif de pages(10)\\r\\n<<NbDays_FR>>:Nombre estimé de jours ouvrables(2)\\r\\n<<EstimatedCost_FR>>:Coût estimé en dollars(800)\\r\\n<<UrgentCost_FR>>:Coût estimé avec prime d’urgence(1200)"]},{"id":"ctd005","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Document PDF : document modifiable requis","en":"Request <<ProjectNumber_FR>> – requesting an editable version of a PDF document"},"description":{"fr":"Demande de document modifiable original pour traitement d'un PDF","en":"PDF document – requesting an editable version"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n \\r\\nLe document transmis est en format PDF, qui ne peut être utilisé tel quel par nos traducteurs. Afin d’assurer un traitement adéquat, nous aurions besoin du document source modifiable original (Word, Excel, etc.). La transformation automatique d’un fichier PDF ne suffit pas; il est nécessaire de procéder à un nettoyage et à une préparation technique pour préserver sa mise en forme et éviter les éventuels problèmes pendant la traduction.\\r\\n\\r\\nVoici les options possibles :\\r\\n1.\\tVous pouvez nous transmettre le document original modifiable;\\r\\n2.\\tNous pouvons traduire le contenu du PDF, mais la mise en page pourrait ne pas être fidèle à celle du document original;\\r\\n3.\\tNotre équipe d’éditique peut convertir et préparer le document avant la traduction. Ce service administratif est facturé à <<DPRate_FR>> $/heure. Le temps estimé pour ce travail est d’environ <<DPHours_FR>> heures.\\r\\n \\r\\nNous vous serions reconnaissants de bien vouloir nous indiquer l’option retenue afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n \\r\\nThe document you provided is a PDF, which cannot be used as is by our translators. To ensure that it is translated properly, we need the original editable source file (in Word, Excel, etc.). It is not enough to automatically convert a PDF, as the file must be cleaned and technically prepared to preserve its formatting and avoid potential issues during translation.\\r\\n\\r\\nPlease consider the following options:\\r\\n1.\\tYou may send us the original editable document.\\r\\n2.\\tWe can translate the content from the PDF, but the formatting may not match that of the original.\\r\\n3.\\tOur desktop publishing team can convert and prepare the document before translation. This administrative service is billed at $<<DPRate_EN>> per hour, with an estimated time of approximately <<DPHours_EN>> hours.\\r\\n \\r\\nPlease let us know which option you would prefer so we can process your project.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<DPRate_FR>>:Taux horaire d’éditique(75)\\r\\n<<DPHours_FR>>:Nombre estimé d’heures d’éditique(2)"]},{"id":"ctd006","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Frais d’urgence","en":"Project <<ProjectNumber_FR>> – rush premium"},"description":{"fr":"Application de prime d'urgence","en":"Urgent tasks – notice of additional fees"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nComme le délai prévu pour traiter ce projet est de moins de <<NbDays_FR>> jour(s) ouvrable(s) (ou de moins de 24 heures), des frais d’urgence de 50 % s’appliqueront.\\r\\n\\r\\nPour éviter l’application de ces frais, nous vous suggérons de reporter si possible la date de livraison à <<NewDate_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer votre préférence d’ici <<DeadlineTime_FR>> aujourd’hui.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nSince the expected deadline to process this project is under <<NbDays_EN>> working day(s) (or within 24 hours), a 50% rush premium will apply.\\r\\n\\r\\nTo avoid these fees, we suggest postponing the delivery date to <<NewDate_EN>>, if possible.\\r\\n\\r\\nCould you please confirm your preference by <<DeadlineTime_EN>> today?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<NbDays_FR>>:Nombre maximal de jours ouvrables avant l’application de frais d’urgence(2)\\r\\n<<NewDate_FR>>:Nouvelle date de livraison proposée(10 février 2025)\\r\\n<<DeadlineTime_FR>>:Heure limite pour confirmer l’option retenue(17 h)"]},{"id":"ctd007","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Report de date de livraison","en":"Project <<ProjectNumber_FR>> - delivery date extension"},"description":{"fr":"Demande de report de la date de livraison","en":"Requesting a delivery date extension"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nCertaines circonstances nous amènent à devoir ajuster le délai initial de livraison.\\r\\n\\r\\n[Choisir une variante à conserver au besoin]\\r\\n\\r\\nVARIANTE A – Volume\\r\\nLe document est particulièrement volumineux et son traitement demande plus de temps que prévu.\\r\\n\\r\\nVARIANTE B – Complexité\\r\\nLe niveau de complexité linguistique ou technique est plus élevé que prévu, ce qui demande un travail particulièrement approfondi.\\r\\n\\r\\nVARIANTE C – Contenu\\r\\nLa nature du contenu requiert une révision minutieuse afin de garantir la qualité du résultat.\\r\\n\\r\\nVARIANTE D – Ressources\\r\\nLe traducteur assigné au projet est temporairement indisponible, ce qui nécessite un réajustement du calendrier.\\r\\n\\r\\nVARIANTE E – Technique\\r\\nDes problèmes techniques ralentissent le traitement, ce qui exige un délai supplémentaire.\\r\\n\\r\\nConséquemment, un délai supplémentaire serait nécessaire. Nous vous proposons de reporter la date de livraison au <<NewDeadline_FR>> pour assurer un résultat répondant à nos normes en matière d’uniformité et de qualité. Pourriez-vous nous confirmer si ce nouveau délai vous convient?\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nDue to various circumstances, we need to adjust the original delivery date.\\r\\n[Please select the appropriate version as needed.]\\r\\n\\r\\nVERSION A – Size\\r\\nThe document is particularly large and requires more time to process than expected.\\r\\n\\r\\nVERSION B – Complexity\\r\\nThe linguistic or technical complexity is higher than anticipated and requires a significant amount of in-depth work.\\r\\n\\r\\nVERSION C – Content\\r\\nBecause of the nature of the content, it needs to be thoroughly revised to ensure the quality of the result.\\r\\n\\r\\nVARIANTE D – Resources\\r\\nThe translator assigned to the project is temporarily unavailable, and we need to adjust the time frame.\\r\\n\\r\\nVARIANTE E – Technical\\r\\nThere are delays in the processing due to technical issues, and more time is needed.\\r\\n\\r\\nAs a result, we need to extend the deadline and suggest postponing the delivery date to <<NewDeadline_EN>> to ensure that the final product meets our standards for consistency and quality. Could you please confirm if the new deadline works for you?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<NewDeadline_FR>>:Nouvelle date limite de livraison proposée(15 février 2025)"]},{"id":"ctd008","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Annulation","en":"Project <<ProjectNumber_FR>> – cancellation"},"description":{"fr":"Confirmation d'annulation d'un projet","en":"Cancelled projects"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons bien pris note de l’annulation de votre projet <<ProjectNumber_FR>> dans le système.\\r\\n\\r\\n[Choisir une variante à conserver]\\r\\n\\r\\nVARIANTE A – Aucun travail amorcé\\r\\nLe projet n’avait pas encore été pris en charge au moment de l’annulation. Aucun frais ne vous sera donc facturé.\\r\\n\\r\\nVARIANTE B – Projet en cours\\r\\nLa traduction avait déjà été amorcée au moment où nous avons reçu votre demande d’annulation. Dans ce cas, des frais seront appliqués en fonction du travail réalisé. Une ébauche partielle vous sera transmise à titre de référence. Veuillez toutefois noter qu’il ne s’agit pas d’une version finale, qu’elle n’a pas fait l’objet d’une révision approfondie et que sa qualité ne peut être garantie à ce stade.\\r\\n\\r\\nVARIANTE C – Travail très avancé\\r\\nLe projet était déjà à un stade avancé de traitement. Si vous le souhaitez, nous pouvons poursuivre le travail afin de vous remettre une version finale de qualité. Cette option vous permettrait de bénéficier d’un produit complet et révisé. Dans le cas contraire, nous pourrons vous transmettre uniquement le contenu réalisé à ce jour, sans garantir la qualité, puisque le travail n’est pas finalisé. Des frais seront appliqués en fonction du travail réalisé.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser ce qui a motivé l’annulation, qu’il s’agisse, par exemple, de contraintes de budget, de délai ou d’autres considérations.\\r\\nQuelle que soit la raison, votre retour nous serait précieux, car nous accordons une grande importance à la satisfaction de nos clients et cherchons constamment à améliorer nos services.\\r\\n\\r\\nNous vous remercions d’avance pour le temps que vous consacrerez à cette rétroaction et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have noted that Project <<ProjectNumber_EN>> has been cancelled in the system.\\r\\n\\r\\n[Please select a version to use.]\\r\\n\\r\\nVERSION A – no work was done\\r\\nNo work had begun on the project when it was cancelled, and you will not be charged any fees.\\r\\n\\r\\nVERSION B – project was in progress\\r\\nTranslation had already begun when we received your request tto cancel. In this case, you will be charged a fee based on the work completed. A partial draft will be sent to you for reference. However, please note that it is not a final version, nor has it been thoroughly reviewed, and its quality cannot be guaranteed at this stage.\\r\\n\\r\\nVERSION C – project was in the advanced stages\\r\\nThe work on the project was in the advanced stages. Depending on your preference, we can continue the work so that you receive a high-quality final version, giving you a complete and revised translation. Alternatively, we can send you only the content completed to date but cannot guarantee its quality, as the work is unfinished. Fees will be applied based on the work completed.\\r\\n\\r\\nWe would appreciate it if you could let us know the reasons for the cancellation, whether it was due to budget constraints, the deadline or other considerations.\\r\\nWhatever the reason, your feedback is valuable to us, as we are committed to client satisfaction and continuously improving our services.\\r\\n\\r\\nWe thank you in advance for taking the time to provide feedback. Please contact us if you have any questions or need more information.\\r\\n\\r\\n\\r\\nBest regards,\\r\\n"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd009","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Nouvelle date de livraison","en":"Project <<ProjectNumber_FR>> – new delivery date"},"description":{"fr":"Avis au client de report ou de nouvelle date de livraison","en":"Delivery postponed – delays"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nMalgré tous nos efforts, il ne nous sera pas possible de respecter la date de livraison initialement prévue. Un délai supplémentaire est nécessaire afin d’assurer un résultat qui répond aux normes de qualité du Bureau. \\r\\n\\r\\nNous vous proposons donc de reporter la livraison au <<NewDeadline_FR>>. Merci de nous confirmer si ce nouvel échéancier vous convient. À défaut de réponse, nous l’adopterons afin d’éviter tout retard supplémentaire.\\r\\n\\r\\nNous regrettons les inconvénients que ce report pourrait occasionner et vous remercions de votre compréhension.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nDespite our best efforts, we will not be able to meet the original delivery date. Additional time is required to ensure that the result meets the Translation Bureau’s quality standards. \\r\\n\\r\\nWe are proposing to change the delivery date to <<NewDeadline_EN>>. Please confirm if this new date works for you. If we do not hear back from you, we will use a new delivery date to avoid any further delays.\\r\\n\\r\\nWe apologize for any inconvenience this may cause and thank you for your understanding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<NewDeadline_FR>>:Nouvelle date de livraison proposée(20 février 2025)"]},{"id":"ctd010","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Instructions concernant les images","en":"Project <<ProjectNumber_FR>> - instructions regarding images"},"description":{"fr":"Demande de version modifiable d’un document PDF","en":"Non-editable images – requesting clarification"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nLe document transmis contient des images non modifiables. Souhaitez-vous que leur contenu soit traduit? Dans l’affirmative, disposez-vous des versions modifiables? À défaut, nous pourrons insérer la traduction dans une légende distincte.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous transmettre vos instructions dès que possible. Nous traiterons entretemps les parties modifiables du document.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe document you sent contains non-editable images. Would you like the content of these images to be translated? If so, do you have editable versions available? If not, we can include a translation in a separate caption.\\r\\n\\r\\nCould you please send us your instructions as soon as possible? In the meantime, the editable parts of the document will be translated.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd011","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Saisies d’écran requises","en":"Project <<ProjectNumber_FR>> – request for screenshots"},"description":{"fr":"Demande d'informations supplémentaires pour traitements de captures d'écrans","en":"Requesting screenshots"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>> .\\r\\n\\r\\nAfin de garantir une terminologie exacte, notamment en ce qui a trait aux éléments d’interface (menus, commandes, messages, etc.), nous vous serions reconnaissants de nous transmettre les captures d’écran du logiciel en <<TargetLanguage_FR>>.\\r\\nÀ défaut de nous fournir ces éléments, vous avez deux options : \\r\\n\\r\\n1) nous proposerons une traduction libre, ce qui pourrait entraîner certains écarts avec les libellés réellement utilisés dans l’interface visé; \\r\\n2) nous ne traduirons pas ces éléments.\\r\\n\\r\\nNous suspendrons le traitement du projet en attendant de recevoir vos instructions ou les documents requis.\\r\\n\\r\\nNous vous remercions de votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nTo ensure that we use the correct terminology, especially for interface elements such as menus, commands and messages, could you please send us screenshots of the software in <<TargetLanguage_EN>>?\\r\\nTwo options are available if you cannot provide screenshots. \\r\\n\\r\\n1. We will provide an unofficial translation, which may differ from the actual wording used in the interface for the target language.\\r\\n2. We will not provide a translation of these elements.\\r\\n\\r\\nWe will pause work on the project until we receive your instructions or the required materials.\\r\\n\\r\\nWe thank you for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<TargetLanguage_FR>>:Langue cible des captures d’écran(français)"]},{"id":"ctd012","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Notes du présentateur","en":"Project <<ProjectNumber_FR>> – speaker notes"},"description":{"fr":"Présentations PowerPoint - traduction des notes du présentateur","en":"PowerPoint presentations – translating notes"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nVeuillez nous indiquer si vous souhaitez que nous traduisions  uniquement le contenu des diapositives, ou si les notes du présentateur doivent être incluses.\\r\\n \\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer vos instructions afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nCould you confirm if you would like us to translate only the content in the PowerPoint slides, or if you would like to have the speaker notes translated as well?\\r\\n \\r\\nWe would appreciate it if you could let us know so that we can process your project.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd013","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Documents protégés par droits d’auteur","en":"Project <<ProjectNumber_FR>> – copyright-protected documents"},"description":{"fr":"Demande de confirmation d'obtention des droits d'auteur","en":"Copyright"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nConformément aux pratiques du Bureau de la traduction, nous ne pouvons traduire une publication protégée par un droit d’auteur sans autorisation écrite de l’auteur ou de l’éditeur. Il incombe aux clients qui soumettent la demande de traduction d’obtenir cette autorisation.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer que vous disposez de cette autorisation, afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nIn accordance with the Translation Bureau’s practices, we cannot translate a publication that is protected by copyright without written authorization from the author or publisher. It is the responsibility of the client who is submitting the translation request to obtain this authorization.\\r\\n\\r\\nCould you please confirm whether you have this authorization so that we can process your project?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd014","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Documents de référence","en":"Project <<ProjectNumber_FR>> – reference documents"},"description":{"fr":"Demande de documents de références ou versions précédéntes","en":" Requesting reference documents"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>. \\r\\n\\r\\nAfin de faciliter le travail de traduction et d’en assurer la qualité et l’uniformité, nous vous invitons à nous transmettre, s’il y a lieu, des documents de référence ou des versions antérieures en français et en anglais. Il est important que ces documents soient disponibles dans les deux langues et qu’ils correspondent entre eux, afin d’assurer une cohérence optimale dans le traitement de votre projet.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous transmettre ces documents dès que possible, afin que nous puissions procéder efficacement au traitement de votre projet.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nTo help our translation work and ensure quality and consistency, we ask that you send us any reference documents or previous versions in English and French, if available. It is important that these documents are bilingual and that their content matches each other to ensure optimal consistency throughout your project.\\r\\n\\r\\nCould you please send us these documents as soon as possible so that we can process your project efficiently?\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd015","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Transmission sécurisée requise","en":"Project <<ProjectNumber_FR>> – secure transmission required"},"description":{"fr":"Demande de précisions sur la classification d'un document","en":"Protected documents – secure transmission"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour, \\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nNotre plateforme GClingua traite exclusivement les fichiers dont le niveau de confidentialité n’excède pas PROTÉGÉ B. Le document que vous avez soumis semble dépasser la classification établie et a été retiré du système par mesure de sécurité. \\r\\n\\r\\nSi vous croyez qu’il s’agit d’une erreur, veuillez apporter les corrections nécessaires, télécharger le document à nouveau et nous aviser par courriel.\\r\\n\\r\\nNous vous prions de bien vouloir utiliser la procédure de transmission sécurisée ci-jointe pour nous le faire parvenir de manière conforme.\\r\\n\\r\\nNous vous remercions de votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe GClingua platform supports files classified up to PROTECTED B only. The document you submitted appears to exceed this classification and has been removed from the system for security reasons. \\r\\n\\r\\nIf you believe that there was an error, please make the necessary adjustments, upload the document again and notify us by email.\\r\\n\\r\\nTo ensure compliance, please follow the attached secure transmission procedure to send us the document.\\r\\n\\r\\nWe thank you for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd016","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Ajustement de la date de livraison","en":"Project <<ProjectNumber_FR>> – delivery date adjustment"},"description":{"fr":"Report de délai ou nouvelle date de livraison en raison d'un congé férié","en":"Adjusting the delivery date – statutory holiday"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nLa date de livraison demandée, soit le <<OriginalDate_FR>>, coïncide avec un jour férié. Celle-ci a donc été reportée au jour ouvrable suivant, soit le <<NewDate_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer que cet ajustement vous convient.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe requested delivery date, <<OriginalDate_EN>>, falls on a statutory holiday and has been moved to the next working day, <<NewDate_EN>>.\\r\\n\\r\\nCould you please confirm whether this adjustment works for you?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<OriginalDate_FR>>:Date de livraison demandée initialement(1er juillet 2025)\\r\\n<<NewDate_FR>>:Nouvelle date de livraison(2 juillet 2025)"]},{"id":"ctd017","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Retard de prise en charge","en":"Project <<ProjectNumber_FR>> – delay in processing"},"description":{"fr":"Avis de retard dans la prise en charge d'une demande","en":"Confirming receipt of project and apologizing for delay in processing"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n \\r\\nNous vous prions de nous excuser pour le délai de prise en charge. En raison d’un volume élevé de projets, nous n’avons pas pu entamer le traitement avant aujourd’hui.\\r\\n\\r\\nNous procédons actuellement à la vérification de la disponibilité des ressources nécessaires et vous confirmons qu’aucun frais d’urgence ne sera appliqué.\\r\\n \\r\\nNous vous remercions de votre compréhension et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n \\r\\nWe apologize for the delay in processing your project. Due to a high volume of projects, we were unable to start working on it until today.\\r\\n\\r\\nWe are currently checking the availability of the necessary resources and can confirm that no rush premium will apply.\\r\\n\\r\\nWe thank you for your understanding. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd018","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Demande de révision","en":"Project <<ProjectNumber_FR>> – request for revision"},"description":{"fr":"Conseil pour traduction client de mauvaise qualité","en":"Requesting comparative/client revision"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour, \\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n \\r\\nAprès une première analyse de la traduction fournie, nous avons remarqué plusieurs lacunes. Nous pensons qu’elle nécessiterait plus qu’une simple révision. Par souci de qualité, nous recommandons donc une retraduction complète à partir du texte source, afin d’assurer un résultat fidèle, fluide et professionnel.\\r\\n\\r\\nPourriez-vous nous confirmer si vous souhaitez aller de l’avant avec ce service?\\r\\n\\r\\nBien cordialement,","en":"Hello, \\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nAfter an initial review of the translation provided, we have identified several issues and believe that the translation requires more than a basic revision. For quality purposes, we recommend a full retranslation of the source text to ensure a faithful, fluent and professional result.\\r\\n\\r\\nCould you please confirm whether you would like to proceed with this service?\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd019","category":"","title":{"fr":"Devis pour transcription – Projet <<ProjectNumber_EN>>","en":"Project <<ProjectNumber_FR>> – quote for transcription"},"description":{"fr":"Devis pour transcription","en":"Requesting a quote for transcription"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nLe coût estimé pour ce projet se situe entre <<MinAmount_FR>> $ et <<MaxAmount_FR>> $, en fonction de la durée et de la qualité de l’enregistrement.\\r\\nVous devrez prévoir un délai d’environ <<NbDays_FR>> jour(s) ouvrable(s) pour la livraison.\\r\\n\\r\\nAfin de bien orienter votre projet, nous vous invitons à nous transmettre tous les détails qui pourraient nous être utiles (ex. : format de livraison souhaité, exigences particulières, contexte d’utilisation, etc.).\\r\\nNous vous serions aussi reconnaissants de préciser si vous souhaitez que nous traduisions ensuite la transcription.\\r\\n\\r\\nNous attendons votre approbation et vos précisions avant d’aller de l’avant.\\r\\n\\r\\nN’hésitez pas à nous contacter pour toute question.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe estimated cost for this project is between $<<MinAmount_EN>> and $<<MaxAmount_EN>>, depending on the length and quality of the recording. \\r\\nYou can expect it to be delivered in approximately <<NbDays_EN>> working day(s).\\r\\n\\r\\nTo better understand your project, please share any relevant details (e.g., preferred delivery format, specific requirements, intended use, etc.).\\r\\nCould you also please tell us if you would like us to translate the transcript once it is completed?\\r\\n\\r\\nWe will wait for your approval and clarification before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<MinAmount_FR>>:Coût estimé minimal en dollars(300)\\r\\n<<MaxAmount_FR>>:Coût estimé maximal en dollars(900)\\r\\n<<NbDays_FR>>:Nombre estimé de jours ouvrables(3)"]},{"id":"ctd020","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Documents imbriqués","en":"Project <<ProjectNumber_FR>> – embedded documents"},"description":{"fr":"Demande de précisions pour documents imbriqués","en":"Embedded documents"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nAprès analyse du document soumis, nous avons constaté qu’il contient un ou plusieurs documents imbriqués (ex. : tableaux, documents Excel ou Powerpoint).\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer si ces documents intégrés doivent également être traduits.\\r\\n\\r\\nLe cas échéant, nous vous invitons à nous les transmettre séparément en pièces jointes, de préférence dans leur format d’origine.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nAfter reviewing the submitted document, we noticed that it contains one or more embedded documents (e.g., tables, Excel or PowerPoint files).\\r\\n\\r\\nCould you please confirm whether these embedded documents should also be translated?\\r\\nIf so, please send them as separate attachments, preferably in their original format.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd021","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Confirmation du document ou de la combinaison de langues","en":"Project <<ProjectNumber_FR>> – document or language combination confirmation"},"description":{"fr":"Confirmation de combinaison de langues","en":"Confirming a document or language combination"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>> et souhaitons confirmer une information auprès de vous.\\r\\n\\r\\nVotre demande indique une traduction du <<SourceLanguage_FR>> vers le <<TargetLanguage_FR>>. Toutefois, le document soumis est rédigé en <<DetectedLanguage_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer s’il s’agit d’un document soumis par erreur ou d’une combinaison linguistique erronée sélectionnée lors de la création du projet.\\r\\n\\r\\nNous attendons votre confirmation avant de pouvoir aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>> and would like to confirm one detail with you.\\r\\n\\r\\nYour request indicates a translation from <<SourceLanguage_EN>> to <<TargetLanguage_EN>>; however, the submitted document appears to be written in <<DetectedLanguage_EN>>.\\r\\n\\r\\nCould you please confirm whether the wrong document was submitted or the wrong language combination was selected when creating the project?\\r\\n\\r\\nWe will wait for your confirmation before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)\\r\\n<<SourceLanguage_FR>>:Langue source indiquée dans la demande(anglais)\\r\\n<<TargetLanguage_FR>>:Langue cible indiquée dans la demande(français)\\r\\n<<DetectedLanguage_FR>>:Langue détectée dans le document soumis(français)"]},{"id":"ctd022","category":"","title":{"fr":"Projets <<ProjectNumber1_EN>>, <<ProjectNumber2_EN>> et <<ProjectNumber3_EN>> – Demande de priorisation","en":"Projects <<ProjectNumber1_FR>>, <<ProjectNumber2_FR>> and <<ProjectNumber3_FR>>  – prioritization request"},"description":{"fr":"Priorisation de projets en cours de traitement","en":"Prioritization request – current projects"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons bien reçu plusieurs projets de votre part qui sont présentement en cours d’analyse. Afin de planifier efficacement le travail, nous vous invitons à nous indiquer l’ordre de priorité pour les projets suivants :\\r\\n•\\t<<ProjectNumber1_FR>>\\r\\n•\\t<<ProjectNumber2_FR>>\\r\\n•\\t<<ProjectNumber3_FR>>\\r\\n•\\t(…)\\r\\n\\r\\nCela nous permettra, lorsque possible, d’assigner les mêmes ressources linguistiques à vos projets et ainsi d’assurer une uniformité dans le style et la terminologie.\\r\\n\\r\\nNous vous remercions à l’avance pour votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received several projects from you, which are currently being reviewed. To help us prepare the work efficiently, please indicate the order of priority for the following projects:\\r\\n•\\t<<ProjectNumber1_EN>>\\r\\n•\\t<<ProjectNumber2_EN>>\\r\\n•\\t<<ProjectNumber3_EN>>\\r\\n•\\t(...)\\r\\n\\r\\nThis will allow us, whenever possible, to assign the same language resources to your projects, ensuring consistency in style and terminology.\\r\\n\\r\\nWe thank you in advance for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber1_FR>>:Numéro du premier projet à prioriser(123-4567-001)\\r\\n<<ProjectNumber2_FR>>:Numéro du deuxième projet à prioriser(123-4567-002)\\r\\n<<ProjectNumber3_FR>>:Numéro du troisième projet à prioriser(123-4567-003)"]},{"id":"ctd023","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> - Service en langage clair et simple","en":"Project <<ProjectNumber_FR>> – plain language services"},"description":{"fr":"Précisions pour services en language clair et simples","en":"Plain language services"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nVous avez indiqué nécessiter un traitement en langage clair et simple.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir préciser à quel public le document est destiné (ex. : population générale, clientèle spécifique, employés internes, etc.).\\r\\n\\r\\nCette information nous permettra de cibler le ton et la formulation de manière à répondre aux besoins des destinataires du texte.\\r\\n\\r\\nNous attendons votre réponse avant d’aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nYou have requested plain language editing.\\r\\n\\r\\nCould you please tell us who the intended audience is (e.g., general public, specific clients, internal staff, etc.)?\\r\\n\\r\\nThis information will help us tailor the tone and wording of text to the needs of the audience.\\r\\n\\r\\nWe will wait for your response before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd024","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Retour d’information sur l’annulation","en":"Project <<ProjectNumber_FR>> – feedback on cancellation"},"description":{"fr":"Demande de retour d'information suite à une annulation","en":"Cancellation – feedback"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons constaté l’annulation de votre projet <<ProjectNumber_FR>> et souhaiterions comprendre ce qui a motivé cette décision.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser ce qui a motivé l’annulation, qu’il s’agisse, par exemple, de contraintes de budget, de délai ou d’autres considérations.\\r\\n\\r\\nQuelle que soit la raison, votre retour nous serait précieux, car nous accordons une grande importance à la satisfaction de nos clients et cherchons constamment à améliorer nos services.\\r\\n\\r\\nNous vous remercions d’avance pour le temps que vous consacrerez à cette rétroaction et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have noted the cancellation of Project <<ProjectNumber_EN>> and would like to understand the reasons behind this decision.\\r\\n\\r\\nIf possible, could you tell us what led to the cancellation, whether it was due to budget constraints, the deadline or other considerations?\\r\\n\\r\\nWhatever the reason, your feedback is valuable to us, as we are committed to client satisfaction and continuously improving our services.\\r\\n\\r\\nWe thank you in advance for taking the time to provide feedback. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd025","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Interruption de service temporaire","en":"Project <<ProjectNumber_FR>> – temporary service interruption"},"description":{"fr":"Avis d'interruption de service de service temporaire et de retard de livraison ","en":"System outages and tool failures"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous souhaitons vous informer qu’une panne technique affecte actuellement nos systèmes internes, ce qui entraîne un ralentissement de nos opérations, y compris le traitement de votre projet <<ProjectNumber_FR>>.\\r\\n\\r\\nNos équipes techniques sont mobilisées pour rétablir la situation dans les plus brefs délais. Cependant, d'ici là, nous éprouvons un ralentissement de nos opérations.\\r\\n\\r\\nPour cette raison, l'échéancier de votre projet devra vraisemblablement être ajusté. Nous nous excusons pour les inconvénients; soyez assuré que nous le livrerons dès que possible.\\r\\n\\r\\nNous vous remercions de votre compréhension et de votre patience pendant cette interruption temporaire.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe would like to inform you that a technical issue is currently affecting our internal systems, which is causing delays in our operations, including the processing of Project <<ProjectNumber_EN>>.\\r\\n\\r\\nOur technical teams are actively working to resolve the issue as quickly as possible. However, in the meantime, our operations will proceed slower than normal.\\r\\n\\r\\nAs a result, the time frame for your project may need to be adjusted. We apologize for the inconvenience and assure you that we will deliver your project as soon as possible.\\r\\n\\r\\nThank you for your understanding and support during this temporary interruption.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd026","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Précision requise sur le type de révision souhaité","en":"Project <<ProjectNumber_FR>> – clarification required on type of revision"},"description":{"fr":"Demande de précisions pour type de révision ou relecture","en":"Clarifying requested services – comparative revision or unilingual editing"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nAfin d’orienter adéquatement le traitement de votre projet <<ProjectNumber_FR>>, nous aimerions confirmer le type de révision que vous souhaitez. Nous offrons deux services distincts :\\r\\n\\r\\nRévision comparative\\r\\nLe texte traduit est comparé au texte source pour en vérifier l’exactitude, l’exhaustivité et la fidélité. Ce type de révision permet de corriger les erreurs de sens et d’assurer une bonne formulation dans la langue cible.\\r\\n\\r\\nRévision unilingue\\r\\nLe texte est révisé uniquement dans la langue d’origine, sans référence au texte dans une autre langue. L’accent est mis sur la clarté, la fluidité, la grammaire, la ponctuation et la cohérence du texte.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir préciser vos besoins, ou de nous indiquer l’objectif principal de votre demande, afin que nous puissions vous orienter vers l’option la plus appropriée. \\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nTo ensure that Project <<ProjectNumber_EN>> is processed appropriately, we would like to confirm the type of revision you are requesting. We offer two distinct services:\\r\\n\\r\\nComparative revision\\r\\nThe translated text is compared to the source text to check for accuracy, completeness and fidelity. This type of revision corrects errors in meaning and ensures proper wording in the target language.\\r\\n\\r\\nUnilingual editing\\r\\nThe text is revised in the target language only, without reference to the text in another language. The focus is on the text’s clarity, flow, grammar, punctuation and coherence.\\r\\n\\r\\nCould you clarify which service you would prefer or tell us the main objective of your project so that we can recommend the most suitable option?\\r\\n \\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd027","category":"","title":{"fr":"Projet <<ProjectNumber_EN>> – Précision requise sur le type de service souhaité","en":"Project <<ProjectNumber_FR>> – clarification required on type of service"},"description":{"fr":"Demande de précision pour le type de service (révision ou traduction de modifications)","en":"Clarifying requested services – translation of modified documents or comparative revision"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nAfin d’orienter adéquatement le traitement de votre demande, voici quelques précisions sur les services disponibles :\\r\\n\\r\\nTraduction de modifications\\r\\nCe service consiste à traduire uniquement les parties du texte qui ont été modifiées par rapport à une version antérieure du document. Il convient lorsque les changements sont limités et bien identifiés. Lorsque les modifications sont nombreuses, dispersées ou complexes, l’effort requis peut s’approcher de celui d’une retraduction complète. Dans ce cas, la facturation est basée sur le temps réel nécessaire pour effectuer le travail. Selon l’ampleur des changements, une nouvelle traduction peut parfois s’avérer plus efficace et rentable.\\r\\n\\r\\nRévision comparative\\r\\nLa révision comparative consiste à comparer une traduction au texte original afin d’en valider la fidélité, la cohérence et la qualité linguistique. Le réviseur travaille sur le texte traduit déjà livré, en le modifiant au besoin pour améliorer la formulation, corriger les fautes, harmoniser le style et s’assurer qu’il reflète adéquatement le sens du texte original. Il ne s’agit pas d’une retraduction, mais d’un travail de révision et d’optimisation du contenu existant.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser vos préférences, ou de nous transmettre la version finale du document si cela n’est pas déjà fait, afin que nous puissions vous recommander l’option la plus appropriée.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe acknowledge receipt of the project <<ProjectNumber_EN>>.\\r\\n\\r\\nTo provide you with the best possible guidance regarding your request, please consider the following details on our available services:\\r\\n\\r\\nTranslation of modified documents\\r\\nThis service involves translating only the parts of the text that have been modified from a previous version of the document. It is suitable when the changes are limited and clearly indicated. When the changes are numerous, scattered or complex, the effort required may be equivalent to that of a full retranslation. In such cases, billing is based on the actual time needed to complete the work. Depending on the extent of the changes, a new translation may sometimes be more efficient and cost-effective.\\r\\n\\r\\nComparative revision\\r\\nThis service involves comparing a translation to the original text in order to check its fidelity, consistency and linguistic quality. The reviser works on the translation received, making changes as necessary to improve the wording, correct errors, standardize the style, and ensure that the meaning accurately reflects the original text. This involves revising and optimizing the existing content rather than retranslating it.\\r\\n\\r\\nWe would appreciate it if you could confirm your preference, or send us the final version of the document if you have not already, so that we can recommend the most appropriate option.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["<<ProjectNumber_FR>>:Numéro de projet(123-4567-001)"]},{"id":"ctd028","category":"","title":{"fr":"Présentation des services et tarifs","en":"Overview of services and rates"},"description":{"fr":"Renseignements généraux sur les services et tarifs","en":"Services and rates"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nMerci de l’intérêt que vous portez à nos services.\\r\\n\\r\\nPour vous aider à mieux comprendre nos services et la structure de nos prix, vous trouverez ci-joint les versions française et anglaise du tableau résumant chacun de nos services ainsi que les tarifs correspondants.\\r\\n\\r\\nN’hésitez pas à nous écrire si vous avez des questions ou si vous souhaitez des précisions supplémentaires.\\r\\n\\r\\nVoici également les coordonnées de nos gestionnaires de portefeuilles clients:\\r\\nNeysa McLeod: neysa.mcleod@tpsgc-pwgsc.gc.ca\\r\\nMélanie Danis: melanie.danis@tpsgc-pwgsc.gc.ca\\r\\n \\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nThank you for your interest in our services.\\r\\n\\r\\nTo help you better understand our services and pricing structure, please find attached the English and French versions of a table summarizing each of our services and the corresponding rates.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nPlease find the contact information of our client portfolio managers below:\\r\\nNeysa McLeod: neysa.mcleod@tpsgc-pwgsc.gc.ca\\r\\nMélanie Danis: melanie.danis@tpsgc-pwgsc.gc.ca \\r\\n\\r\\nBest regards,"},"variables":[]},{"id":"ctd029","category":"","title":{"fr":"Avis de bris de sécurité - mesures à prendre","en":"Security breach notification - actions to be taken"},"description":{"fr":"Instructions to external provider following a security breach","en":"Instructions au fournisseur externe suite à un bris de sécurité"},"subject":{"fr":"","en":""},"body":{"fr":"Bonjour,\\r\\n\\r\\nJe vous écris pour vous informer qu’une erreur a eu lieu concernant l’envoi de documents protégés. Cette situation doit être rectifiée immédiatement afin de garantir la sécurité et la confidentialité des informations.\\r\\n\\r\\nVoici les actions que vous devez prendre sans délai :\\r\\n\\r\\nVérification du téléchargement des documents\\r\\nVeuillez confirmer si vous avez téléchargé les documents que nous vous avons envoyés. Cette étape est essentielle afin de déterminer si les documents ont été enregistrés sur vos systèmes. Si vous avez téléchargé ces documents, il est impératif que vous procédiez à la suppression immédiate de toutes les copies.\\r\\n\\r\\nSuppression de toutes les copies des documents\\r\\nSi les documents ont été téléchargés, merci de les supprimer dans leur intégralité de tous vos dispositifs et supports de stockage, y compris, mais sans s'y limiter :\\r\\nSur votre serveur\\r\\nSur votre ordinateur local\\r\\nDans tous les systèmes ou bases de données où les documents ont pu être copiés ou stockés\\r\\nSur tout autre dispositif ou réseau pouvant avoir conservé une copie des documents (disques durs externes, systèmes de sauvegarde, etc.)\\r\\n\\r\\nCette suppression doit être effectuée de manière complète, en vous assurant qu'aucune copie résiduelle ne subsiste sur vos systèmes.\\r\\n\\r\\nVérification des mémoires non protégées\\r\\nAssurez-vous également que ces documents n’ont pas été transférés dans des zones de stockage non protégées, telles que des dossiers non sécurisés, des applications tierces, ou des dispositifs de stockage amovibles. Si tel est le cas, veuillez procéder à la suppression de ces copies sans délai.\\r\\n\\r\\nConfirmation de la suppression\\r\\nUne fois toutes les copies supprimées, merci de nous confirmer par retour de courriel que cette action a été réalisée avec succès. Il est essentiel que nous recevions une confirmation de votre part afin de clore cette situation.\\r\\n\\r\\nEnfin, nous vous demandons de nous signaler toute difficulté que vous pourriez rencontrer lors de la mise en œuvre de ces actions, ou si vous avez besoin d'assistance technique.\\r\\n\\r\\nNous comprenons que cette situation puisse engendrer des désagréments et nous vous remercions pour votre collaboration rapide et efficace pour assurer la sécurité des informations. Nous restons à votre disposition pour toute question ou précision supplémentaire.\\r\\n\\r\\nCordialement,","en":"Hello,\\r\\n\\r\\nI am writing to inform you that an error has occurred regarding the transmission of protected documents. This situation must be rectified immediately to ensure the security and confidentiality of the information.\\r\\n\\r\\nHere are the actions you need to take without delay:\\r\\n\\r\\nVerification of document download\\r\\nPlease confirm whether you have downloaded the documents we sent you. This step is essential to determine if the documents have been saved on your systems. If you have downloaded these documents, it is imperative that you proceed with the immediate deletion of all copies.\\r\\n\\r\\nDeletion of all copies of the documents\\r\\nIf the documents have been downloaded, please delete them entirely from all your devices and storage media, including, but not limited to:\\r\\nOn your server\\r\\nOn your local computer\\r\\nIn all systems or databases where the documents may have been copied or stored\\r\\nOn any other device or network that may have retained a copy of the documents (external hard drives, backup systems, etc.)\\r\\n\\r\\nThis deletion must be carried out thoroughly, ensuring that no residual copies remain on your systems.\\r\\n\\r\\nVerification of unprotected storage\\r\\nAlso ensure that these documents have not been transferred to unprotected storage areas, such as unsecured folders, third-party applications, or removable storage devices. If this is the case, please proceed with the deletion of these copies without delay.\\r\\n\\r\\nConfirmation of deletion\\r\\nOnce all copies have been deleted, please confirm by replying to this email that this action has been successfully completed. It is crucial that we receive a confirmation from you to close this matter.\\r\\n\\r\\nFinally, we ask that you report any difficulty you may encounter while carrying out these actions, or if you need any technical assistance.\\r\\n\\r\\nWe understand that this situation may cause inconvenience, and we thank you for your prompt and efficient cooperation to ensure the security of the information. We remain available for any questions or additional clarifications.\\r\\n\\r\\nBest regards,"},"variables":[]}]`);
+const resolveVariableValue = (variables2 = {}, name = "", templateLanguage = "fr") => {
+  var _a, _b, _c, _d;
+  if (!variables2 || typeof variables2 !== "object" || !name) return "";
+  const safeName = String(name);
+  const direct = variables2[safeName];
+  if (direct !== void 0 && direct !== null) return String(direct);
+  const lowerName = safeName.toLowerCase();
+  if (lowerName !== safeName) {
+    const lowerDirect = variables2[lowerName];
+    if (lowerDirect !== void 0 && lowerDirect !== null) return String(lowerDirect);
+  }
+  const normalizedTarget = normalizeVarKey(safeName);
+  if (!normalizedTarget) return "";
+  const requestedSuffix = ((_b = (_a = safeName.match(/_(fr|en)$/i)) == null ? void 0 : _a[1]) == null ? void 0 : _b.toLowerCase()) || null;
+  const preferredLang = (templateLanguage || "fr").toLowerCase();
+  let langMatch = null;
+  let baseMatch = null;
+  let anyMatch = null;
+  const debugMatches = [];
+  for (const [key, value] of Object.entries(variables2)) {
+    if (value === void 0 || value === null) continue;
+    const normalizedKey = normalizeVarKey(key);
+    if (normalizedKey === normalizedTarget) {
+      debugMatches.push({ key, value: String(value).substring(0, 20), normalizedKey });
+    }
+    if (normalizedKey !== normalizedTarget) continue;
+    const keySuffix = ((_d = (_c = key.match(/_(fr|en)$/i)) == null ? void 0 : _c[1]) == null ? void 0 : _d.toLowerCase()) || null;
+    const stringValue = String(value);
+    if (requestedSuffix) {
+      if (keySuffix === requestedSuffix) return stringValue;
+      if (!keySuffix && !baseMatch) baseMatch = stringValue;
+      continue;
+    }
+    if (!keySuffix) {
+      if (!baseMatch) baseMatch = stringValue;
+      continue;
+    }
+    if (keySuffix === preferredLang && !langMatch) {
+      langMatch = stringValue;
+    }
+    if (!anyMatch) {
+      anyMatch = stringValue;
+    }
+  }
+  return langMatch || baseMatch || anyMatch || "";
+};
+const metadata = { "version": "1.0", "totalTemplates": 29, "languages": ["fr", "en"], "categories": ["clarifications_and_client_instructions", "deadlines_and_delivery", "documents_and_formatting", "follow_ups_and_cancellations", "quotes_and_approvals", "security_and_copyright"], "categoryLabels": { "quotes_and_approvals": { "en": "Quotes and approvals", "fr": "Devis et approbations" }, "follow_ups_and_cancellations": { "en": "Follow-ups and cancellations", "fr": "Suivi et annulations" }, "documents_and_formatting": { "en": "Documents and formatting", "fr": "Documents et formats" }, "deadlines_and_delivery": { "en": "Deadlines and delivery", "fr": "Délais et livraisons" }, "clarifications_and_client_instructions": { "en": "Clarifications and client instructions", "fr": "Précisions et instructions client" }, "security_and_copyright": { "en": "Security and copyright", "fr": "Sécurité et droits d’auteur" } }, "updatedAt": "2025-11-20T23:20:58.405Z" };
+const templates = /* @__PURE__ */ JSON.parse(`[{"id":"ctd001","category":"quotes_and_approvals","category_fr":"Devis et approbations","category_en":"Quotes and approvals","title":{"fr":"Projet <<ProjectNumber_FR>> – Devis à approbation requise","en":"Project <<ProjectNumber_EN>>- requesting approval on quote"},"description":{"fr":"Devis avant le lancement d'un projet - approbation requise","en":"Quotes – approval required"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Devis à approbation requise","en":"Project <<ProjectNumber_EN>>- requesting approval on quote"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>. \\r\\n\\r\\nSa réalisation est évaluée à environ <<NbDays_FR>> jour(s) de travail. L’estimation des coûts s’élève à <<Cost_FR>>$. Le montant estimé pourrait varier de plus ou moins 10 %, selon l’évaluation finale du volume et de la complexité des documents.\\r\\n \\r\\nDes frais d’urgence de 50 % s’appliqueront si le projet doit être livré dans un délai de moins de <<NbDays_FR>> jour(s) ouvrable(s) ou de moins de 24 heures. Le coût révisé serait alors de <<UrgentCost_FR>> $.\\r\\n\\r\\nNous vous confirmons que ce projet sera traité uniquement après réception de votre approbation. Afin d’assurer un résultat fidèle et professionnel, et compte tenu de la disponibilité des ressources, la date de livraison pourrait être ajustée une fois l’approbation reçue.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nBased on our assessment, it will take approximately <<NbDays_EN>> working day(s) to complete. The estimated cost is $<<Cost_EN>>. The amount may vary by up to 10%, depending on our final assessment of the size and complexity of the documents.\\r\\n\\r\\nA 50% rush premium will apply if the project needs to be delivered in under <<NbDays_EN>> working day(s) or within 24 hours, and the revised cost would be $<<UrgentCost_EN>>.\\r\\n\\r\\nPlease note that we will begin work on this project only after receiving your approval. To ensure accurate and professional results, and depending on the availability of resources, the delivery date may be adjusted once we receive your approval.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","nb_days","cost","urgent_cost"]},{"id":"ctd002","category":"quotes_and_approvals","category_fr":"Devis et approbations","category_en":"Quotes and approvals","title":{"fr":"Projet <<ProjectNumber_FR>> – Devis et confirmation","en":"Project <<ProjectNumber_EN>> – quote and confirmation"},"description":{"fr":"Devis avant le lancement d'un projet - approbation non requise","en":"Quotes – no approval required"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Devis et confirmation","en":"Project <<ProjectNumber_EN>> – quote and confirmation"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.  Sa réalisation est estimée à environ <<NbDays_FR>> jour(s) de travail. Conformément à vos instructions, nous procédons dès maintenant au traitement de votre projet et assurerons la livraison dans le délai prévu.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.  Based on our assessment, it will take approximately <<NbDays_EN>> working day(s) to complete. As per your instructions, we have immediately begun working on the project and will deliver it by the expected deadline.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","nb_days"]},{"id":"ctd003","category":"follow_ups_and_cancellations","category_fr":"Suivi et annulations","category_en":"Follow-ups and cancellations","title":{"fr":"Projet <<ProjectNumber_FR>> – Suivi d’approbation","en":"Project <<ProjectNumber_EN>> – follow-up for approval"},"description":{"fr":"Devis - suivi d'approbation","en":"Project on hold – follow-up for approval"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Suivi d’approbation","en":"Project <<ProjectNumber_EN>> – follow-up for approval"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous aimerions faire un suivi au sujet du projet <<ProjectNumber_FR>>. Nous attendons toujours une confirmation du devis envoyé le <<Date_FR>>.\\r\\n\\r\\nOr, les projets en attente ne peuvent être conservés au-delà d’une certaine période. Si aucune réponse n’est reçue d’ici <<DeadlineTime_FR>> le <<DeadlineDate_FR>>, le projet sera annulé.\\r\\n\\r\\nVous pourrez toutefois soumettre un nouveau projet lorsque vous souhaiterez aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe would like to follow up on Project <<ProjectNumber_EN>>. We are currently waiting for you to confirm the quote sent on <<Date_EN>>.\\r\\n\\r\\nPlease note that we can put projects on hold only for a limited time. If we do not receive a response by <<DeadlineTime_EN>> on <<DeadlineDate_EN>>, the project will be cancelled.\\r\\n\\r\\nYou may however submit a new request whenever you would like to move forward.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","date","deadline_time","deadline_date"]},{"id":"ctd004","category":"quotes_and_approvals","category_fr":"Devis et approbations","category_en":"Quotes and approvals","title":{"fr":"Devis – en attente de document","en":"Quote – awaiting document"},"description":{"fr":"Estimation des coûts - aucun document envoyé","en":"Quotes – no document received"},"subject":{"fr":"Devis – en attente de document","en":"Quote – awaiting document"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception de votre courriel. Il nous est difficile de fournir une estimation sans avoir accès au document à traiter. \\r\\n\\r\\nÀ titre indicatif, un document d’environ <<PageCount_FR>> pages nécessiterait environ <<NbDays_FR>> jour(s) de travail. Les frais estimés sont de l’ordre de <<EstimatedCost_FR>> $.\\r\\n\\r\\nSi des frais d’urgence s’appliquent — notamment si le projet doit être livré dans un délai de moins de <<NbDays_FR>> jour(s) ouvrable(s) ou de moins de 24 heures —, le coût pourrait s’élever à <<UrgentCost_FR>> $.\\r\\n\\r\\nPour obtenir une estimation plus précise, veuillez soumettre vos documents à traduire dans GClingua. \\r\\n\\r\\nPour toute question ou information complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received your email. It is difficult for us to provide an estimate without access to the document to be translated. \\r\\n\\r\\nAs a general guideline, a document of approximately <<PageCount_EN>> pages would require around <<NbDays_EN>> working day(s) to complete, and the estimated cost would be $<<EstimatedCost_EN>>.\\r\\n\\r\\nIf a rush premium applies, particularly if the project needs to be delivered in under <<NbDays_EN>> working day(s) or within 24 hours, the cost could increase to $<<UrgentCost_EN>>.\\r\\n\\r\\nPlease upload your documents to be translated into GClingua to receive a more precise estimate.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["page_count","nb_days","estimated_cost","urgent_cost"]},{"id":"ctd005","category":"documents_and_formatting","category_fr":"Documents et formats","category_en":"Documents and formatting","title":{"fr":"Projet <<ProjectNumber_FR>> – Document PDF : document modifiable requis","en":"Request <<ProjectNumber_EN>> – requesting an editable version of a PDF document"},"description":{"fr":"Demande de document modifiable original pour traitement d'un PDF","en":"PDF document – requesting an editable version"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Document PDF : document modifiable requis","en":"Request <<ProjectNumber_EN>> – requesting an editable version of a PDF document"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n \\r\\nLe document transmis est en format PDF, qui ne peut être utilisé tel quel par nos traducteurs. Afin d’assurer un traitement adéquat, nous aurions besoin du document source modifiable original (Word, Excel, etc.). La transformation automatique d’un fichier PDF ne suffit pas; il est nécessaire de procéder à un nettoyage et à une préparation technique pour préserver sa mise en forme et éviter les éventuels problèmes pendant la traduction.\\r\\n\\r\\nVoici les options possibles :\\r\\n1.\\tVous pouvez nous transmettre le document original modifiable;\\r\\n2.\\tNous pouvons traduire le contenu du PDF, mais la mise en page pourrait ne pas être fidèle à celle du document original;\\r\\n3.\\tNotre équipe d’éditique peut convertir et préparer le document avant la traduction. Ce service administratif est facturé à <<DPRate_FR>> $/heure. Le temps estimé pour ce travail est d’environ <<DPHours_FR>> heures.\\r\\n \\r\\nNous vous serions reconnaissants de bien vouloir nous indiquer l’option retenue afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n \\r\\nThe document you provided is a PDF, which cannot be used as is by our translators. To ensure that it is translated properly, we need the original editable source file (in Word, Excel, etc.). It is not enough to automatically convert a PDF, as the file must be cleaned and technically prepared to preserve its formatting and avoid potential issues during translation.\\r\\n\\r\\nPlease consider the following options:\\r\\n1.\\tYou may send us the original editable document.\\r\\n2.\\tWe can translate the content from the PDF, but the formatting may not match that of the original.\\r\\n3.\\tOur desktop publishing team can convert and prepare the document before translation. This administrative service is billed at $<<DPRate_EN>> per hour, with an estimated time of approximately <<DPHours_EN>> hours.\\r\\n \\r\\nPlease let us know which option you would prefer so we can process your project.\\r\\n\\r\\nBest regards,"},"variables":["project_number","dprate","dphours"]},{"id":"ctd006","category":"deadlines_and_delivery","category_fr":"Délais et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Frais d’urgence","en":"Project <<ProjectNumber_EN>> – rush premium"},"description":{"fr":"Application de prime d'urgence","en":"Urgent tasks – notice of additional fees"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Frais d’urgence","en":"Project <<ProjectNumber_EN>> – rush premium"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nComme le délai prévu pour traiter ce projet est de moins de <<NbDays_FR>> jour(s) ouvrable(s) (ou de moins de 24 heures), des frais d’urgence de 50 % s’appliqueront.\\r\\n\\r\\nPour éviter l’application de ces frais, nous vous suggérons de reporter si possible la date de livraison à <<NewDate_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer votre préférence d’ici <<DeadlineTime_FR>> aujourd’hui.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nSince the expected deadline to process this project is under <<NbDays_EN>> working day(s) (or within 24 hours), a 50% rush premium will apply.\\r\\n\\r\\nTo avoid these fees, we suggest postponing the delivery date to <<NewDate_EN>>, if possible.\\r\\n\\r\\nCould you please confirm your preference by <<DeadlineTime_EN>> today?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","nb_days","new_date","deadline_time"]},{"id":"ctd007","category":"deadlines_and_delivery","category_fr":"Délais et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Report de date de livraison","en":"Project <<ProjectNumber_EN>> - delivery date extension"},"description":{"fr":"Demande de report de la date de livraison","en":"Requesting a delivery date extension"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Report de date de livraison","en":"Project <<ProjectNumber_EN>> - delivery date extension"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nCertaines circonstances nous amènent à devoir ajuster le délai initial de livraison.\\r\\n\\r\\n[Choisir une variante à conserver au besoin]\\r\\n\\r\\nVARIANTE A – Volume\\r\\nLe document est particulièrement volumineux et son traitement demande plus de temps que prévu.\\r\\n\\r\\nVARIANTE B – Complexité\\r\\nLe niveau de complexité linguistique ou technique est plus élevé que prévu, ce qui demande un travail particulièrement approfondi.\\r\\n\\r\\nVARIANTE C – Contenu\\r\\nLa nature du contenu requiert une révision minutieuse afin de garantir la qualité du résultat.\\r\\n\\r\\nVARIANTE D – Ressources\\r\\nLe traducteur assigné au projet est temporairement indisponible, ce qui nécessite un réajustement du calendrier.\\r\\n\\r\\nVARIANTE E – Technique\\r\\nDes problèmes techniques ralentissent le traitement, ce qui exige un délai supplémentaire.\\r\\n\\r\\nConséquemment, un délai supplémentaire serait nécessaire. Nous vous proposons de reporter la date de livraison au <<NewDeadline_FR>> pour assurer un résultat répondant à nos normes en matière d’uniformité et de qualité. Pourriez-vous nous confirmer si ce nouveau délai vous convient?\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nDue to various circumstances, we need to adjust the original delivery date.\\r\\n[Please select the appropriate version as needed.]\\r\\n\\r\\nVERSION A – Size\\r\\nThe document is particularly large and requires more time to process than expected.\\r\\n\\r\\nVERSION B – Complexity\\r\\nThe linguistic or technical complexity is higher than anticipated and requires a significant amount of in-depth work.\\r\\n\\r\\nVERSION C – Content\\r\\nBecause of the nature of the content, it needs to be thoroughly revised to ensure the quality of the result.\\r\\n\\r\\nVARIANTE D – Resources\\r\\nThe translator assigned to the project is temporarily unavailable, and we need to adjust the time frame.\\r\\n\\r\\nVARIANTE E – Technical\\r\\nThere are delays in the processing due to technical issues, and more time is needed.\\r\\n\\r\\nAs a result, we need to extend the deadline and suggest postponing the delivery date to <<NewDeadline_EN>> to ensure that the final product meets our standards for consistency and quality. Could you please confirm if the new deadline works for you?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","new_deadline"]},{"id":"ctd008","category":"follow_ups_and_cancellations","category_fr":"Suivi et annulations","category_en":"Follow-ups and cancellations","title":{"fr":"Projet <<ProjectNumber_FR>> – Annulation","en":"Project <<ProjectNumber_EN>> – cancellation"},"description":{"fr":"Confirmation d'annulation d'un projet","en":"Cancelled projects"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Annulation","en":"Project <<ProjectNumber_EN>> – cancellation"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons bien pris note de l’annulation de votre projet <<ProjectNumber_FR>> dans le système.\\r\\n\\r\\n[Choisir une variante à conserver]\\r\\n\\r\\nVARIANTE A – Aucun travail amorcé\\r\\nLe projet n’avait pas encore été pris en charge au moment de l’annulation. Aucun frais ne vous sera donc facturé.\\r\\n\\r\\nVARIANTE B – Projet en cours\\r\\nLa traduction avait déjà été amorcée au moment où nous avons reçu votre demande d’annulation. Dans ce cas, des frais seront appliqués en fonction du travail réalisé. Une ébauche partielle vous sera transmise à titre de référence. Veuillez toutefois noter qu’il ne s’agit pas d’une version finale, qu’elle n’a pas fait l’objet d’une révision approfondie et que sa qualité ne peut être garantie à ce stade.\\r\\n\\r\\nVARIANTE C – Travail très avancé\\r\\nLe projet était déjà à un stade avancé de traitement. Si vous le souhaitez, nous pouvons poursuivre le travail afin de vous remettre une version finale de qualité. Cette option vous permettrait de bénéficier d’un produit complet et révisé. Dans le cas contraire, nous pourrons vous transmettre uniquement le contenu réalisé à ce jour, sans garantir la qualité, puisque le travail n’est pas finalisé. Des frais seront appliqués en fonction du travail réalisé.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser ce qui a motivé l’annulation, qu’il s’agisse, par exemple, de contraintes de budget, de délai ou d’autres considérations.\\r\\nQuelle que soit la raison, votre retour nous serait précieux, car nous accordons une grande importance à la satisfaction de nos clients et cherchons constamment à améliorer nos services.\\r\\n\\r\\nNous vous remercions d’avance pour le temps que vous consacrerez à cette rétroaction et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have noted that Project <<ProjectNumber_EN>> has been cancelled in the system.\\r\\n\\r\\n[Please select a version to use.]\\r\\n\\r\\nVERSION A – no work was done\\r\\nNo work had begun on the project when it was cancelled, and you will not be charged any fees.\\r\\n\\r\\nVERSION B – project was in progress\\r\\nTranslation had already begun when we received your request tto cancel. In this case, you will be charged a fee based on the work completed. A partial draft will be sent to you for reference. However, please note that it is not a final version, nor has it been thoroughly reviewed, and its quality cannot be guaranteed at this stage.\\r\\n\\r\\nVERSION C – project was in the advanced stages\\r\\nThe work on the project was in the advanced stages. Depending on your preference, we can continue the work so that you receive a high-quality final version, giving you a complete and revised translation. Alternatively, we can send you only the content completed to date but cannot guarantee its quality, as the work is unfinished. Fees will be applied based on the work completed.\\r\\n\\r\\nWe would appreciate it if you could let us know the reasons for the cancellation, whether it was due to budget constraints, the deadline or other considerations.\\r\\nWhatever the reason, your feedback is valuable to us, as we are committed to client satisfaction and continuously improving our services.\\r\\n\\r\\nWe thank you in advance for taking the time to provide feedback. Please contact us if you have any questions or need more information.\\r\\n\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd009","category":"deadlines_and_delivery","category_fr":"Délai et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Nouvelle date de livraison","en":"Project <<ProjectNumber_EN>> – new delivery date"},"description":{"fr":"Avis au client de report ou de nouvelle date de livraison","en":"Delivery postponed – delays"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Nouvelle date de livraison","en":"Project <<ProjectNumber_EN>> – new delivery date"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nMalgré tous nos efforts, il ne nous sera pas possible de respecter la date de livraison initialement prévue. Un délai supplémentaire est nécessaire afin d’assurer un résultat qui répond aux normes de qualité du Bureau. \\r\\n\\r\\nNous vous proposons donc de reporter la livraison au <<NewDeadline_FR>>. Merci de nous confirmer si ce nouvel échéancier vous convient. À défaut de réponse, nous l’adopterons afin d’éviter tout retard supplémentaire.\\r\\n\\r\\nNous regrettons les inconvénients que ce report pourrait occasionner et vous remercions de votre compréhension.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nDespite our best efforts, we will not be able to meet the original delivery date. Additional time is required to ensure that the result meets the Translation Bureau’s quality standards. \\r\\n\\r\\nWe are proposing to change the delivery date to <<NewDeadline_EN>>. Please confirm if this new date works for you. If we do not hear back from you, we will use a new delivery date to avoid any further delays.\\r\\n\\r\\nWe apologize for any inconvenience this may cause and thank you for your understanding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","new_deadline"]},{"id":"ctd010","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Instructions concernant les images","en":"Project <<ProjectNumber_EN>> - instructions regarding images"},"description":{"fr":"Demande de version modifiable d’un document PDF","en":"Non-editable images – requesting clarification"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Instructions concernant les images","en":"Project <<ProjectNumber_EN>> - instructions regarding images"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nLe document transmis contient des images non modifiables. Souhaitez-vous que leur contenu soit traduit? Dans l’affirmative, disposez-vous des versions modifiables? À défaut, nous pourrons insérer la traduction dans une légende distincte.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous transmettre vos instructions dès que possible. Nous traiterons entretemps les parties modifiables du document.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe document you sent contains non-editable images. Would you like the content of these images to be translated? If so, do you have editable versions available? If not, we can include a translation in a separate caption.\\r\\n\\r\\nCould you please send us your instructions as soon as possible? In the meantime, the editable parts of the document will be translated.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd011","category":"documents_and_formatting","category_fr":"Documents et formats","category_en":"Documents and formatting","title":{"fr":"Projet <<ProjectNumber_FR>> – Saisies d’écran requises","en":"Project <<ProjectNumber_EN>> – request for screenshots"},"description":{"fr":"Demande d'informations supplémentaires pour traitements de captures d'écrans","en":"Requesting screenshots"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Saisies d’écran requises","en":"Project <<ProjectNumber_EN>> – request for screenshots"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>> .\\r\\n\\r\\nAfin de garantir une terminologie exacte, notamment en ce qui a trait aux éléments d’interface (menus, commandes, messages, etc.), nous vous serions reconnaissants de nous transmettre les captures d’écran du logiciel en <<TargetLanguage_FR>>.\\r\\nÀ défaut de nous fournir ces éléments, vous avez deux options : \\r\\n\\r\\n1) nous proposerons une traduction libre, ce qui pourrait entraîner certains écarts avec les libellés réellement utilisés dans l’interface visé; \\r\\n2) nous ne traduirons pas ces éléments.\\r\\n\\r\\nNous suspendrons le traitement du projet en attendant de recevoir vos instructions ou les documents requis.\\r\\n\\r\\nNous vous remercions de votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nTo ensure that we use the correct terminology, especially for interface elements such as menus, commands and messages, could you please send us screenshots of the software in <<TargetLanguage_EN>>?\\r\\nTwo options are available if you cannot provide screenshots. \\r\\n\\r\\n1. We will provide an unofficial translation, which may differ from the actual wording used in the interface for the target language.\\r\\n2. We will not provide a translation of these elements.\\r\\n\\r\\nWe will pause work on the project until we receive your instructions or the required materials.\\r\\n\\r\\nWe thank you for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","target_language"]},{"id":"ctd012","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Notes du présentateur","en":"Project <<ProjectNumber_EN>> – speaker notes"},"description":{"fr":"Présentations PowerPoint - traduction des notes du présentateur","en":"PowerPoint presentations – translating notes"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Notes du présentateur","en":"Project <<ProjectNumber_EN>> – speaker notes"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nVeuillez nous indiquer si vous souhaitez que nous traduisions  uniquement le contenu des diapositives, ou si les notes du présentateur doivent être incluses.\\r\\n \\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer vos instructions afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nCould you confirm if you would like us to translate only the content in the PowerPoint slides, or if you would like to have the speaker notes translated as well?\\r\\n \\r\\nWe would appreciate it if you could let us know so that we can process your project.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd013","category":"security_and_copyright","category_fr":"Sécurité et droits d’auteur","category_en":"Security and copyright","title":{"fr":"Projet <<ProjectNumber_FR>> – Documents protégés par droits d’auteur","en":"Project <<ProjectNumber_EN>> – copyright-protected documents"},"description":{"fr":"Demande de confirmation d'obtention des droits d'auteur","en":"Copyright"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Documents protégés par droits d’auteur","en":"Project <<ProjectNumber_EN>> – copyright-protected documents"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nConformément aux pratiques du Bureau de la traduction, nous ne pouvons traduire une publication protégée par un droit d’auteur sans autorisation écrite de l’auteur ou de l’éditeur. Il incombe aux clients qui soumettent la demande de traduction d’obtenir cette autorisation.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer que vous disposez de cette autorisation, afin que nous puissions procéder au traitement de votre projet.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nIn accordance with the Translation Bureau’s practices, we cannot translate a publication that is protected by copyright without written authorization from the author or publisher. It is the responsibility of the client who is submitting the translation request to obtain this authorization.\\r\\n\\r\\nCould you please confirm whether you have this authorization so that we can process your project?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd014","category":"documents_and_formatting","category_fr":"Documents et formats","category_en":"Documents and formatting","title":{"fr":"Projet <<ProjectNumber_FR>> – Documents de référence","en":"Project <<ProjectNumber_EN>> – reference documents"},"description":{"fr":"Demande de documents de références ou versions précédéntes","en":"Requesting reference documents"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Documents de référence","en":"Project <<ProjectNumber_EN>> – reference documents"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>. \\r\\n\\r\\nAfin de faciliter le travail de traduction et d’en assurer la qualité et l’uniformité, nous vous invitons à nous transmettre, s’il y a lieu, des documents de référence ou des versions antérieures en français et en anglais. Il est important que ces documents soient disponibles dans les deux langues et qu’ils correspondent entre eux, afin d’assurer une cohérence optimale dans le traitement de votre projet.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous transmettre ces documents dès que possible, afin que nous puissions procéder efficacement au traitement de votre projet.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nTo help our translation work and ensure quality and consistency, we ask that you send us any reference documents or previous versions in English and French, if available. It is important that these documents are bilingual and that their content matches each other to ensure optimal consistency throughout your project.\\r\\n\\r\\nCould you please send us these documents as soon as possible so that we can process your project efficiently?\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd015","category":"security_and_copyright","category_fr":"Sécurité et droits d’auteur","category_en":"Security and copyright","title":{"fr":"Projet <<ProjectNumber_FR>> – Transmission sécurisée requise","en":"Project <<ProjectNumber_EN>> – secure transmission required"},"description":{"fr":"Demande de précisions sur la classification d'un document","en":"Protected documents – secure transmission"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Transmission sécurisée requise","en":"Project <<ProjectNumber_EN>> – secure transmission required"},"body":{"fr":"Bonjour, \\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nNotre plateforme GClingua traite exclusivement les fichiers dont le niveau de confidentialité n’excède pas PROTÉGÉ B. Le document que vous avez soumis semble dépasser la classification établie et a été retiré du système par mesure de sécurité. \\r\\n\\r\\nSi vous croyez qu’il s’agit d’une erreur, veuillez apporter les corrections nécessaires, télécharger le document à nouveau et nous aviser par courriel.\\r\\n\\r\\nNous vous prions de bien vouloir utiliser la procédure de transmission sécurisée ci-jointe pour nous le faire parvenir de manière conforme.\\r\\n\\r\\nNous vous remercions de votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe GClingua platform supports files classified up to PROTECTED B only. The document you submitted appears to exceed this classification and has been removed from the system for security reasons. \\r\\n\\r\\nIf you believe that there was an error, please make the necessary adjustments, upload the document again and notify us by email.\\r\\n\\r\\nTo ensure compliance, please follow the attached secure transmission procedure to send us the document.\\r\\n\\r\\nWe thank you for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd016","category":"deadlines_and_delivery","category_fr":"Délais et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Ajustement de la date de livraison","en":"Project <<ProjectNumber_EN>> – delivery date adjustment"},"description":{"fr":"Report de délai ou nouvelle date de livraison en raison d'un congé férié","en":"Adjusting the delivery date – statutory holiday"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Ajustement de la date de livraison","en":"Project <<ProjectNumber_EN>> – delivery date adjustment"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet « ProjectNumber_FR ».\\r\\n\\r\\nLa date de livraison demandée, soit le <<OriginalDate_FR>>, coïncide avec un jour férié. Celle-ci a donc été reportée au jour ouvrable suivant, soit le <<NewDate_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer que cet ajustement vous convient.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe requested delivery date, <<OriginalDate_EN>>, falls on a statutory holiday and has been moved to the next working day, <<NewDate_EN>>.\\r\\n\\r\\nCould you please confirm whether this adjustment works for you?\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","original_date","new_date"]},{"id":"ctd017","category":"deadlines_and_delivery","category_fr":"Délais et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Retard de prise FR charge","en":"Project <<ProjectNumber_EN>> – delay in processing"},"description":{"fr":"Avis de retard dans la prise en charge d'une demande","en":"Confirming receipt of project and apologizing for delay in processing"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Retard de prise FR charge","en":"Project <<ProjectNumber_EN>> – delay in processing"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n \\r\\nNous vous prions de nous excuser pour le délai de prise en charge. En raison d’un volume élevé de projets, nous n’avons pas pu entamer le traitement avant aujourd’hui.\\r\\n\\r\\nNous procédons actuellement à la vérification de la disponibilité des ressources nécessaires et vous confirmons qu’aucun frais d’urgence ne sera appliqué.\\r\\n \\r\\nNous vous remercions de votre compréhension et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n \\r\\nWe apologize for the delay in processing your project. Due to a high volume of projects, we were unable to start working on it until today.\\r\\n\\r\\nWe are currently checking the availability of the necessary resources and can confirm that no rush premium will apply.\\r\\n\\r\\nWe thank you for your understanding. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd018","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Demande de révision","en":"Project <<ProjectNumber_EN>> – request for revision"},"description":{"fr":"Conseil pour traduction client de mauvaise qualité","en":"Requesting comparative/client revision"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Demande de révision","en":"Project <<ProjectNumber_EN>> – request for revision"},"body":{"fr":"Bonjour, \\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n \\r\\nAprès une première analyse de la traduction fournie, nous avons remarqué plusieurs lacunes. Nous pensons qu’elle nécessiterait plus qu’une simple révision. Par souci de qualité, nous recommandons donc une retraduction complète à partir du texte source, afin d’assurer un résultat fidèle, fluide et professionnel.\\r\\n\\r\\nPourriez-vous nous confirmer si vous souhaitez aller de l’avant avec ce service?\\r\\n\\r\\nBien cordialement,","en":"Hello, \\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>. \\r\\n\\r\\nAfter an initial review of the translation provided, we have identified several issues and believe that the translation requires more than a basic revision. For quality purposes, we recommend a full retranslation of the source text to ensure a faithful, fluent and professional result.\\r\\n\\r\\nCould you please confirm whether you would like to proceed with this service?\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd019","category":"quotes_and_approvals","category_fr":"Devis et approbations","category_en":"Quotes and approvals","title":{"fr":"Devis pour transcription – Projet <<ProjectNumber_FR>>","en":"Project <<ProjectNumber_EN>> – quote for transcription"},"description":{"fr":"Devis pour transcription","en":"Requesting a quote for transcription"},"subject":{"fr":"Devis pour transcription – Projet <<ProjectNumber_FR>>","en":"Project <<ProjectNumber_EN>> – quote for transcription"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nLe coût estimé pour ce projet se situe entre <<MinAmount_FR>> $ et <<MaxAmount_FR>> $, en fonction de la durée et de la qualité de l’enregistrement.\\r\\nVous devrez prévoir un délai d’environ <<NbDays_FR>> jour(s) ouvrable(s) pour la livraison.\\r\\n\\r\\nAfin de bien orienter votre projet, nous vous invitons à nous transmettre tous les détails qui pourraient nous être utiles (ex. : format de livraison souhaité, exigences particulières, contexte d’utilisation, etc.).\\r\\nNous vous serions aussi reconnaissants de préciser si vous souhaitez que nous traduisions ensuite la transcription.\\r\\n\\r\\nNous attendons votre approbation et vos précisions avant d’aller de l’avant.\\r\\n\\r\\nN’hésitez pas à nous contacter pour toute question.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nThe estimated cost for this project is between $<<MinAmount_EN>> and $<<MaxAmount_EN>>, depending on the length and quality of the recording. \\r\\nYou can expect it to be delivered in approximately <<NbDays_EN>> working day(s).\\r\\n\\r\\nTo better understand your project, please share any relevant details (e.g., preferred delivery format, specific requirements, intended use, etc.).\\r\\nCould you also please tell us if you would like us to translate the transcript once it is completed?\\r\\n\\r\\nWe will wait for your approval and clarification before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions.\\r\\n\\r\\nBest regards,"},"variables":["project_number","min_amount","max_amount","nb_days"]},{"id":"ctd020","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Documents imbriqués","en":"Project <<ProjectNumber_EN>> – embedded documents"},"description":{"fr":"Demande de précisions pour documents imbriqués","en":"Embedded documents"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Documents imbriqués","en":"Project <<ProjectNumber_EN>> – embedded documents"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nAprès analyse du document soumis, nous avons constaté qu’il contient un ou plusieurs documents imbriqués (ex. : tableaux, documents Excel ou Powerpoint).\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer si ces documents intégrés doivent également être traduits.\\r\\n\\r\\nLe cas échéant, nous vous invitons à nous les transmettre séparément en pièces jointes, de préférence dans leur format d’origine.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nAfter reviewing the submitted document, we noticed that it contains one or more embedded documents (e.g., tables, Excel or PowerPoint files).\\r\\n\\r\\nCould you please confirm whether these embedded documents should also be translated?\\r\\nIf so, please send them as separate attachments, preferably in their original format.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["min_amount","project_number"]},{"id":"ctd021","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Confirmation du documFRt ou de la combinaison de langues","en":"Project <<ProjectNumber_EN>> – document or language combination confirmation"},"description":{"fr":"Confirmation de combinaison de langues","en":"Confirming a document or language combination"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Confirmation du documFRt ou de la combinaison de langues","en":"Project <<ProjectNumber_EN>> – document or language combination confirmation"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>> et souhaitons confirmer une information auprès de vous.\\r\\n\\r\\nVotre demande indique une traduction du <<SourceLanguage_FR>> vers le <<TargetLanguage_FR>>. Toutefois, le document soumis est rédigé en <<DetectedLanguage_FR>>.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous confirmer s’il s’agit d’un document soumis par erreur ou d’une combinaison linguistique erronée sélectionnée lors de la création du projet.\\r\\n\\r\\nNous attendons votre confirmation avant de pouvoir aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>> and would like to confirm one detail with you.\\r\\n\\r\\nYour request indicates a translation from <<SourceLanguage_EN>> to <<TargetLanguage_EN>>; however, the submitted document appears to be written in <<DetectedLanguage_EN>>.\\r\\n\\r\\nCould you please confirm whether the wrong document was submitted or the wrong language combination was selected when creating the project?\\r\\n\\r\\nWe will wait for your confirmation before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number","source_language","target_language","detected_language"]},{"id":"ctd022","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projets <<ProjectNumber1_FR>>, <<ProjectNumber2_FR>> et <<ProjectNumber3_FR>> – Demande de priorisation","en":"Projects <<ProjectNumber1_EN>>, <<ProjectNumber2_EN>> and <<ProjectNumber3_EN>>  – prioritization request"},"description":{"fr":"Priorisation de projets en cours de traitement","en":"Prioritization request – current projects"},"subject":{"fr":"Projets <<ProjectNumber1_FR>>, <<ProjectNumber2_FR>> et <<ProjectNumber3_FR>> – Demande de priorisation","en":"Projects <<ProjectNumber1_EN>>, <<ProjectNumber2_EN>> and <<ProjectNumber3_EN>>  – prioritization request"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons bien reçu plusieurs projets de votre part qui sont présentement en cours d’analyse. Afin de planifier efficacement le travail, nous vous invitons à nous indiquer l’ordre de priorité pour les projets suivants :\\r\\n•\\t<<ProjectNumber1_FR>>\\r\\n•\\t<<ProjectNumber2_FR>>\\r\\n•\\t<<ProjectNumber3_FR>>\\r\\n•\\t(…)\\r\\n\\r\\nCela nous permettra, lorsque possible, d’assigner les mêmes ressources linguistiques à vos projets et ainsi d’assurer une uniformité dans le style et la terminologie.\\r\\n\\r\\nNous vous remercions à l’avance pour votre collaboration et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received several projects from you, which are currently being reviewed. To help us prepare the work efficiently, please indicate the order of priority for the following projects:\\r\\n•\\t<<ProjectNumber1_EN>>\\r\\n•\\t<<ProjectNumber2_EN>>\\r\\n•\\t<<ProjectNumber3_EN>>\\r\\n•\\t(...)\\r\\n\\r\\nThis will allow us, whenever possible, to assign the same language resources to your projects, ensuring consistency in style and terminology.\\r\\n\\r\\nWe thank you in advance for your cooperation. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number1","project_number2","project_number3"]},{"id":"ctd023","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> - Service en langage clair et simple","en":"Project <<ProjectNumber_EN>> – plain language services"},"description":{"fr":"Précisions pour services en language clair et simples","en":"Plain language services"},"subject":{"fr":"Projet <<ProjectNumber_FR>> - Service en langage clair et simple","en":"Project <<ProjectNumber_EN>> – plain language services"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nVous avez indiqué nécessiter un traitement en langage clair et simple.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir préciser à quel public le document est destiné (ex. : population générale, clientèle spécifique, employés internes, etc.).\\r\\n\\r\\nCette information nous permettra de cibler le ton et la formulation de manière à répondre aux besoins des destinataires du texte.\\r\\n\\r\\nNous attendons votre réponse avant d’aller de l’avant.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have received Project <<ProjectNumber_EN>>.\\r\\n\\r\\nYou have requested plain language editing.\\r\\n\\r\\nCould you please tell us who the intended audience is (e.g., general public, specific clients, internal staff, etc.)?\\r\\n\\r\\nThis information will help us tailor the tone and wording of text to the needs of the audience.\\r\\n\\r\\nWe will wait for your response before proceeding.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd024","category":"follow_ups_and_cancellations","category_fr":"Suivi et annulations","category_en":"Follow-ups and cancellations","title":{"fr":"Projet <<ProjectNumber_FR>> – Retour d’information sur l’annulation","en":"Project <<ProjectNumber_EN>> – feedback on cancellation"},"description":{"fr":"Demande de retour d'information suite à une annulation","en":"Cancellation – feedback"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Retour d’information sur l’annulation","en":"Project <<ProjectNumber_EN>> – feedback on cancellation"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous avons constaté l’annulation de votre projet <<ProjectNumber_FR>> et souhaiterions comprendre ce qui a motivé cette décision.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser ce qui a motivé l’annulation, qu’il s’agisse, par exemple, de contraintes de budget, de délai ou d’autres considérations.\\r\\n\\r\\nQuelle que soit la raison, votre retour nous serait précieux, car nous accordons une grande importance à la satisfaction de nos clients et cherchons constamment à améliorer nos services.\\r\\n\\r\\nNous vous remercions d’avance pour le temps que vous consacrerez à cette rétroaction et demeurons à votre disposition pour toute question ou tout renseignement complémentaire.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe have noted the cancellation of Project <<ProjectNumber_EN>> and would like to understand the reasons behind this decision.\\r\\n\\r\\nIf possible, could you tell us what led to the cancellation, whether it was due to budget constraints, the deadline or other considerations?\\r\\n\\r\\nWhatever the reason, your feedback is valuable to us, as we are committed to client satisfaction and continuously improving our services.\\r\\n\\r\\nWe thank you in advance for taking the time to provide feedback. Please contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd025","category":"deadlines_and_delivery","category_fr":"Délais et livraisons","category_en":"Deadlines and delivery","title":{"fr":"Projet <<ProjectNumber_FR>> – Interruption de service temporaire","en":"Project <<ProjectNumber_EN>> – temporary service interruption"},"description":{"fr":"Avis d'interruption de service de service temporaire et de retard de livraison","en":"System outages and tool failures"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Interruption de service temporaire","en":"Project <<ProjectNumber_EN>> – temporary service interruption"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous souhaitons vous informer qu’une panne technique affecte actuellement nos systèmes internes, ce qui entraîne un ralentissement de nos opérations, y compris le traitement de votre projet <<ProjectNumber_FR>>.\\r\\n\\r\\nNos équipes techniques sont mobilisées pour rétablir la situation dans les plus brefs délais. Cependant, d'ici là, nous éprouvons un ralentissement de nos opérations.\\r\\n\\r\\nPour cette raison, l'échéancier de votre projet devra vraisemblablement être ajusté. Nous nous excusons pour les inconvénients; soyez assuré que nous le livrerons dès que possible.\\r\\n\\r\\nNous vous remercions de votre compréhension et de votre patience pendant cette interruption temporaire.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe would like to inform you that a technical issue is currently affecting our internal systems, which is causing delays in our operations, including the processing of Project <<ProjectNumber_EN>>.\\r\\n\\r\\nOur technical teams are actively working to resolve the issue as quickly as possible. However, in the meantime, our operations will proceed slower than normal.\\r\\n\\r\\nAs a result, the time frame for your project may need to be adjusted. We apologize for the inconvenience and assure you that we will deliver your project as soon as possible.\\r\\n\\r\\nThank you for your understanding and support during this temporary interruption.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd026","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_EN>> – Précision requise sur le type de révision souhaité","en":"Project <<ProjectNumber_EN>> – clarification required on type of revision"},"description":{"fr":"Demande de précisions pour type de révision ou relecture","en":"Clarifying requested services – comparative revision or unilingual editing"},"subject":{"fr":"Projet <<ProjectNumber_EN>> – Précision requise sur le type de révision souhaité","en":"Project <<ProjectNumber_EN>> – clarification required on type of revision"},"body":{"fr":"Bonjour,\\r\\n\\r\\nAfin d’orienter adéquatement le traitement de votre projet <<ProjectNumber_FR>>, nous aimerions confirmer le type de révision que vous souhaitez. Nous offrons deux services distincts :\\r\\n\\r\\nRévision comparative\\r\\nLe texte traduit est comparé au texte source pour en vérifier l’exactitude, l’exhaustivité et la fidélité. Ce type de révision permet de corriger les erreurs de sens et d’assurer une bonne formulation dans la langue cible.\\r\\n\\r\\nRévision unilingue\\r\\nLe texte est révisé uniquement dans la langue d’origine, sans référence au texte dans une autre langue. L’accent est mis sur la clarté, la fluidité, la grammaire, la ponctuation et la cohérence du texte.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir préciser vos besoins, ou de nous indiquer l’objectif principal de votre demande, afin que nous puissions vous orienter vers l’option la plus appropriée. \\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nTo ensure that Project <<ProjectNumber_EN>> is processed appropriately, we would like to confirm the type of revision you are requesting. We offer two distinct services:\\r\\n\\r\\nComparative revision\\r\\nThe translated text is compared to the source text to check for accuracy, completeness and fidelity. This type of revision corrects errors in meaning and ensures proper wording in the target language.\\r\\n\\r\\nUnilingual editing\\r\\nThe text is revised in the target language only, without reference to the text in another language. The focus is on the text’s clarity, flow, grammar, punctuation and coherence.\\r\\n\\r\\nCould you clarify which service you would prefer or tell us the main objective of your project so that we can recommend the most suitable option?\\r\\n \\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd027","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Projet <<ProjectNumber_FR>> – Précision requise sur le type de service souhaité","en":"Project <<ProjectNumber_EN>> – clarification required on type of service"},"description":{"fr":"Demande de précision pour le type de service (révision ou traduction de modifications)","en":"Clarifying requested services – translation of modified documents or comparative revision"},"subject":{"fr":"Projet <<ProjectNumber_FR>> – Précision requise sur le type de service souhaité","en":"Project <<ProjectNumber_EN>> – clarification required on type of service"},"body":{"fr":"Bonjour,\\r\\n\\r\\nNous accusons réception du projet <<ProjectNumber_FR>>.\\r\\n\\r\\nAfin d’orienter adéquatement le traitement de votre demande, voici quelques précisions sur les services disponibles :\\r\\n\\r\\nTraduction de modifications\\r\\nCe service consiste à traduire uniquement les parties du texte qui ont été modifiées par rapport à une version antérieure du document. Il convient lorsque les changements sont limités et bien identifiés. Lorsque les modifications sont nombreuses, dispersées ou complexes, l’effort requis peut s’approcher de celui d’une retraduction complète. Dans ce cas, la facturation est basée sur le temps réel nécessaire pour effectuer le travail. Selon l’ampleur des changements, une nouvelle traduction peut parfois s’avérer plus efficace et rentable.\\r\\n\\r\\nRévision comparative\\r\\nLa révision comparative consiste à comparer une traduction au texte original afin d’en valider la fidélité, la cohérence et la qualité linguistique. Le réviseur travaille sur le texte traduit déjà livré, en le modifiant au besoin pour améliorer la formulation, corriger les fautes, harmoniser le style et s’assurer qu’il reflète adéquatement le sens du texte original. Il ne s’agit pas d’une retraduction, mais d’un travail de révision et d’optimisation du contenu existant.\\r\\n\\r\\nNous vous serions reconnaissants de bien vouloir nous préciser vos préférences, ou de nous transmettre la version finale du document si cela n’est pas déjà fait, afin que nous puissions vous recommander l’option la plus appropriée.\\r\\n\\r\\nPour toute question ou tout renseignement complémentaire, n’hésitez pas à communiquer avec nous.\\r\\n\\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nWe acknowledge receipt of the project <<ProjectNumber_EN>>.\\r\\n\\r\\nTo provide you with the best possible guidance regarding your request, please consider the following details on our available services:\\r\\n\\r\\nTranslation of modified documents\\r\\nThis service involves translating only the parts of the text that have been modified from a previous version of the document. It is suitable when the changes are limited and clearly indicated. When the changes are numerous, scattered or complex, the effort required may be equivalent to that of a full retranslation. In such cases, billing is based on the actual time needed to complete the work. Depending on the extent of the changes, a new translation may sometimes be more efficient and cost-effective.\\r\\n\\r\\nComparative revision\\r\\nThis service involves comparing a translation to the original text in order to check its fidelity, consistency and linguistic quality. The reviser works on the translation received, making changes as necessary to improve the wording, correct errors, standardize the style, and ensure that the meaning accurately reflects the original text. This involves revising and optimizing the existing content rather than retranslating it.\\r\\n\\r\\nWe would appreciate it if you could confirm your preference, or send us the final version of the document if you have not already, so that we can recommend the most appropriate option.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nBest regards,"},"variables":["project_number"]},{"id":"ctd028","category":"clarifications_and_client_instructions","category_fr":"Précisions et instructions client","category_en":"Clarifications and client instructions","title":{"fr":"Présentation des services et tarifs","en":"Overview of services and rates"},"description":{"fr":"Renseignements généraux sur les services et tarifs","en":"Services and rates"},"subject":{"fr":"Présentation des services et tarifs","en":"Overview of services and rates"},"body":{"fr":"Bonjour,\\r\\n\\r\\nMerci de l’intérêt que vous portez à nos services.\\r\\n\\r\\nPour vous aider à mieux comprendre nos services et la structure de nos prix, vous trouverez ci-joint les versions française et anglaise du tableau résumant chacun de nos services ainsi que les tarifs correspondants.\\r\\n\\r\\nN’hésitez pas à nous écrire si vous avez des questions ou si vous souhaitez des précisions supplémentaires.\\r\\n\\r\\nVoici également les coordonnées de nos gestionnaires de portefeuilles clients:\\r\\nNeysa McLeod: neysa.mcleod@tpsgc-pwgsc.gc.ca\\r\\nMélanie Danis: melanie.danis@tpsgc-pwgsc.gc.ca\\r\\n \\r\\nBien cordialement,","en":"Hello,\\r\\n\\r\\nThank you for your interest in our services.\\r\\n\\r\\nTo help you better understand our services and pricing structure, please find attached the English and French versions of a table summarizing each of our services and the corresponding rates.\\r\\n\\r\\nPlease feel free to contact us if you have any questions or need more information.\\r\\n\\r\\nPlease find the contact information of our client portfolio managers below:\\r\\nNeysa McLeod: neysa.mcleod@tpsgc-pwgsc.gc.ca\\r\\nMélanie Danis: melanie.danis@tpsgc-pwgsc.gc.ca \\r\\n\\r\\nBest regards,"},"variables":[]},{"id":"ctd029","category":"security_and_copyright","category_fr":"Sécurité et droits d’auteur","category_en":"Security and copyright","title":{"fr":"Avis de bris de sécurité - mesures à prendre","en":"Security breach notification - actions to be taken"},"description":{"fr":"Instructions to external provider following a security breach","en":"Instructions au fournisseur externe suite à un bris de sécurité"},"subject":{"fr":"Avis de bris de sécurité - mesures à prendre","en":"Security breach notification - actions to be taken"},"body":{"fr":"Bonjour,\\r\\n\\r\\nJe vous écris pour vous informer qu’une erreur a eu lieu concernant l’envoi de documents protégés. Cette situation doit être rectifiée immédiatement afin de garantir la sécurité et la confidentialité des informations.\\r\\n\\r\\nVoici les actions que vous devez prendre sans délai :\\r\\n\\r\\nVérification du téléchargement des documents\\r\\nVeuillez confirmer si vous avez téléchargé les documents que nous vous avons envoyés. Cette étape est essentielle afin de déterminer si les documents ont été enregistrés sur vos systèmes. Si vous avez téléchargé ces documents, il est impératif que vous procédiez à la suppression immédiate de toutes les copies.\\r\\n\\r\\nSuppression de toutes les copies des documents\\r\\nSi les documents ont été téléchargés, merci de les supprimer dans leur intégralité de tous vos dispositifs et supports de stockage, y compris, mais sans s'y limiter :\\r\\nSur votre serveur\\r\\nSur votre ordinateur local\\r\\nDans tous les systèmes ou bases de données où les documents ont pu être copiés ou stockés\\r\\nSur tout autre dispositif ou réseau pouvant avoir conservé une copie des documents (disques durs externes, systèmes de sauvegarde, etc.)\\r\\n\\r\\nCette suppression doit être effectuée de manière complète, en vous assurant qu'aucune copie résiduelle ne subsiste sur vos systèmes.\\r\\n\\r\\nVérification des mémoires non protégées\\r\\nAssurez-vous également que ces documents n’ont pas été transférés dans des zones de stockage non protégées, telles que des dossiers non sécurisés, des applications tierces, ou des dispositifs de stockage amovibles. Si tel est le cas, veuillez procéder à la suppression de ces copies sans délai.\\r\\n\\r\\nConfirmation de la suppression\\r\\nUne fois toutes les copies supprimées, merci de nous confirmer par retour de courriel que cette action a été réalisée avec succès. Il est essentiel que nous recevions une confirmation de votre part afin de clore cette situation.\\r\\n\\r\\nEnfin, nous vous demandons de nous signaler toute difficulté que vous pourriez rencontrer lors de la mise en œuvre de ces actions, ou si vous avez besoin d'assistance technique.\\r\\n\\r\\nNous comprenons que cette situation puisse engendrer des désagréments et nous vous remercions pour votre collaboration rapide et efficace pour assurer la sécurité des informations. Nous restons à votre disposition pour toute question ou précision supplémentaire.\\r\\n\\r\\nCordialement,","en":"Hello,\\r\\n\\r\\nI am writing to inform you that an error has occurred regarding the transmission of protected documents. This situation must be rectified immediately to ensure the security and confidentiality of the information.\\r\\n\\r\\nHere are the actions you need to take without delay:\\r\\n\\r\\nVerification of document download\\r\\nPlease confirm whether you have downloaded the documents we sent you. This step is essential to determine if the documents have been saved on your systems. If you have downloaded these documents, it is imperative that you proceed with the immediate deletion of all copies.\\r\\n\\r\\nDeletion of all copies of the documents\\r\\nIf the documents have been downloaded, please delete them entirely from all your devices and storage media, including, but not limited to:\\r\\nOn your server\\r\\nOn your local computer\\r\\nIn all systems or databases where the documents may have been copied or stored\\r\\nOn any other device or network that may have retained a copy of the documents (external hard drives, backup systems, etc.)\\r\\n\\r\\nThis deletion must be carried out thoroughly, ensuring that no residual copies remain on your systems.\\r\\n\\r\\nVerification of unprotected storage\\r\\nAlso ensure that these documents have not been transferred to unprotected storage areas, such as unsecured folders, third-party applications, or removable storage devices. If this is the case, please proceed with the deletion of these copies without delay.\\r\\n\\r\\nConfirmation of deletion\\r\\nOnce all copies have been deleted, please confirm by replying to this email that this action has been successfully completed. It is crucial that we receive a confirmation from you to close this matter.\\r\\n\\r\\nFinally, we ask that you report any difficulty you may encounter while carrying out these actions, or if you need any technical assistance.\\r\\n\\r\\nWe understand that this situation may cause inconvenience, and we thank you for your prompt and efficient cooperation to ensure the security of the information. We remain available for any questions or additional clarifications.\\r\\n\\r\\nBest regards,"},"variables":[]}]`);
+const variables = { "project_number": { "description": { "en": "Project number", "fr": "Numéro de projet" }, "example": { "en": "123-4567-001", "fr": "123-4567-001" }, "format": "text" }, "nb_days": { "description": { "en": "Estimated number of working days", "fr": "Nombre estimé de jours ouvrables" }, "example": { "en": "3", "fr": "3" }, "format": "number" }, "cost": { "description": { "en": "Estimated cost in dollars", "fr": "Coût estimé en dollars" }, "example": { "en": "1500", "fr": "1500" }, "format": "number" }, "urgent_cost": { "description": { "en": "Estimated cost with rush premium", "fr": "Coût estimé avec prime d’urgence" }, "example": { "en": "1200", "fr": "1200" }, "format": "number" }, "date": { "description": { "en": "Date when the quote was sent", "fr": "Date d’envoi du devis" }, "example": { "en": "2025-01-15", "fr": "15 janvier 2025" }, "format": "date" }, "deadline_time": { "description": { "en": "Time limit to confirm the preferred option", "fr": "Heure limite pour confirmer l’option retenue" }, "example": { "en": "5 p.m.", "fr": "17 h" }, "format": "text" }, "deadline_date": { "description": { "en": "Final date to receive a response", "fr": "Date limite pour recevoir une réponse" }, "example": { "en": "2025-01-22", "fr": "22 janvier 2025" }, "format": "date" }, "page_count": { "description": { "en": "Approximate number of pages", "fr": "Nombre approximatif de pages" }, "example": { "en": "10", "fr": "10" }, "format": "number" }, "estimated_cost": { "description": { "en": "Estimated cost in dollars", "fr": "Coût estimé en dollars" }, "example": { "en": "800", "fr": "800" }, "format": "number" }, "dprate": { "description": { "en": "Desktop publishing hourly rate", "fr": "Taux horaire d’éditique" }, "example": { "en": "75", "fr": "75" }, "format": "number" }, "dphours": { "description": { "en": "Estimated desktop publishing hours", "fr": "Nombre estimé d’heures d’éditique" }, "example": { "en": "2", "fr": "2" }, "format": "number" }, "new_date": { "description": { "en": "Adjusted delivery date", "fr": "Nouvelle date de livraison" }, "example": { "en": "2025-07-02", "fr": "2 juillet 2025" }, "format": "date" }, "new_deadline": { "description": { "en": "Proposed new delivery date", "fr": "Nouvelle date de livraison proposée" }, "example": { "en": "2025-02-20", "fr": "20 février 2025" }, "format": "date" }, "target_language": { "description": { "en": "Target language indicated in the request", "fr": "Langue cible indiquée dans la demande" }, "example": { "en": "French", "fr": "français" }, "format": "text" }, "original_date": { "description": { "en": "Original requested delivery date", "fr": "Date de livraison demandée initialement" }, "example": { "en": "2025-07-01", "fr": "1er juillet 2025" }, "format": "date" }, "min_amount": { "description": { "en": "Minimum estimated cost in dollars", "fr": "Coût estimé minimal en dollars" }, "example": { "en": "300", "fr": "300" }, "format": "number" }, "max_amount": { "description": { "en": "Maximum estimated cost in dollars", "fr": "Coût estimé maximal en dollars" }, "example": { "en": "900", "fr": "900" }, "format": "number" }, "source_language": { "description": { "en": "Source language indicated in the request", "fr": "Langue source indiquée dans la demande" }, "example": { "en": "English", "fr": "anglais" }, "format": "text" }, "detected_language": { "description": { "en": "Language detected in the submitted document", "fr": "Langue détectée dans le document soumis" }, "example": { "en": "French", "fr": "français" }, "format": "text" }, "project_number1": { "description": { "en": "First project number to prioritize", "fr": "Numéro du premier projet à prioriser" }, "example": { "en": "123-4567-001", "fr": "123-4567-001" }, "format": "text" }, "project_number2": { "description": { "en": "Second project number to prioritize", "fr": "Numéro du deuxième projet à prioriser" }, "example": { "en": "123-4567-002", "fr": "123-4567-002" }, "format": "text" }, "project_number3": { "description": { "en": "Third project number to prioritize", "fr": "Numéro du troisième projet à prioriser" }, "example": { "en": "123-4567-003", "fr": "123-4567-003" }, "format": "text" } };
 const canonicalTemplatesRaw = {
-  templates
+  metadata,
+  templates,
+  variables
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
@@ -9491,7 +9542,7 @@ const selectEntirePill$1 = (pill) => {
 const SimplePillEditor = React.forwardRef(({
   value,
   onChange,
-  variables,
+  variables: variables2,
   placeholder,
   onVariablesChange,
   focusedVarName,
@@ -9505,13 +9556,8 @@ const SimplePillEditor = React.forwardRef(({
   const autoSelectSuppressedUntilRef = reactExports.useRef(0);
   const clickSelectTimerRef = reactExports.useRef(null);
   const getVarValue = reactExports.useCallback((name = "") => {
-    var _a, _b;
-    const lang = (templateLanguage || "fr").toLowerCase();
-    const suffix = (_b = (_a = name.match(/_(fr|en)$/i)) == null ? void 0 : _a[1]) == null ? void 0 : _b.toLowerCase();
-    if (suffix) return (variables == null ? void 0 : variables[name]) ?? "";
-    if (lang === "en") return (variables == null ? void 0 : variables[`${name}_EN`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-    return (variables == null ? void 0 : variables[`${name}_FR`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-  }, [variables, templateLanguage]);
+    return resolveVariableValue(variables2, name, templateLanguage);
+  }, [variables2, templateLanguage]);
   const renderContent = (text) => {
     if (!text) return "";
     const regex = /<<([^>]+)>>/g;
@@ -9637,7 +9683,7 @@ const SimplePillEditor = React.forwardRef(({
           pill.classList.remove("empty");
         }
         pill.setAttribute("data-display", newValue);
-        if (((variables == null ? void 0 : variables[varName]) || "") !== newValue) hasChanges = true;
+        if (((variables2 == null ? void 0 : variables2[varName]) || "") !== newValue) hasChanges = true;
         updates[varName] = newValue;
       });
     }
@@ -9726,10 +9772,29 @@ const SimplePillEditor = React.forwardRef(({
     if (!editorRef.current || isFocused) return;
     const rendered = renderContent(value);
     if (editorRef.current.innerHTML !== rendered) editorRef.current.innerHTML = rendered;
-  }, [value, variables, isFocused, getVarValue, templateLanguage]);
+  }, [value, variables2, isFocused, getVarValue, templateLanguage]);
   reactExports.useEffect(() => {
     applyFocusedPill(focusedVarName);
-  }, [focusedVarName, variables, applyFocusedPill]);
+  }, [focusedVarName, variables2, applyFocusedPill]);
+  reactExports.useEffect(() => {
+    if (!editorRef.current) return;
+    const pills = editorRef.current.querySelectorAll(".var-pill");
+    pills.forEach((pill) => {
+      const varName = pill.getAttribute("data-var");
+      if (!varName) return;
+      const varValue = getVarValue(varName);
+      const isFilled = varValue.trim().length > 0;
+      const displayValue = isFilled ? varValue : `<<${varName}>>`;
+      const currentText = (pill.textContent || "").trim();
+      const expectedText = displayValue.trim();
+      if (currentText !== expectedText) {
+        pill.textContent = displayValue;
+        pill.classList.toggle("filled", isFilled);
+        pill.classList.toggle("empty", !isFilled);
+        pill.setAttribute("data-display", isFilled ? varValue : "");
+      }
+    });
+  }, [variables2, getVarValue]);
   reactExports.useEffect(() => {
     if (!isFocused || !editorRef.current) return;
     const handleSelectionChange = () => {
@@ -10588,7 +10653,7 @@ const RichTextPillEditor = React.forwardRef(({
   onFocus,
   onBlur,
   onVariablesChange,
-  variables = {},
+  variables: variables2 = {},
   placeholder = "",
   className = "",
   style = {},
@@ -10605,23 +10670,14 @@ const RichTextPillEditor = React.forwardRef(({
   const [isFocused, setIsFocused] = reactExports.useState(false);
   const lastSelectionVarRef = reactExports.useRef(null);
   const prevValueRef = reactExports.useRef(value);
-  const prevVariablesRef = reactExports.useRef(variables);
+  const prevVariablesRef = reactExports.useRef(variables2);
   const hasMountedRef = reactExports.useRef(false);
   const autoSelectTrackerRef = reactExports.useRef({ varName: null, timestamp: 0 });
   const autoSelectSuppressedUntilRef = reactExports.useRef(0);
   const clickSelectTimerRef = reactExports.useRef(null);
   const getVarValue = reactExports.useCallback((name = "") => {
-    var _a, _b;
-    const lang = (templateLanguage || "fr").toLowerCase();
-    const suffix = (_b = (_a = name.match(/_(fr|en)$/i)) == null ? void 0 : _a[1]) == null ? void 0 : _b.toLowerCase();
-    if (suffix) {
-      return (variables == null ? void 0 : variables[name]) ?? "";
-    }
-    if (lang === "en") {
-      return (variables == null ? void 0 : variables[`${name}_EN`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-    }
-    return (variables == null ? void 0 : variables[`${name}_FR`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-  }, [variables, templateLanguage]);
+    return resolveVariableValue(variables2, name, templateLanguage);
+  }, [variables2, templateLanguage]);
   const renderContent = (text) => {
     if (!text) return "";
     const regex = /<<([^>]+)>>/g;
@@ -10764,7 +10820,7 @@ const RichTextPillEditor = React.forwardRef(({
           pill.classList.remove("empty");
         }
         pill.setAttribute("data-display", newValue);
-        if (((variables == null ? void 0 : variables[varName]) || "") !== newValue) {
+        if (((variables2 == null ? void 0 : variables2[varName]) || "") !== newValue) {
           hasChanges = true;
         }
         updates[varName] = newValue;
@@ -10943,19 +10999,19 @@ const RichTextPillEditor = React.forwardRef(({
     const firstRun = !hasMountedRef.current;
     if (!editor) {
       prevValueRef.current = value;
-      prevVariablesRef.current = variables;
+      prevVariablesRef.current = variables2;
       return;
     }
     if (isFocused) {
       prevValueRef.current = value;
-      prevVariablesRef.current = variables;
+      prevVariablesRef.current = variables2;
       hasMountedRef.current = true;
       return;
     }
     const prevValue = prevValueRef.current;
     const prevVars = prevVariablesRef.current;
     const textChanged = value !== prevValue;
-    const varsChanged = haveVariablesChanged(prevVars || {}, variables || {});
+    const varsChanged = haveVariablesChanged(prevVars || {}, variables2 || {});
     if (firstRun) {
       const rendered = renderContent(value);
       if (editor.innerHTML !== rendered) {
@@ -10971,7 +11027,7 @@ const RichTextPillEditor = React.forwardRef(({
       pills.forEach((pill) => {
         const varName = pill.getAttribute("data-var");
         if (!varName) return;
-        const rawValue = variables == null ? void 0 : variables[varName];
+        const rawValue = variables2 == null ? void 0 : variables2[varName];
         const stringValue = rawValue == null ? "" : String(rawValue);
         const trimmed = stringValue.trim();
         const placeholder2 = `<<${varName}>>`;
@@ -10991,14 +11047,34 @@ const RichTextPillEditor = React.forwardRef(({
     }
     hasMountedRef.current = true;
     prevValueRef.current = value;
-    prevVariablesRef.current = variables;
+    prevVariablesRef.current = variables2;
     if (firstRun || textChanged) {
       refreshAllPillTemplates(editor);
     }
-  }, [value, variables, isFocused, getVarValue, templateLanguage]);
+  }, [value, variables2, isFocused, getVarValue, templateLanguage]);
   reactExports.useEffect(() => {
     applyFocusedPill(focusedVarName);
-  }, [focusedVarName, variables, applyFocusedPill]);
+  }, [focusedVarName, variables2, applyFocusedPill]);
+  reactExports.useEffect(() => {
+    if (!editorRef.current) return;
+    const pills = editorRef.current.querySelectorAll(".var-pill");
+    pills.forEach((pill) => {
+      const varName = pill.getAttribute("data-var");
+      if (!varName) return;
+      const varValue = getVarValue(varName);
+      const isFilled = varValue.trim().length > 0;
+      const displayValue = isFilled ? varValue : `<<${varName}>>`;
+      const currentText = (pill.textContent || "").trim();
+      const expectedText = displayValue.trim();
+      if (currentText !== expectedText) {
+        const newHtml = convertPlainTextToHtml(displayValue);
+        applyTemplateToPill(pill, newHtml);
+        pill.classList.toggle("filled", isFilled);
+        pill.classList.toggle("empty", !isFilled);
+        pill.setAttribute("data-display", isFilled ? varValue : "");
+      }
+    });
+  }, [variables2, getVarValue]);
   reactExports.useEffect(() => {
     if (!isFocused || !editorRef.current) return;
     const handleSelectionChange = () => {
@@ -11243,7 +11319,7 @@ const TEXT = {
     }
   }
 };
-const AISidebar = ({ emailText, onResult, variables, interfaceLanguage = "fr" }) => {
+const AISidebar = ({ emailText, onResult, variables: variables2, interfaceLanguage = "fr" }) => {
   const [copiedPrompt, setCopiedPrompt] = reactExports.useState(null);
   const [customPrompt, setCustomPrompt] = reactExports.useState("");
   const [customCopied, setCustomCopied] = reactExports.useState(false);
@@ -11254,20 +11330,20 @@ const AISidebar = ({ emailText, onResult, variables, interfaceLanguage = "fr" })
     const userAgent = navigator.userAgent;
     setIsEdgeDetected(userAgent.includes("Edg/"));
   }, []);
-  const resolveVariableValue = (varName = "") => {
+  const resolveVariableValue2 = (varName = "") => {
     if (!varName) return "";
     const key = varName.trim();
     if (!key) return "";
-    const direct = variables == null ? void 0 : variables[key];
+    const direct = variables2 == null ? void 0 : variables2[key];
     if (direct && String(direct).trim()) return String(direct).trim();
-    const lower = variables == null ? void 0 : variables[key.toLowerCase()];
+    const lower = variables2 == null ? void 0 : variables2[key.toLowerCase()];
     if (lower && String(lower).trim()) return String(lower).trim();
     return "";
   };
   const injectVariableValues = (text = "") => {
     if (!text) return "";
     return text.replace(/<<\s*([^<>]+?)\s*>>/g, (_, name) => {
-      const value = resolveVariableValue(name);
+      const value = resolveVariableValue2(name);
       return value || `<<${name.trim()}>>`;
     });
   };
@@ -17400,7 +17476,7 @@ var SelectTrigger$1 = reactExports.forwardRef(
 );
 SelectTrigger$1.displayName = TRIGGER_NAME;
 var VALUE_NAME = "SelectValue";
-var SelectValue$1 = reactExports.forwardRef(
+var SelectValue = reactExports.forwardRef(
   (props, forwardedRef) => {
     const { __scopeSelect, className, style, children, placeholder = "", ...valueProps } = props;
     const context = useSelectContext(VALUE_NAME, __scopeSelect);
@@ -17421,7 +17497,7 @@ var SelectValue$1 = reactExports.forwardRef(
     );
   }
 );
-SelectValue$1.displayName = VALUE_NAME;
+SelectValue.displayName = VALUE_NAME;
 var ICON_NAME = "SelectIcon";
 var SelectIcon = reactExports.forwardRef(
   (props, forwardedRef) => {
@@ -18340,7 +18416,6 @@ function wrapArray(array, startIndex) {
 }
 var Root2 = Select$1;
 var Trigger = SelectTrigger$1;
-var Value = SelectValue$1;
 var Icon = SelectIcon;
 var Portal = SelectPortal;
 var Content2 = SelectContent$1;
@@ -18353,7 +18428,6 @@ var ScrollUpButton = SelectScrollUpButton$1;
 var ScrollDownButton = SelectScrollDownButton$1;
 var Separator = SelectSeparator$1;
 const Select = Root2;
-const SelectValue = Value;
 const SelectTrigger = reactExports.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
   Trigger,
   {
@@ -18852,16 +18926,16 @@ const extractVariablesFromPills = (htmlText = "") => {
   if (!htmlText) return {};
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = htmlText;
-  const variables = {};
+  const variables2 = {};
   const pills = tempDiv.querySelectorAll("[data-var]");
   pills.forEach((pill) => {
     const varName = pill.getAttribute("data-var");
     const varValue = pill.getAttribute("data-value") || pill.textContent || "";
     if (varName) {
-      variables[varName] = varValue;
+      variables2[varName] = varValue;
     }
   });
-  return variables;
+  return variables2;
 };
 const parseTemplateStructure = (tpl) => {
   if (!tpl) return [];
@@ -19282,21 +19356,12 @@ const interfaceTexts = {
     searchPlaceholder: "Rechercher un modèle...",
     allCategories: "Toutes les catégories",
     categories: {
-      Annulations: "Annulations",
-      Assurance: "Assurance",
-      "Avis de voyage": "Avis de voyage",
-      "Demande générale": "Demande générale",
-      Devis: "Devis",
-      "Itinéraire": "Itinéraire",
-      "Marketing & promotions": "Marketing & promotions",
-      Paiements: "Paiements",
-      Plaintes: "Plaintes",
-      "Réservation": "Réservation",
-      "Suivi post-voyage": "Suivi post-voyage",
-      "Urgence": "Urgence",
-      "Visa & documentation": "Visa & documentation",
-      "Voyages d'affaires": "Voyages d'affaires",
-      "Voyages de groupe": "Voyages de groupe"
+      clarifications_and_client_instructions: "Précisions et instructions client",
+      deadlines_and_delivery: "Délais et livraisons",
+      documents_and_formatting: "Documents et formats",
+      follow_ups_and_cancellations: "Suivi et annulations",
+      quotes_and_approvals: "Devis et approbations",
+      security_and_copyright: "Sécurité et droits d'auteur"
     },
     templateLanguage: "Langue du modèle",
     interfaceLanguage: "Langue de l'interface",
@@ -19333,21 +19398,12 @@ const interfaceTexts = {
     searchPlaceholder: "Search for a template...",
     allCategories: "All categories",
     categories: {
-      Annulations: "Cancellations",
-      Assurance: "Insurance",
-      "Avis de voyage": "Travel advisories",
-      "Demande générale": "General inquiries",
-      Devis: "Quotes",
-      "Itinéraire": "Itinerary",
-      "Marketing & promotions": "Marketing & promotions",
-      Paiements: "Payments",
-      Plaintes: "Complaints",
-      "Réservation": "Reservation",
-      "Suivi post-voyage": "Post-trip follow-up",
-      "Urgence": "Emergency",
-      "Visa & documentation": "Visa & documentation",
-      "Voyages d'affaires": "Business travel",
-      "Voyages de groupe": "Group travel"
+      clarifications_and_client_instructions: "Clarifications and client instructions",
+      deadlines_and_delivery: "Deadlines and delivery",
+      documents_and_formatting: "Documents and formatting",
+      follow_ups_and_cancellations: "Follow-ups and cancellations",
+      quotes_and_approvals: "Quotes and approvals",
+      security_and_copyright: "Security and copyright"
     },
     templateLanguage: "Template language",
     interfaceLanguage: "Interface language",
@@ -19426,7 +19482,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = reactExports.useState(savedState.selectedCategory || "all");
   const [finalSubject, setFinalSubject] = reactExports.useState("");
   const [finalBody, setFinalBody] = reactExports.useState("");
-  const [variables, setVariables] = reactExports.useState(savedState.variables || {});
+  const [variables2, setVariables] = reactExports.useState(savedState.variables || {});
   const [strictClassic, setStrictClassic] = reactExports.useState(() => {
     if (typeof savedState.strictClassic !== "undefined") return !!savedState.strictClassic;
     try {
@@ -19435,7 +19491,7 @@ function App() {
       return false;
     }
   });
-  const variablesRef = reactExports.useRef(variables);
+  const variablesRef = reactExports.useRef(variables2);
   const finalSubjectRef = reactExports.useRef(finalSubject);
   const finalBodyRef = reactExports.useRef(finalBody);
   const bodyEditorRef = reactExports.useRef(null);
@@ -19445,8 +19501,8 @@ function App() {
   const syncFromTextRef = reactExports.useRef(null);
   const focusFromPopoutRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    variablesRef.current = variables;
-  }, [variables]);
+    variablesRef.current = variables2;
+  }, [variables2]);
   reactExports.useEffect(() => {
     finalSubjectRef.current = finalSubject;
   }, [finalSubject]);
@@ -19678,6 +19734,7 @@ function App() {
   }, [updateHoverHighlight]);
   const handleInlineVariableChange = reactExports.useCallback((updates) => {
     if (!updates) return;
+    console.log("[Main] handleInlineVariableChange", updates);
     const assignments = {};
     Object.entries(updates).forEach(([key, rawValue]) => {
       const normalized = (rawValue ?? "").toString();
@@ -19688,7 +19745,7 @@ function App() {
   reactExports.useEffect(() => {
     if (!focusedVar) return;
     requestAnimationFrame(() => updateFocusHighlight(focusedVar));
-  }, [variables, showHighlights, focusedVar, updateFocusHighlight]);
+  }, [variables2, showHighlights, focusedVar, updateFocusHighlight]);
   reactExports.useEffect(() => {
     updateFocusHighlight(null);
   }, [selectedTemplateId, templateLanguage, updateFocusHighlight]);
@@ -19755,13 +19812,13 @@ function App() {
         searchQuery,
         selectedCategory,
         selectedTemplateId,
-        variables,
+        variables: variables2,
         favorites,
         favoritesOnly
       });
     }, 300);
     return () => clearTimeout(timeoutId);
-  }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, selectedTemplateId, variables, favorites, favoritesOnly]);
+  }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, selectedTemplateId, variables2, favorites, favoritesOnly]);
   reactExports.useEffect(() => {
     try {
       localStorage.setItem("ea_left_width", String(leftWidth));
@@ -19901,7 +19958,7 @@ function App() {
           }
           applyTemplateMeta(msg);
         } else if (msg.type === "request_state") {
-          ch.postMessage({ type: "state", variables, templateId: (selectedTemplate == null ? void 0 : selectedTemplate.id) || null, templateLanguage, focusedVar, sender: varsSenderIdRef.current });
+          ch.postMessage({ type: "state", variables: variables2, templateId: (selectedTemplate == null ? void 0 : selectedTemplate.id) || null, templateLanguage, focusedVar, sender: varsSenderIdRef.current });
         } else if (msg.type === "state") {
           if (msg.variables) {
             varsRemoteUpdateRef.current = true;
@@ -20094,7 +20151,7 @@ function App() {
       varsRemoteUpdateRef.current = false;
       return;
     }
-    const snapshot = { ...variables };
+    const snapshot = { ...variables2 };
     const timeoutId = setTimeout(() => {
       const ch = varsChannelRef.current;
       if (!ch) return;
@@ -20104,7 +20161,7 @@ function App() {
       }
     }, 90);
     return () => clearTimeout(timeoutId);
-  }, [variables]);
+  }, [variables2]);
   reactExports.useEffect(() => {
     var _a2;
     if (!canUseBC) return;
@@ -20137,9 +20194,14 @@ function App() {
     }
     skipPopoutBroadcastRef.current = { pending: false, templateId: null, templateLanguage: null };
     try {
+      console.log("[Main→Popout] broadcasting variablesUpdated", {
+        keys: Object.keys(variables2 || {}),
+        count: Object.keys(variables2 || {}).length,
+        sample: Object.entries(variables2 || {}).slice(0, 3)
+      });
       channel.postMessage({
         type: "variablesUpdated",
-        variables: { ...variables },
+        variables: { ...variables2 },
         // send fresh shallow copy to avoid mutation references
         templateId: activeTemplateId,
         templateLanguage,
@@ -20148,7 +20210,7 @@ function App() {
     } catch (e) {
       console.error("Failed to broadcast variables to popout:", e);
     }
-  }, [variables, selectedTemplateId, templateLanguage]);
+  }, [variables2, selectedTemplateId, templateLanguage]);
   reactExports.useEffect(() => {
     if (focusFromPopoutRef.current) {
       focusFromPopoutRef.current = false;
@@ -20240,7 +20302,7 @@ function App() {
       var _a2;
       try {
         if (!selectedTemplate || !selectedTemplate.variables || selectedTemplate.variables.length === 0) return;
-        const firstEmpty = selectedTemplate.variables.find((vn) => !(variables[vn] || "").trim()) || selectedTemplate.variables[0];
+        const firstEmpty = selectedTemplate.variables.find((vn) => !(variables2[vn] || "").trim()) || selectedTemplate.variables[0];
         const el = varInputRefs.current[firstEmpty];
         if (el && typeof el.focus === "function") {
           el.focus();
@@ -20503,7 +20565,7 @@ function App() {
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedTemplate, showVariablePopup, templatesData, variables, handleVarsSmartPaste]);
+  }, [selectedTemplate, showVariablePopup, templatesData, variables2, handleVarsSmartPaste]);
   const { filteredTemplates, searchMatchMap } = reactExports.useMemo(() => {
     var _a2, _b, _c, _d;
     const empty = { filteredTemplates: [], searchMatchMap: {} };
@@ -20783,15 +20845,55 @@ function App() {
     if (last < text.length) parts.push(text.slice(last));
     return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: parts });
   };
-  const categories = reactExports.useMemo(() => {
-    if (!templatesData) return [];
-    const cats = [...new Set(templatesData.templates.map((t2) => t2.category))];
-    return cats;
+  const categoryLabels = reactExports.useMemo(() => {
+    var _a2;
+    if (!templatesData) return {};
+    const labels = { ...((_a2 = templatesData.metadata) == null ? void 0 : _a2.categoryLabels) || {} };
+    (templatesData.templates || []).forEach((t2) => {
+      const key = t2 == null ? void 0 : t2.category;
+      if (!key) return;
+      if (!labels[key]) labels[key] = { fr: "", en: "" };
+      if (t2.category_fr && !labels[key].fr) labels[key].fr = t2.category_fr;
+      if (t2.category_en && !labels[key].en) labels[key].en = t2.category_en;
+    });
+    return labels;
   }, [templatesData]);
+  const categories = reactExports.useMemo(() => {
+    var _a2;
+    if (!templatesData) return [];
+    const metaCats = (_a2 = templatesData == null ? void 0 : templatesData.metadata) == null ? void 0 : _a2.categories;
+    return Array.isArray(metaCats) && metaCats.length ? metaCats : [...new Set((templatesData.templates || []).map((t2) => t2.category).filter(Boolean))];
+  }, [templatesData]);
+  const getCategoryLabel = reactExports.useCallback((categoryKey) => {
+    var _a2, _b;
+    if (!categoryKey) {
+      return interfaceLanguage === "fr" ? "Autre" : "Other";
+    }
+    const labels = categoryLabels[categoryKey];
+    if (labels) {
+      const primary = interfaceLanguage === "fr" ? labels.fr : labels.en;
+      if (primary && primary.trim().length > 0) return primary;
+      const fallback = interfaceLanguage === "fr" ? labels.en : labels.fr;
+      if (fallback && fallback.trim().length > 0) return fallback;
+    }
+    const fallbackText = ((_b = (_a2 = interfaceTexts == null ? void 0 : interfaceTexts[interfaceLanguage]) == null ? void 0 : _a2.categories) == null ? void 0 : _b[categoryKey]) || categoryKey;
+    if (debug && !labels) {
+      console.log(`Category label not found for: ${categoryKey}, using fallback: ${fallbackText}`);
+    }
+    return fallbackText;
+  }, [categoryLabels, interfaceLanguage, debug]);
   const isFav = (id) => favorites.includes(id);
   const toggleFav = (id) => {
     setFavorites((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
+  const orderedCategories = reactExports.useMemo(() => {
+    if (!categories || !categories.length) return [];
+    return [...categories].sort((a, b) => {
+      const labelA = getCategoryLabel(a) || a;
+      const labelB = getCategoryLabel(b) || b;
+      return labelA.localeCompare(labelB, interfaceLanguage === "fr" ? "fr" : "en", { sensitivity: "base" });
+    });
+  }, [categories, getCategoryLabel, interfaceLanguage]);
   const replaceVariablesWithValues = (text, values) => {
     if (!text) return "";
     let result = text;
@@ -20943,11 +21045,11 @@ function App() {
       templateLanguage,
       finalSubject: (finalSubject == null ? void 0 : finalSubject.substring(0, 100)) + "...",
       finalBody: (finalBody == null ? void 0 : finalBody.substring(0, 100)) + "...",
-      currentVariables: variables
+      currentVariables: variables2
     });
     if (!selectedTemplate || !templatesData) {
       console.log("🔄 No template selected or templates data unavailable");
-      return { success: false, updated: false, variables: { ...variables } };
+      return { success: false, updated: false, variables: { ...variables2 } };
     }
     const extracted = {};
     const pillValuesFromSubject = extractVariablesFromPills(finalSubject);
@@ -20990,8 +21092,8 @@ function App() {
     Object.entries(extracted).forEach(([name, value]) => {
       Object.assign(normalizedExtracted, expandVariableAssignment$1(name, value));
     });
-    const nextVariables = applyAssignments$1(variables, normalizedExtracted);
-    const hasUpdates = nextVariables !== variables;
+    const nextVariables = applyAssignments$1(variables2, normalizedExtracted);
+    const hasUpdates = nextVariables !== variables2;
     if (hasUpdates) {
       console.log("🔄 Variables updated successfully, returning:", nextVariables);
       variablesRef.current = nextVariables;
@@ -21001,7 +21103,7 @@ function App() {
       variablesRef.current = nextVariables;
     }
     return { success: true, updated: hasUpdates, variables: nextVariables };
-  }, [selectedTemplate, templatesData, templateLanguage, finalSubject, finalBody, variables]);
+  }, [selectedTemplate, templatesData, templateLanguage, finalSubject, finalBody, variables2]);
   reactExports.useEffect(() => {
     syncFromTextRef.current = syncFromText;
   }, [syncFromText]);
@@ -21074,12 +21176,12 @@ function App() {
     var _a2, _b, _c, _d;
     let htmlContent = "";
     let textContent = "";
-    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables);
-    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables);
+    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables2);
+    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables2);
     const bodyHtmlSource = ((_b = (_a2 = bodyEditorRef.current) == null ? void 0 : _a2.getHtml) == null ? void 0 : _b.call(_a2)) ?? finalBody;
     const subjectHtmlSource = ((_d = (_c = subjectEditorRef.current) == null ? void 0 : _c.getHtml) == null ? void 0 : _d.call(_c)) ?? toSimpleHtml2(resolvedSubject);
-    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables, resolvedBodyText);
-    const subjectResult = replaceVariablesInHTML(subjectHtmlSource, variables, resolvedSubject);
+    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables2, resolvedBodyText);
+    const subjectResult = replaceVariablesInHTML(subjectHtmlSource, variables2, resolvedSubject);
     const toSimpleHtml2 = (plain = "") => String(plain ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r\n|\r/g, "\n").replace(/\n/g, "<br>");
     switch (type) {
       case "subject":
@@ -21200,12 +21302,12 @@ ${bodyResult.text}`;
   };
   const exportAs = async (mode) => {
     var _a2, _b, _c, _d;
-    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables);
-    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables);
+    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables2);
+    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables2);
     const bodyHtmlSource = ((_b = (_a2 = bodyEditorRef.current) == null ? void 0 : _a2.getHtml) == null ? void 0 : _b.call(_a2)) ?? finalBody;
     const subjectHtmlSource = ((_d = (_c = subjectEditorRef.current) == null ? void 0 : _c.getHtml) == null ? void 0 : _d.call(_c)) ?? toSimpleHtml(resolvedSubject);
-    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables, resolvedBodyText);
-    const subjectResult = replaceVariablesInHTML(subjectHtmlSource, variables, resolvedSubject);
+    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables2, resolvedBodyText);
+    const subjectResult = replaceVariablesInHTML(subjectHtmlSource, variables2, resolvedSubject);
     if (mode === "eml") {
       const boundary = "----=_NextPart_000_0000_01DA1234.56789ABC";
       const cleanBodyHtml = bodyResult.html || "";
@@ -21594,10 +21696,10 @@ ${cleanBodyHtml}
   };
   const composePlainTextEmailDraft = () => {
     var _a2, _b;
-    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables) || "";
+    const resolvedSubject = replaceVariablesWithValues(finalSubject, variables2) || "";
     const bodyHtmlSource = ((_b = (_a2 = bodyEditorRef.current) == null ? void 0 : _a2.getHtml) == null ? void 0 : _b.call(_a2)) ?? finalBody;
-    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables) || "";
-    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables, resolvedBodyText);
+    const resolvedBodyText = replaceVariablesWithValues(finalBody, variables2) || "";
+    const bodyResult = replaceVariablesInHTML(bodyHtmlSource, variables2, resolvedBodyText);
     const plainBody = (bodyResult.text || resolvedBodyText || "").replace(/\r?\n/g, "\r\n");
     const subjectParam = encodeURIComponent(resolvedSubject);
     const bodyParam = encodeURIComponent(plainBody);
@@ -21625,7 +21727,7 @@ ${cleanBodyHtml}
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         "vars: ",
-        Object.keys(variables || {}).length
+        Object.keys(variables2 || {}).length
       ] })
     ] }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center min-h-screen", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
@@ -21838,13 +21940,13 @@ ${cleanBodyHtml}
                     style: { color: "white", fontSize: selectedCategory === "all" ? "1rem" : "0.875rem" },
                     children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4 mr-2 text-white" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: t.allCategories })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: selectedCategory === "all" ? t.allCategories : getCategoryLabel(selectedCategory) })
                     ]
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { className: "bg-white border border-[#2c3d50] rounded-[14px] shadow-xl text-[#2c3d50]", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", className: "font-semibold", style: { fontSize: "1rem" }, children: t.allCategories }),
-                  categories.map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: category, children: t.categories[category] || category }, category))
+                  orderedCategories.filter((category) => typeof category === "string" && category.trim().length > 0).map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: category, children: getCategoryLabel(category) }, category))
                 ] })
               ] }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative group mt-2 px-4", children: [
@@ -21930,9 +22032,9 @@ ${cleanBodyHtml}
                     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 bg-white", style: { minHeight: (count2 + 1) * ITEM_H }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: topPad } }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: filteredTemplates.slice(start, end).map((template) => {
-                        var _a2, _b;
+                        var _a2;
                         const badgeStyle = getCategoryBadgeStyle(template.category, ((_a2 = templatesData == null ? void 0 : templatesData.metadata) == null ? void 0 : _a2.categoryColors) || {});
-                        const badgeLabel = ((_b = t.categories) == null ? void 0 : _b[template.category]) || template.category;
+                        const badgeLabel = getCategoryLabel(template.category);
                         return /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "div",
                           {
@@ -22065,11 +22167,11 @@ ${cleanBodyHtml}
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { value: selectedCategory, onValueChange: setSelectedCategory, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectTrigger, { className: `w-full h-12 border transition-all duration-200 rounded-md ${selectedCategory === "all" ? "font-semibold" : ""}`, style: { background: "#b5af70", borderColor: "#b5af70", color: "white", fontSize: selectedCategory === "all" ? "1rem" : "0.875rem" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "h-4 w-4 mr-2 text-white" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SelectValue, { placeholder: t.allCategories })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: selectedCategory === "all" ? t.allCategories : getCategoryLabel(selectedCategory) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(SelectContent, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: "all", className: "font-semibold", style: { fontSize: "1rem" }, children: t.allCategories }),
-                    categories.map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: category, children: t.categories[category] || category }, category))
+                    orderedCategories.filter((category) => typeof category === "string" && category.trim().length > 0).map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(SelectItem, { value: category, children: getCategoryLabel(category) }, category))
                   ] })
                 ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative group mt-2", children: [
@@ -22090,9 +22192,9 @@ ${cleanBodyHtml}
                   )
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 space-y-3", children: filteredTemplates.slice(0, 80).map((template) => {
-                  var _a2, _b;
+                  var _a2;
                   const badgeStyle = getCategoryBadgeStyle(template.category, ((_a2 = templatesData == null ? void 0 : templatesData.metadata) == null ? void 0 : _a2.categoryColors) || {});
-                  const badgeLabel = ((_b = t.categories) == null ? void 0 : _b[template.category]) || template.category;
+                  const badgeLabel = getCategoryLabel(template.category);
                   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: () => {
                     setSelectedTemplate(template);
                     setShowMobileTemplates(false);
@@ -22234,7 +22336,7 @@ ${cleanBodyHtml}
                         setFinalSubject(e.target.value);
                         manualEditRef.current.subject = true;
                       },
-                      variables,
+                      variables: variables2,
                       templateLanguage,
                       placeholder: getPlaceholderText(),
                       onVariablesChange: handleInlineVariableChange,
@@ -22257,7 +22359,7 @@ ${cleanBodyHtml}
                       },
                       variant: "compact"
                     },
-                    `subject-${selectedTemplate == null ? void 0 : selectedTemplate.id}-${Object.keys(variables).length}`
+                    `subject-${selectedTemplate == null ? void 0 : selectedTemplate.id}-${Object.keys(variables2).length}`
                   )
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
@@ -22274,7 +22376,7 @@ ${cleanBodyHtml}
                         manualEditRef.current.body = true;
                       },
                       ref: bodyEditorRef,
-                      variables,
+                      variables: variables2,
                       templateLanguage,
                       placeholder: getPlaceholderText(),
                       onVariablesChange: handleInlineVariableChange,
@@ -22298,7 +22400,7 @@ ${cleanBodyHtml}
                       minHeight: "150px",
                       showRichTextToolbar: true
                     },
-                    `body-${selectedTemplate == null ? void 0 : selectedTemplate.id}-${Object.keys(variables).length}`
+                    `body-${selectedTemplate == null ? void 0 : selectedTemplate.id}-${Object.keys(variables2).length}`
                   )
                 ] })
               ] })
@@ -22784,18 +22886,7 @@ Shift+click to toggle preference`,
                 var _a2, _b, _c, _d;
                 const varInfo = (_a2 = templatesData == null ? void 0 : templatesData.variables) == null ? void 0 : _a2[varName];
                 if (!varInfo) return null;
-                const getVarValue = (name = "") => {
-                  var _a3, _b2;
-                  const lang = (templateLanguage || "fr").toLowerCase();
-                  const suffix = (_b2 = (_a3 = name.match(/_(fr|en)$/i)) == null ? void 0 : _a3[1]) == null ? void 0 : _b2.toLowerCase();
-                  if (suffix) {
-                    return (variables == null ? void 0 : variables[name]) ?? "";
-                  }
-                  if (lang === "en") {
-                    return (variables == null ? void 0 : variables[`${name}_EN`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-                  }
-                  return (variables == null ? void 0 : variables[`${name}_FR`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-                };
+                const getVarValue = (name = "") => resolveVariableValue(variables2, name, templateLanguage);
                 const currentValue = getVarValue(varName);
                 const sanitizedVarId = `var-${varName.replace(/[^a-z0-9_-]/gi, "-")}`;
                 const langForDisplay = (templateLanguage || interfaceLanguage || "fr").toLowerCase();
@@ -23030,7 +23121,7 @@ Shift+click to toggle preference`,
           {
             emailText: finalBody,
             onResult: setFinalBody,
-            variables,
+            variables: variables2,
             interfaceLanguage
           }
         ) })
@@ -23111,15 +23202,25 @@ function VariablesPopout({
   interfaceLanguage,
   templateLanguage = "fr"
 }) {
+  var _a;
   console.log("🔍 VariablesPopout props:", {
     selectedTemplate: selectedTemplate == null ? void 0 : selectedTemplate.id,
     templatesData: !!templatesData,
     initialVariables,
+    initialVariablesKeys: Object.keys(initialVariables || {}),
+    initialVariablesCount: Object.keys(initialVariables || {}).length,
     interfaceLanguage,
     templateLanguage
   });
-  const [variables, setVariables] = reactExports.useState(initialVariables || {});
+  const [variables2, setVariables] = reactExports.useState(() => {
+    console.log("🔍 VariablesPopout initial state:", initialVariables);
+    return initialVariables || {};
+  });
   const varInputRefs = reactExports.useRef({});
+  const lastInitialVarsRef = reactExports.useRef(initialVariables);
+  const getVarValue = reactExports.useCallback((name = "") => {
+    return resolveVariableValue(variables2, name, templateLanguage);
+  }, [variables2, templateLanguage]);
   const autoResize = reactExports.useCallback((el) => {
     if (!el) return;
     try {
@@ -23129,41 +23230,47 @@ function VariablesPopout({
     } catch {
     }
   }, []);
-  const lastInitialVarsRef = reactExports.useRef(initialVariables);
   reactExports.useEffect(() => {
+    if (!varInputRefs.current) return;
+    Object.keys(varInputRefs.current).forEach((varName) => {
+      const textarea = varInputRefs.current[varName];
+      if (!textarea || document.activeElement === textarea) return;
+      const expectedValue = getVarValue(varName);
+      if (textarea.value !== expectedValue) {
+        textarea.value = expectedValue;
+        autoResize(textarea);
+      }
+    });
+  }, [variables2, getVarValue, autoResize]);
+  reactExports.useEffect(() => {
+    console.log("🔍 VariablesPopout checking initialVariables update:", {
+      refChanged: lastInitialVarsRef.current !== initialVariables,
+      initialVariablesCount: Object.keys(initialVariables || {}).length,
+      currentVariablesCount: Object.keys(variables2).length
+    });
     if (lastInitialVarsRef.current !== initialVariables) {
       lastInitialVarsRef.current = initialVariables;
       if (initialVariables && typeof initialVariables === "object") {
+        console.log("🔍 VariablesPopout updating variables from initialVariables:", initialVariables);
         setVariables({ ...initialVariables });
       } else {
+        console.log("🔍 VariablesPopout clearing variables (initialVariables invalid)");
         setVariables({});
       }
     }
-  }, [initialVariables]);
+  }, [initialVariables, variables2]);
   reactExports.useEffect(() => {
     try {
       const map = varInputRefs.current || {};
       Object.values(map).forEach((el) => autoResize(el));
     } catch {
     }
-  }, [variables, autoResize]);
+  }, [variables2, autoResize]);
   const activeLanguageCode = reactExports.useMemo(() => (templateLanguage || "fr").toUpperCase(), [templateLanguage]);
   const targetVarForLanguage = reactExports.useCallback((name = "") => {
     if (/_(FR|EN)$/i.test(name)) return name;
     return `${name}_${activeLanguageCode}`;
   }, [activeLanguageCode]);
-  const getVarValue = reactExports.useCallback((name = "") => {
-    var _a, _b;
-    const lang = (templateLanguage || "fr").toLowerCase();
-    const suffix = (_b = (_a = name.match(/_(fr|en)$/i)) == null ? void 0 : _a[1]) == null ? void 0 : _b.toLowerCase();
-    if (suffix) {
-      return (variables == null ? void 0 : variables[name]) ?? "";
-    }
-    if (lang === "en") {
-      return (variables == null ? void 0 : variables[`${name}_EN`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-    }
-    return (variables == null ? void 0 : variables[`${name}_FR`]) ?? (variables == null ? void 0 : variables[name]) ?? "";
-  }, [variables, templateLanguage]);
   const [isPinned, setIsPinned] = reactExports.useState(() => {
     try {
       return localStorage.getItem("ea_popout_pinned") === "true";
@@ -23171,7 +23278,7 @@ function VariablesPopout({
       return false;
     }
   });
-  console.log("🔍 VariablesPopout initialized with variables:", variables);
+  console.log("🔍 VariablesPopout initialized with variables:", variables2);
   const [focusedVar, setFocusedVar] = reactExports.useState(null);
   const channelRef = reactExports.useRef(null);
   const senderIdRef = reactExports.useRef(Math.random().toString(36).slice(2));
@@ -23374,8 +23481,18 @@ function VariablesPopout({
             return;
           }
           if (message.type === "variablesUpdated") {
-            console.log("🔍 Updating variables from variablesUpdated:", message.variables);
-            setVariables(message.variables || {});
+            const newVars = message.variables || {};
+            setVariables((prevVars) => {
+              let hasChanges = false;
+              const allKeys = /* @__PURE__ */ new Set([...Object.keys(prevVars), ...Object.keys(newVars)]);
+              for (const key of allKeys) {
+                if (prevVars[key] !== newVars[key]) {
+                  hasChanges = true;
+                  break;
+                }
+              }
+              return hasChanges ? newVars : prevVars;
+            });
             return;
           }
           if (message.type === "syncComplete") {
@@ -23427,13 +23544,13 @@ function VariablesPopout({
   };
   const updateVariable = (varName, value) => {
     const assignments = expandVariableAssignment(varName, value, activeLanguageCode);
-    const snapshot = applyAssignments(variables || {}, assignments);
+    const snapshot = applyAssignments(variables2 || {}, assignments);
     setVariables(snapshot);
     enqueueVariableUpdate(varName, value, snapshot);
   };
   const removeVariable = (varName) => {
     const assignments = expandVariableAssignment(varName, "", activeLanguageCode);
-    const snapshot = applyAssignments(variables || {}, assignments);
+    const snapshot = applyAssignments(variables2 || {}, assignments);
     setVariables(snapshot);
     enqueueVariableUpdate(varName, "", snapshot);
     if (!channelRef.current) return;
@@ -23452,7 +23569,7 @@ function VariablesPopout({
     const targetName = targetVarForLanguage(varName);
     const exampleValue = guessSampleValue(templatesData, targetName);
     const assignments = expandVariableAssignment(varName, exampleValue, activeLanguageCode);
-    const snapshot = applyAssignments(variables || {}, assignments);
+    const snapshot = applyAssignments(variables2 || {}, assignments);
     setVariables(snapshot);
     enqueueVariableUpdate(varName, exampleValue, snapshot);
     if (!channelRef.current) return;
@@ -23471,13 +23588,13 @@ function VariablesPopout({
     clearTimeout(sendTimerRef.current);
   }, []);
   reactExports.useEffect(() => {
-    var _a;
+    var _a2;
     if (!(selectedTemplate == null ? void 0 : selectedTemplate.variables) || selectedTemplate.variables.length === 0) return;
     try {
       const firstEmpty = selectedTemplate.variables.find(
         (vn) => !getVarValue(vn).trim()
       ) || selectedTemplate.variables[0];
-      const el = (_a = varInputRefs.current) == null ? void 0 : _a[firstEmpty];
+      const el = (_a2 = varInputRefs.current) == null ? void 0 : _a2[firstEmpty];
       if (el && typeof el.focus === "function") {
         setTimeout(() => {
           try {
@@ -23495,8 +23612,23 @@ function VariablesPopout({
     }
   }, []);
   if (!selectedTemplate || !templatesData) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500", children: "Loading..." }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center p-8", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-lg mb-4", children: "Loading template data..." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400", children: [
+        "selectedTemplate: ",
+        selectedTemplate ? "yes" : "no"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400", children: [
+        "templatesData: ",
+        templatesData ? "yes" : "no"
+      ] })
+    ] }) });
   }
+  console.log("🔍 VariablesPopout RENDERING with variables:", {
+    variablesKeys: Object.keys(variables2),
+    variablesCount: Object.keys(variables2).length,
+    variablesSample: Object.entries(variables2).slice(0, 3)
+  });
   const t = interfaceLanguage === "fr" ? {
     title: "Modifier les variables",
     reinitialize: "Réinitialiser",
@@ -23550,9 +23682,31 @@ function VariablesPopout({
         ]
       }
     ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-5 py-2 bg-yellow-50 border-b border-yellow-200", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "text-xs", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "cursor-pointer font-semibold text-yellow-800", children: "Debug Info (click to expand)" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 space-y-1 text-yellow-700", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+          "Variables count: ",
+          Object.keys(variables2).length
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+          "Variables keys: ",
+          Object.keys(variables2).slice(0, 5).join(", "),
+          Object.keys(variables2).length > 5 ? "..." : ""
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+          "Sample values: ",
+          JSON.stringify(Object.fromEntries(Object.entries(variables2).slice(0, 2)), null, 2)
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+          "Template variables: ",
+          ((_a = selectedTemplate == null ? void 0 : selectedTemplate.variables) == null ? void 0 : _a.length) || 0
+        ] })
+      ] })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "py-2 px-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-2", style: { width: "100%", minWidth: 0 }, children: (() => {
-      var _a, _b;
-      const subjectText = ((_a = selectedTemplate == null ? void 0 : selectedTemplate.subject) == null ? void 0 : _a[templateLanguage]) || "";
+      var _a2, _b;
+      const subjectText = ((_a2 = selectedTemplate == null ? void 0 : selectedTemplate.subject) == null ? void 0 : _a2[templateLanguage]) || "";
       const bodyText = ((_b = selectedTemplate == null ? void 0 : selectedTemplate.body) == null ? void 0 : _b[templateLanguage]) || "";
       const combinedText = subjectText + "\n" + bodyText;
       const seenVars = /* @__PURE__ */ new Set();
@@ -23572,8 +23726,8 @@ function VariablesPopout({
       });
       return orderedVars;
     })().map((varName) => {
-      var _a, _b, _c, _d;
-      const varInfo = (_a = templatesData == null ? void 0 : templatesData.variables) == null ? void 0 : _a[varName];
+      var _a2, _b, _c, _d;
+      const varInfo = (_a2 = templatesData == null ? void 0 : templatesData.variables) == null ? void 0 : _a2[varName];
       if (!varInfo) {
         console.warn("🔍 Variable info not found for:", varName);
         return null;
@@ -23660,7 +23814,7 @@ function VariablesPopout({
                 },
                 onBlur: () => notifyFocusChange(null),
                 onKeyDown: (e) => {
-                  var _a2;
+                  var _a3;
                   if (e.key === "Tab" || e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     const list = selectedTemplate.variables;
@@ -23675,7 +23829,7 @@ function VariablesPopout({
                     const el = varInputRefs.current[nextVar];
                     if (el && el.focus) {
                       el.focus();
-                      (_a2 = el.select) == null ? void 0 : _a2.call(el);
+                      (_a3 = el.select) == null ? void 0 : _a3.call(el);
                     }
                   }
                 },
@@ -23698,6 +23852,7 @@ function VariablesPopout({
   ] });
 }
 function VariablesPage() {
+  var _a;
   const paramsRef = reactExports.useRef(null);
   if (!paramsRef.current) {
     paramsRef.current = new URLSearchParams(window.location.search);
@@ -23706,7 +23861,7 @@ function VariablesPage() {
   const initialLang = paramsRef.current.get("lang") || "fr";
   const [templatesData, setTemplatesData] = reactExports.useState(null);
   const [selectedTemplate, setSelectedTemplate] = reactExports.useState(null);
-  const [variables, setVariables] = reactExports.useState({});
+  const [variables2, setVariables] = reactExports.useState({});
   const [interfaceLanguage, setInterfaceLanguage] = reactExports.useState(initialLang);
   const [pendingTemplateId, setPendingTemplateId] = reactExports.useState(initialTemplateId || null);
   const [pendingTemplateLanguage, setPendingTemplateLanguage] = reactExports.useState(initialLang);
@@ -23728,9 +23883,9 @@ function VariablesPage() {
     }
   }, []);
   const inferTemplateFromVariables = reactExports.useCallback((data, varsObj) => {
-    var _a;
+    var _a2;
     try {
-      if (!((_a = data == null ? void 0 : data.templates) == null ? void 0 : _a.length) || !varsObj) return null;
+      if (!((_a2 = data == null ? void 0 : data.templates) == null ? void 0 : _a2.length) || !varsObj) return null;
       const varKeys = new Set(Object.keys(varsObj).map((k) => String(k).replace(/_(FR|EN)$/i, "")));
       let bestId = null;
       let bestScore = 0;
@@ -23760,13 +23915,14 @@ function VariablesPage() {
       }
     }
     if (!template) return false;
-    debugLog("applyTemplateSelection", { templateId, resolvedId: template.id });
+    debugLog("applyTemplateSelection", { templateId, resolvedId: template.id, options });
     setSelectedTemplate(template);
     if (options.preferLanguage) {
       setInterfaceLanguage(options.preferLanguage);
     }
     if (options.hydrateVariables) {
       const shouldHydrate = options.forceHydration || hydratedTemplateIdRef.current !== templateId;
+      debugLog("hydrateVariables check", { shouldHydrate, forceHydration: options.forceHydration, hydratedTemplateIdRef: hydratedTemplateIdRef.current, templateId });
       if (shouldHydrate) {
         const fallback = {};
         const allowedKeys = /* @__PURE__ */ new Set();
@@ -23796,10 +23952,12 @@ function VariablesPage() {
             });
           });
         }
+        debugLog("hydrated variables", { fallbackKeys: Object.keys(fallback), count: Object.keys(fallback).length });
         hydratedTemplateIdRef.current = templateId;
         setVariables((prevVars) => {
           const prev = prevVars || {};
           if (options.mergeWithExisting === false) {
+            debugLog("setting variables (no merge)", { count: Object.keys(fallback).length });
             return fallback;
           }
           const merged = { ...fallback };
@@ -23808,12 +23966,13 @@ function VariablesPage() {
               merged[key] = prev[key];
             }
           });
+          debugLog("setting variables (merged)", { prevCount: Object.keys(prev).length, mergedCount: Object.keys(merged).length });
           return merged;
         });
       }
     }
     return true;
-  }, [setInterfaceLanguage, setVariables]);
+  }, [setInterfaceLanguage, setVariables, normalizeTemplateId]);
   reactExports.useEffect(() => {
     let cancelled = false;
     const loadSnapshot = () => {
@@ -23845,9 +24004,9 @@ function VariablesPage() {
       }
     };
     const loadData = async () => {
-      var _a, _b;
+      var _a2, _b;
       try {
-        const base = ((_b = (_a = import.meta) == null ? void 0 : _a.env) == null ? void 0 : _b.BASE_URL) || "/";
+        const base = ((_b = (_a2 = import.meta) == null ? void 0 : _a2.env) == null ? void 0 : _b.BASE_URL) || "/";
         const normalizedBase = base.endsWith("/") ? base : `${base}/`;
         const primaryBase = new URL(normalizedBase, window.location.origin);
         const candidates = [
@@ -23915,16 +24074,21 @@ function VariablesPage() {
               setPendingTemplateLanguage(data.templateLanguage);
               setInterfaceLanguage(data.templateLanguage);
             }
-            if (data.variables && typeof data.variables === "object") {
+            if (data.variables && typeof data.variables === "object" && Object.keys(data.variables).length > 0) {
+              debugLog("updating variables from main window", { count: Object.keys(data.variables).length });
               setVariables({ ...data.variables });
-            } else if (!data.templateId && templatesData) {
-              const guessed = inferTemplateFromVariables(templatesData, data.variables || {});
-              if (guessed) setPendingTemplateId(guessed);
+            } else {
+              debugLog("ignoring empty variables from main window, keeping existing state");
+              if (!data.templateId && templatesData) {
+                const guessed = inferTemplateFromVariables(templatesData, data.variables || {});
+                if (guessed) setPendingTemplateId(guessed);
+              }
             }
             if (templatesData && data.templateId) {
               applyTemplateSelection(templatesData, data.templateId, {
                 preferLanguage: data.templateLanguage,
-                hydrateVariables: true
+                hydrateVariables: Object.keys(data.variables || {}).length === 0
+                // Only hydrate if main window sent empty vars
               });
             }
             return;
@@ -23953,9 +24117,13 @@ function VariablesPage() {
             }
           }
         };
+        setTimeout(sendReady, 10);
         setTimeout(sendReady, 50);
+        setTimeout(sendReady, 150);
         setTimeout(sendReady, 300);
         setTimeout(sendReady, 600);
+        setTimeout(sendReady, 1e3);
+        setTimeout(sendReady, 2e3);
       } catch (e) {
         console.error("BroadcastChannel not available:", e);
       }
@@ -23968,10 +24136,16 @@ function VariablesPage() {
     };
   }, []);
   reactExports.useEffect(() => {
-    if (!templatesData || !pendingTemplateId) return;
+    if (!templatesData || !pendingTemplateId) {
+      debugLog("skipping applyTemplateSelection", { hasTemplatesData: !!templatesData, pendingTemplateId });
+      return;
+    }
+    debugLog("attempting applyTemplateSelection", { pendingTemplateId, pendingTemplateLanguage });
     const resolved = applyTemplateSelection(templatesData, pendingTemplateId, {
       preferLanguage: pendingTemplateLanguage,
-      hydrateVariables: true
+      hydrateVariables: true,
+      forceHydration: true
+      // Always hydrate on template change
     });
     if (!resolved) {
       console.warn("📋 Unable to locate template for popout:", pendingTemplateId, "available:", ((templatesData == null ? void 0 : templatesData.templates) || []).map((t) => t.id).slice(0, 10));
@@ -23986,7 +24160,7 @@ function VariablesPage() {
         setPendingTemplateId(null);
       }
     }
-  }, [templatesData, pendingTemplateId, pendingTemplateLanguage, applyTemplateSelection]);
+  }, [templatesData, pendingTemplateId, pendingTemplateLanguage, applyTemplateSelection, normalizeTemplateId]);
   reactExports.useEffect(() => {
     if (!templatesData || selectedTemplate || loading) return;
     const timer = setTimeout(() => {
@@ -24011,15 +24185,20 @@ function VariablesPage() {
   }
   console.log("🔍 VariablesPage rendering with:", {
     selectedTemplate: selectedTemplate == null ? void 0 : selectedTemplate.id,
-    variables,
-    interfaceLanguage
+    variables: Object.keys(variables2),
+    variableCount: Object.keys(variables2).length,
+    interfaceLanguage,
+    templateLanguage: pendingTemplateLanguage
   });
+  if (Object.keys(variables2).length === 0 && ((_a = selectedTemplate == null ? void 0 : selectedTemplate.variables) == null ? void 0 : _a.length) > 0) {
+    console.warn("🔍 No variables populated yet, but template requires:", selectedTemplate.variables);
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     VariablesPopout,
     {
       selectedTemplate,
       templatesData,
-      initialVariables: variables,
+      initialVariables: variables2,
       interfaceLanguage,
       templateLanguage: pendingTemplateLanguage || interfaceLanguage
     }
@@ -24093,4 +24272,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-DvMiO68c.js.map
+//# sourceMappingURL=main-CqcuB4Ai.js.map

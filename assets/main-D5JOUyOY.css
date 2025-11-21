@@ -1935,6 +1935,10 @@
     border-color: #0000;
   }
 
+  .border-yellow-200 {
+    border-color: var(--color-yellow-200);
+  }
+
   .border-t-transparent {
     border-top-color: #0000;
   }
@@ -2129,6 +2133,10 @@
     .bg-white\/98 {
       background-color: color-mix(in oklab, var(--color-white) 98%, transparent);
     }
+  }
+
+  .bg-yellow-50 {
+    background-color: var(--color-yellow-50);
   }
 
   .bg-gradient-to-br {
@@ -2881,6 +2889,14 @@
 
   .text-yellow-500 {
     color: var(--color-yellow-500);
+  }
+
+  .text-yellow-700 {
+    color: var(--color-yellow-700);
+  }
+
+  .text-yellow-800 {
+    color: var(--color-yellow-800);
   }
 
   .capitalize {
