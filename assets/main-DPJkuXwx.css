@@ -125,7 +125,6 @@
     --color-emerald-400: oklch(76.5% .177 163.223);
     --color-emerald-500: oklch(69.6% .17 162.48);
     --color-emerald-600: oklch(59.6% .145 163.225);
-    --color-emerald-700: oklch(50.8% .118 165.612);
     --color-emerald-800: oklch(43.2% .095 166.913);
     --color-teal-50: oklch(98.4% .014 180.72);
     --color-teal-600: oklch(60% .118 184.704);
@@ -2081,16 +2080,6 @@
     background-color: var(--color-white);
   }
 
-  .bg-white\/10 {
-    background-color: #ffffff1a;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-white\/10 {
-      background-color: color-mix(in oklab, var(--color-white) 10%, transparent);
-    }
-  }
-
   .bg-white\/60 {
     background-color: #fff9;
   }
@@ -3374,10 +3363,6 @@
 
     .hover\:bg-blue-700:hover {
       background-color: var(--color-blue-700);
-    }
-
-    .hover\:bg-emerald-700:hover {
-      background-color: var(--color-emerald-700);
     }
 
     .hover\:bg-gray-200:hover {

@@ -23596,13 +23596,6 @@ function VariablesPopout({
   const getVarValue = reactExports.useCallback((name = "") => {
     return resolveVariableValue(variables2, name, templateLanguage);
   }, [variables2, templateLanguage]);
-  const [isPinned, setIsPinned] = reactExports.useState(() => {
-    try {
-      return localStorage.getItem("ea_popout_pinned") === "true";
-    } catch {
-      return false;
-    }
-  });
   const [columns, setColumns] = reactExports.useState(2);
   reactExports.useEffect(() => {
     const calculateColumns = () => {
@@ -23630,94 +23623,6 @@ function VariablesPopout({
   reactExports.useEffect(() => {
     focusedVarRef.current = focusedVar;
   }, [focusedVar]);
-  reactExports.useEffect(() => {
-    try {
-      localStorage.setItem("ea_popout_pinned", String(isPinned));
-    } catch (err) {
-      console.warn("Failed to persist popout pin state:", err);
-    }
-    if (isPinned) {
-      window.focus();
-    }
-  }, [isPinned]);
-  reactExports.useEffect(() => {
-    if (!isPinned) return;
-    let focusThrottle = false;
-    let lastFocusAttempt = 0;
-    const refocus = () => {
-      if (!isPinned || focusThrottle) return;
-      const now = Date.now();
-      if (now - lastFocusAttempt < 50) return;
-      lastFocusAttempt = now;
-      focusThrottle = true;
-      requestAnimationFrame(() => {
-        try {
-          window.focus();
-          if (window.opener && !window.opener.closed) {
-            try {
-              window.opener.focus();
-              setTimeout(() => window.focus(), 10);
-            } catch {
-            }
-          }
-        } catch {
-        }
-        setTimeout(() => {
-          focusThrottle = false;
-        }, 100);
-      });
-    };
-    const handleBlur = () => {
-      if (!isPinned) return;
-      setTimeout(refocus, 0);
-      setTimeout(refocus, 50);
-    };
-    const handleVisibility = () => {
-      if (document.visibilityState === "hidden" && isPinned) {
-        setTimeout(refocus, 0);
-      }
-    };
-    const handleMouseLeave = (e) => {
-      if (!isPinned) return;
-      if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
-        setTimeout(refocus, 0);
-      }
-    };
-    const handleParentActivity = () => {
-      if (!isPinned) return;
-      setTimeout(refocus, 0);
-    };
-    window.addEventListener("blur", handleBlur, { capture: true });
-    document.addEventListener("visibilitychange", handleVisibility);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    if (window.opener && !window.opener.closed) {
-      try {
-        window.opener.addEventListener("mousedown", handleParentActivity, { capture: true });
-        window.opener.addEventListener("focus", handleParentActivity, { capture: true });
-      } catch {
-      }
-    }
-    const intervalId = setInterval(() => {
-      if (!isPinned) return;
-      if (document.visibilityState === "hidden" || !document.hasFocus()) {
-        refocus();
-      }
-    }, 500);
-    refocus();
-    return () => {
-      window.removeEventListener("blur", handleBlur, { capture: true });
-      document.removeEventListener("visibilitychange", handleVisibility);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      if (window.opener && !window.opener.closed) {
-        try {
-          window.opener.removeEventListener("mousedown", handleParentActivity, { capture: true });
-          window.opener.removeEventListener("focus", handleParentActivity, { capture: true });
-        } catch {
-        }
-      }
-      clearInterval(intervalId);
-    };
-  }, [isPinned]);
   const notifyFocusChange = (varName, broadcast = true) => {
     const nextRaw = varName ?? null;
     const prevRaw = focusedVarRef.current ?? null;
@@ -23957,14 +23862,12 @@ function VariablesPopout({
     title: "Modifier les variables",
     reinitialize: "Réinitialiser",
     clear: "Supprimer",
-    close: "Fermer",
-    pin: ({ pinned }) => pinned ? "Épinglé • cette fenêtre reste devant" : "Épingler cette fenêtre"
+    close: "Fermer"
   } : {
     title: "Edit Variables",
     reinitialize: "Reinitialize",
     clear: "Delete",
-    close: "Close",
-    pin: ({ pinned }) => pinned ? "Pinned • window stays on top" : "Pin this window"
+    close: "Close"
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-screen bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -23980,29 +23883,15 @@ function VariablesPopout({
             /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "h-5 w-5 mr-2 text-white" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-bold text-white", children: t.title })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: () => setIsPinned((prev) => !prev),
-                className: `flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-medium text-sm ${isPinned ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-white/10 text-white hover:bg-white/20"}`,
-                title: t.pin({ pinned: isPinned }),
-                children: [
-                  isPinned ? /* @__PURE__ */ jsxRuntimeExports.jsx(Pin, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(PinOff, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isPinned ? interfaceLanguage === "fr" ? "Épinglé" : "Pinned" : interfaceLanguage === "fr" ? "Épingler" : "Pin" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => window.close(),
-                className: "text-white hover:bg-white/20 rounded-lg p-2 transition-colors",
-                title: t.close,
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" })
-              }
-            )
-          ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.close(),
+              className: "text-white hover:bg-white/20 rounded-lg p-2 transition-colors",
+              title: t.close,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" })
+            }
+          ) })
         ]
       }
     ),
@@ -24549,4 +24438,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-B8wkkGO9.js.map
+//# sourceMappingURL=main-CC-XgLbQ.js.map
