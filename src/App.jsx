@@ -1656,6 +1656,20 @@ function App() {
           const next = { ...msg.allVariables }
           variablesRef.current = next
           setVariables(next)
+          // Purge any pills whose variables are now marked deleted
+          try {
+            Object.entries(next).forEach(([k,v]) => {
+              if (v === '__DELETED__') {
+                const base = k.replace(/_(FR|EN)$/i,'')
+                document.querySelectorAll('.var-pill').forEach(pill => {
+                  const pv = pill.getAttribute('data-var') || ''
+                  if (pv === k || pv.replace(/_(FR|EN)$/i,'') === base) {
+                    pill.remove()
+                  }
+                })
+              }
+            })
+          } catch {}
           return
         }
 
@@ -1682,6 +1696,16 @@ function App() {
               finalBodyRef.current = updated
               return updated
             })
+            // Remove any existing pill DOM nodes for this variable (and language variants)
+            try {
+              const baseName = varName.replace(/_(FR|EN)$/i,'')
+              document.querySelectorAll('.var-pill').forEach(pill => {
+                const pv = pill.getAttribute('data-var') || ''
+                if (pv === varName || pv.replace(/_(FR|EN)$/i,'') === baseName) {
+                  pill.remove()
+                }
+              })
+            } catch {}
           }
           return
         }
