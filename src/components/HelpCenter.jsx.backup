@@ -277,8 +277,8 @@ const translations = {
           answer: 'Yes. Opening the popout triggers an immediate sync that extracts the current subject and body. Text edits are auto-detected and reflected back.'
         },
         {
-          question: 'How do I use the X and Reinitialize buttons on variable cards?',
-          answer: 'The X button removes the variable pill from your email text. The Reinitialize button restores the variable with its original example value and reinserts the pill into the text.'
+          question: 'How do I get back to “Select a template”?',
+          answer: 'By default, ECHO no longer auto-opens a template on first load. To start fresh, use the URL with ?reset=1 (e.g., https://.../index.html?reset=1).'
         },
         {
           question: 'How do I restore default example values?',

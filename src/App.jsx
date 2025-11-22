@@ -3979,7 +3979,7 @@ ${cleanBodyHtml}
     </div>
     {/* Left panel - Template list (resizable) */}
     <div className="hidden md:block shrink-0" style={{ width: leftWidth }}>
-      <Card className="h-fit card-soft border-0 overflow-hidden rounded-[14px]" style={{ background: '#ffffff', height: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}>
+      <Card className="h-fit card-soft border-0 overflow-hidden rounded-[14px]" style={{ background: '#ffffff', height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <CardContent className="p-0 flex flex-col h-full" style={{ padding: 0 }}>
           {/* Fixed header section */}
           <div className="flex-shrink-0 px-0 pt-0 pb-2 bg-white">
