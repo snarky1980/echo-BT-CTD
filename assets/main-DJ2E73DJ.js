@@ -9947,6 +9947,11 @@ const SimplePillEditor = React.forwardRef(({
       const varName = pill.getAttribute("data-var");
       if (!varName) return;
       const varValue = getVarValue(varName);
+      if (varValue === "__DELETED__") {
+        const textReplacement = document.createTextNode("");
+        pill.replaceWith(textReplacement);
+        return;
+      }
       const isFilled = varValue.trim().length > 0;
       const displayValue = isFilled ? varValue : `<<${varName}>>`;
       const currentText = (pill.textContent || "").trim();
@@ -11305,6 +11310,10 @@ const RichTextPillEditor = React.forwardRef(({
         if (!varName) return;
         const rawValue = variables2 == null ? void 0 : variables2[varName];
         const stringValue = rawValue == null ? "" : String(rawValue);
+        if (stringValue === "__DELETED__") {
+          pill.replaceWith(document.createTextNode(""));
+          return;
+        }
         const trimmed = stringValue.trim();
         const placeholder2 = `<<${varName}>>`;
         const displayValue = trimmed.length ? stringValue : placeholder2;
@@ -11346,6 +11355,10 @@ const RichTextPillEditor = React.forwardRef(({
       const varName = pill.getAttribute("data-var");
       if (!varName) return;
       const varValue = getVarValue(varName);
+      if (varValue === "__DELETED__") {
+        pill.replaceWith(document.createTextNode(""));
+        return;
+      }
       const isFilled = varValue.trim().length > 0;
       const displayValue = isFilled ? varValue : `<<${varName}>>`;
       const currentText = (pill.textContent || "").trim();
@@ -24481,4 +24494,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-C0rZkG8x.js.map
+//# sourceMappingURL=main-DJ2E73DJ.js.map
