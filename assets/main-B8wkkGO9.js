@@ -20136,13 +20136,11 @@ function App() {
       if (selectedTemplate == null ? void 0 : selectedTemplate.id) url.searchParams.set("id", selectedTemplate.id);
       if (templateLanguage) url.searchParams.set("lang", templateLanguage);
       const varCount = ((_b = selectedTemplate == null ? void 0 : selectedTemplate.variables) == null ? void 0 : _b.length) || 0;
-      const savedColumns = parseInt(localStorage.getItem("ea_popout_columns") || "2", 10);
-      const colWidth = 320;
-      const cardHeight = 120;
+      const cardHeight = 110;
       const headerHeight = 60;
       const padding = 40;
-      let w = Math.max(380, colWidth * savedColumns + padding);
-      const rows = Math.ceil(varCount / savedColumns);
+      let w = 720;
+      const rows = Math.ceil(varCount / 2);
       let h = Math.max(400, Math.min(900, headerHeight + rows * cardHeight + padding));
       const availW = (((_c = window.screen) == null ? void 0 : _c.availWidth) || window.innerWidth) - 40;
       const availH = (((_d = window.screen) == null ? void 0 : _d.availHeight) || window.innerHeight) - 80;
@@ -23605,14 +23603,21 @@ function VariablesPopout({
       return false;
     }
   });
-  const [columns, setColumns] = reactExports.useState(() => {
-    try {
-      const saved = localStorage.getItem("ea_popout_columns");
-      return saved ? parseInt(saved, 10) : 2;
-    } catch {
-      return 2;
-    }
-  });
+  const [columns, setColumns] = reactExports.useState(2);
+  reactExports.useEffect(() => {
+    const calculateColumns = () => {
+      const width = window.innerWidth;
+      if (width < 500) return 1;
+      if (width < 800) return 2;
+      return 3;
+    };
+    const handleResize = () => {
+      setColumns(calculateColumns());
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   console.log("🔍 VariablesPopout initialized with variables:", variables2);
   const [focusedVar, setFocusedVar] = reactExports.useState(null);
   const channelRef = reactExports.useRef(null);
@@ -23635,13 +23640,6 @@ function VariablesPopout({
       window.focus();
     }
   }, [isPinned]);
-  reactExports.useEffect(() => {
-    try {
-      localStorage.setItem("ea_popout_columns", String(columns));
-    } catch (err) {
-      console.warn("Failed to persist popout columns:", err);
-    }
-  }, [columns]);
   reactExports.useEffect(() => {
     if (!isPinned) return;
     let focusThrottle = false;
@@ -23960,15 +23958,13 @@ function VariablesPopout({
     reinitialize: "Réinitialiser",
     clear: "Supprimer",
     close: "Fermer",
-    pin: ({ pinned }) => pinned ? "Épinglé • cette fenêtre reste devant" : "Épingler cette fenêtre",
-    columns: "Colonnes"
+    pin: ({ pinned }) => pinned ? "Épinglé • cette fenêtre reste devant" : "Épingler cette fenêtre"
   } : {
     title: "Edit Variables",
     reinitialize: "Reinitialize",
     clear: "Delete",
     close: "Close",
-    pin: ({ pinned }) => pinned ? "Pinned • window stays on top" : "Pin this window",
-    columns: "Columns"
+    pin: ({ pinned }) => pinned ? "Pinned • window stays on top" : "Pin this window"
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-screen bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -23985,16 +23981,6 @@ function VariablesPopout({
             /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-bold text-white", children: t.title })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1 bg-white/10 rounded-lg p-1", children: [1, 2, 3].map((num) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setColumns(num),
-                className: `px-3 py-1 rounded text-sm font-medium transition-all ${columns === num ? "bg-white text-slate-800" : "text-white/70 hover:text-white hover:bg-white/10"}`,
-                title: `${num} ${t.columns.toLowerCase()}`,
-                children: num
-              },
-              num
-            )) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
@@ -24563,4 +24549,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-BzTetYex.js.map
+//# sourceMappingURL=main-B8wkkGO9.js.map
