@@ -400,6 +400,12 @@ const SimplePillEditor = React.forwardRef(({
       const varName = pill.getAttribute('data-var');
       if (!varName) return;
       const varValue = getVarValue(varName);
+      if (varValue === '__DELETED__') {
+        // Remove pill entirely when variable is marked deleted
+        const textReplacement = document.createTextNode('');
+        pill.replaceWith(textReplacement);
+        return;
+      }
       const isFilled = varValue.trim().length > 0;
       const displayValue = isFilled ? varValue : `<<${varName}>>`;
       

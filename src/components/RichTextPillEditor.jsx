@@ -772,6 +772,10 @@ const RichTextPillEditor = React.forwardRef(({
 
         const rawValue = variables?.[varName];
         const stringValue = rawValue == null ? '' : String(rawValue);
+        if (stringValue === '__DELETED__') {
+          pill.replaceWith(document.createTextNode(''));
+          return;
+        }
         const trimmed = stringValue.trim();
         const placeholder = `<<${varName}>>`;
         const displayValue = trimmed.length ? stringValue : placeholder;
@@ -826,6 +830,10 @@ const RichTextPillEditor = React.forwardRef(({
       const varName = pill.getAttribute('data-var');
       if (!varName) return;
       const varValue = getVarValue(varName);
+      if (varValue === '__DELETED__') {
+        pill.replaceWith(document.createTextNode(''));
+        return;
+      }
       const isFilled = varValue.trim().length > 0;
       const displayValue = isFilled ? varValue : `<<${varName}>>`;
       
