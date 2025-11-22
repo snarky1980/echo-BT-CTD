@@ -20395,7 +20395,8 @@ function App() {
           const latestLanguage = templateLanguageRef.current || templateLanguage;
           const subjectTemplate = ((_a2 = latestTemplate == null ? void 0 : latestTemplate.subject) == null ? void 0 : _a2[latestLanguage]) || "";
           const bodyTemplate = ((_b = latestTemplate == null ? void 0 : latestTemplate.body) == null ? void 0 : _b[latestLanguage]) || "";
-          if (subjectTemplate.includes(`<<${varName}>>`)) {
+          const subjectHasVar = !!findTemplatePlaceholderForVar(subjectTemplate, varName);
+          if (subjectHasVar) {
             setFinalSubject((prev) => {
               const base = typeof prev === "string" ? prev : finalSubjectRef.current || "";
               const updated = ensurePlaceholderInText(base, subjectTemplate, varName);
@@ -20403,7 +20404,8 @@ function App() {
               return updated;
             });
           }
-          if (bodyTemplate.includes(`<<${varName}>>`)) {
+          const bodyHasVar = !!findTemplatePlaceholderForVar(bodyTemplate, varName);
+          if (bodyHasVar) {
             setFinalBody((prev) => {
               const base = typeof prev === "string" ? prev : finalBodyRef.current || "";
               const updated = ensurePlaceholderInText(base, bodyTemplate, varName);
@@ -24505,4 +24507,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-BlN7TmJ3.js.map
+//# sourceMappingURL=main-ByqhgMSA.js.map
