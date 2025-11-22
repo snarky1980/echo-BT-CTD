@@ -819,19 +819,33 @@ const cleanupWhitespace = (text = '') => text
   .replace(/\n[ \t]+/g, '\n')
   .replace(/\n{3,}/g, '\n\n')
 
+const findTemplatePlaceholderForVar = (templateText = '', varName = '') => {
+  if (!templateText || !varName) return null
+  const normalizedTarget = normalizeVarKey(varName)
+  if (!normalizedTarget) return null
+  const regex = /<<([^>]+)>>/g
+  let match
+  while ((match = regex.exec(templateText)) !== null) {
+    if (normalizeVarKey(match[1]) === normalizedTarget) {
+      return match[0]
+    }
+  }
+  return null
+}
+
 const removeVariablePlaceholderFromText = (text = '', varName = '') => {
   if (!text || !varName) return text
-  const placeholder = `<<${varName}>>`
-  if (!text.includes(placeholder)) return text
+  const normalizedTarget = normalizeVarKey(varName)
+  if (!normalizedTarget) return text
 
-  const pattern = new RegExp(`\\s*${escapeRegExp(placeholder)}\\s*`, 'g')
-  const updated = text.replace(pattern, (match) => {
-    if (match.includes('\n')) {
-      const hasLeading = /^\s*\n/.test(match)
-      const hasTrailing = /\n\s*$/.test(match)
-      if (hasLeading && hasTrailing) return '\n\n'
-      if (hasLeading || hasTrailing) return '\n'
-    }
+  const pattern = /(\s*)<<([^>]+)>>(\s*)/g
+  const updated = text.replace(pattern, (fullMatch, leading = '', innerName = '', trailing = '') => {
+    if (normalizeVarKey(innerName) !== normalizedTarget) return fullMatch
+
+    const hasLeadingNewline = /\n/.test(leading)
+    const hasTrailingNewline = /\n/.test(trailing)
+    if (hasLeadingNewline && hasTrailingNewline) return '\n\n'
+    if (hasLeadingNewline || hasTrailingNewline) return '\n'
     return ' '
   })
 
@@ -840,7 +854,7 @@ const removeVariablePlaceholderFromText = (text = '', varName = '') => {
 
 const ensurePlaceholderInText = (text = '', templateText = '', varName = '') => {
   if (!templateText || !varName) return text || ''
-  const placeholder = `<<${varName}>>`
+  const placeholder = findTemplatePlaceholderForVar(templateText, varName) || `<<${varName}>>`
   const source = text || ''
   if (source.includes(placeholder)) return source
 
