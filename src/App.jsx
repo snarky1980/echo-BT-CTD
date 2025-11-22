@@ -1478,13 +1478,27 @@ function App() {
       url.searchParams.set('varsOnly', '1')
       if (selectedTemplate?.id) url.searchParams.set('id', selectedTemplate.id)
       if (templateLanguage) url.searchParams.set('lang', templateLanguage)
-      // Fixed baseline size; clamp to available screen space
-      let w = 450
-      let h = 700
+      // Calculate optimal size based on number of variables and preferred columns
+      const varCount = selectedTemplate?.variables?.length || 0
+      const savedColumns = parseInt(localStorage.getItem('ea_popout_columns') || '2', 10)
+      
+      // Base dimensions for column layouts
+      const colWidth = 320 // width per column
+      const cardHeight = 120 // estimated height per card
+      const headerHeight = 60 // header bar height
+      const padding = 40 // total padding
+      
+      // Calculate ideal dimensions
+      let w = Math.max(380, (colWidth * savedColumns) + padding)
+      const rows = Math.ceil(varCount / savedColumns)
+      let h = Math.max(400, Math.min(900, headerHeight + (rows * cardHeight) + padding))
+      
+      // Clamp to available screen space
       const availW = (window.screen?.availWidth || window.innerWidth) - 40
       const availH = (window.screen?.availHeight || window.innerHeight) - 80
       w = Math.min(w, availW)
-      h = Math.min(Math.max(500, h), availH)
+      h = Math.min(h, availH)
+      
       const left = Math.max(0, Math.floor(((window.screen?.availWidth || window.innerWidth) - w) / 2))
       const top = Math.max(0, Math.floor(((window.screen?.availHeight || window.innerHeight) - h) / 3))
       // Important: open a blank window with features so size is respected

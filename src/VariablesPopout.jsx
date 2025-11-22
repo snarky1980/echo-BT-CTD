@@ -133,6 +133,14 @@ export default function VariablesPopout({
       return false
     }
   })
+  const [columns, setColumns] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ea_popout_columns')
+      return saved ? parseInt(saved, 10) : 2
+    } catch {
+      return 2
+    }
+  })
   
   console.log('🔍 VariablesPopout initialized with variables:', variables)
   const [focusedVar, setFocusedVar] = useState(null)
@@ -159,6 +167,14 @@ export default function VariablesPopout({
       window.focus()
     }
   }, [isPinned])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ea_popout_columns', String(columns))
+    } catch (err) {
+      console.warn('Failed to persist popout columns:', err)
+    }
+  }, [columns])
 
   useEffect(() => {
     if (!isPinned) return
@@ -550,13 +566,15 @@ export default function VariablesPopout({
     reinitialize: 'Réinitialiser',
     clear: 'Supprimer',
     close: 'Fermer',
-    pin: ({ pinned }) => pinned ? 'Épinglé • cette fenêtre reste devant' : 'Épingler cette fenêtre'
+    pin: ({ pinned }) => pinned ? 'Épinglé • cette fenêtre reste devant' : 'Épingler cette fenêtre',
+    columns: 'Colonnes'
   } : {
     title: 'Edit Variables',
     reinitialize: 'Reinitialize',
     clear: 'Delete',
     close: 'Close',
-    pin: ({ pinned }) => pinned ? 'Pinned • window stays on top' : 'Pin this window'
+    pin: ({ pinned }) => pinned ? 'Pinned • window stays on top' : 'Pin this window',
+    columns: 'Columns'
   }
 
   return (
@@ -577,6 +595,24 @@ export default function VariablesPopout({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Column selector */}
+          <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
+            {[1, 2, 3].map((num) => (
+              <button
+                key={num}
+                onClick={() => setColumns(num)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+                  columns === num
+                    ? 'bg-white text-slate-800'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+                title={`${num} ${t.columns.toLowerCase()}`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          
           <button
             onClick={() => setIsPinned((prev) => !prev)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-medium text-sm ${
@@ -601,7 +637,7 @@ export default function VariablesPopout({
 
       {/* Variables Grid */}
       <div className="py-2 px-5">
-        <div className="grid grid-cols-2 gap-3" style={{ width: '100%', minWidth: 0 }}>
+        <div className={`grid gap-3`} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, width: '100%', minWidth: 0 }}>
           {(() => {
             // Extract variables in the order they appear in template text
             const subjectText = selectedTemplate?.subject?.[templateLanguage] || ''
