@@ -124,7 +124,8 @@ export default function VariablesPopout({
   }, [activeLanguageCode])
 
   const getVarValue = useCallback((name = '') => {
-    return resolveVariableValue(variables, name, templateLanguage)
+    const value = resolveVariableValue(variables, name, templateLanguage)
+    return value === '__DELETED__' ? '' : value
   }, [variables, templateLanguage])
   const [columns, setColumns] = useState(2)
 
@@ -359,26 +360,26 @@ export default function VariablesPopout({
   }
 
   const removeVariable = (varName) => {
-    // Compute next snapshot synchronously to avoid race conditions
-    const assignments = expandVariableAssignment(varName, '', {
+    // Mark variable as deleted by setting to special marker
+    const assignments = expandVariableAssignment(varName, '__DELETED__', {
       preferredLanguage: activeLanguageCode,
       variables
     })
     const snapshot = applyAssignments(variables || {}, assignments)
     setVariables(snapshot)
-    enqueueVariableUpdate(varName, '', snapshot)
+    enqueueVariableUpdate(varName, '__DELETED__', snapshot)
 
     if (!channelRef.current) return
 
     try {
       channelRef.current.postMessage({
-        type: 'variableRemoved',
+        type: 'variableDeleted',
         varName,
         allVariables: snapshot,
         sender: senderIdRef.current
       })
     } catch (e) {
-      console.error('Failed to send variable removal:', e)
+      console.error('Failed to send variable deletion:', e)
     }
   }
 
@@ -398,13 +399,14 @@ export default function VariablesPopout({
 
     try {
       channelRef.current.postMessage({
-        type: 'variableReinitialized',
+        type: 'variableRestored',
         varName,
         value: exampleValue,
+        allVariables: snapshot,
         sender: senderIdRef.current
       })
     } catch (e) {
-      console.error('Failed to send variable reinitialization:', e)
+      console.error('Failed to send variable restoration:', e)
     }
   }
 
@@ -524,6 +526,10 @@ export default function VariablesPopout({
             }
 
             const currentValue = getVarValue(varName)
+            // Skip deleted variables
+            if (currentValue === '__DELETED__') {
+              return null
+            }
             const isFocused = varKeysMatch(focusedVar, varName)
             const sanitizedVarId = `popout-var-${varName.replace(/[^a-z0-9_-]/gi, '-')}`
             const langForDisplay = (templateLanguage || interfaceLanguage || 'fr').toLowerCase()

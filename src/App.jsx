@@ -1659,13 +1659,13 @@ function App() {
           return
         }
 
-        if (msg.type === 'variableRemoved' && msg.varName) {
+        if (msg.type === 'variableDeleted' && msg.varName) {
           const { varName } = msg
           varsRemoteUpdateRef.current = true
           flagSkipPopoutBroadcast()
           const next = msg.allVariables
             ? { ...msg.allVariables }
-            : { ...variablesRef.current, [varName]: '' }
+            : { ...variablesRef.current, [varName]: '__DELETED__' }
           variablesRef.current = next
           setVariables(next)
 
@@ -1686,19 +1686,21 @@ function App() {
           return
         }
 
-        if (msg.type === 'variableReinitialized' && msg.varName) {
+        if (msg.type === 'variableRestored' && msg.varName) {
           const { varName, value = '' } = msg
           varsRemoteUpdateRef.current = true
           flagSkipPopoutBroadcast()
-          setVariables(prev => {
-            const assignments = expandVariableAssignment(varName, value, {
-              preferredLanguage: (templateLanguageRef.current || 'fr').toUpperCase(),
-              variables: prev
-            })
-            const next = applyAssignments(prev, assignments)
-            variablesRef.current = next
-            return next
-          })
+          const next = msg.allVariables
+            ? { ...msg.allVariables }
+            : (() => {
+                const assignments = expandVariableAssignment(varName, value, {
+                  preferredLanguage: (templateLanguageRef.current || 'fr').toUpperCase(),
+                  variables: variablesRef.current
+                })
+                return applyAssignments(variablesRef.current, assignments)
+              })()
+          variablesRef.current = next
+          setVariables(next)
 
           const latestTemplate = selectedTemplateRef.current
           const latestLanguage = templateLanguageRef.current || templateLanguage
@@ -2668,12 +2670,18 @@ function App() {
     const language = (templateLanguageRef.current || templateLanguage || 'fr')
     return String(text ?? '').replace(/<<([^>]+)>>/g, (match, varName) => {
       const resolved = resolveVariableValue(sourceValues, varName, language)
+      if (resolved === '__DELETED__') {
+        return match
+      }
       if (resolved && resolved.trim().length) {
         return resolved
       }
       const direct = sourceValues[varName]
       if (direct !== undefined && direct !== null) {
         const asString = String(direct)
+        if (asString === '__DELETED__') {
+          return match
+        }
         if (asString.trim().length) return asString
       }
       return match
