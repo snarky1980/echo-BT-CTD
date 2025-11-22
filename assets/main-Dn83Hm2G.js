@@ -20299,11 +20299,11 @@ function App() {
           setVariables(next);
           return;
         }
-        if (msg.type === "variableRemoved" && msg.varName) {
+        if (msg.type === "variableDeleted" && msg.varName) {
           const { varName } = msg;
           varsRemoteUpdateRef.current = true;
           flagSkipPopoutBroadcast();
-          const next = msg.allVariables ? { ...msg.allVariables } : { ...variablesRef.current, [varName]: "" };
+          const next = msg.allVariables ? { ...msg.allVariables } : { ...variablesRef.current, [varName]: "__DELETED__" };
           variablesRef.current = next;
           setVariables(next);
           if (varName) {
@@ -20322,19 +20322,19 @@ function App() {
           }
           return;
         }
-        if (msg.type === "variableReinitialized" && msg.varName) {
+        if (msg.type === "variableRestored" && msg.varName) {
           const { varName, value = "" } = msg;
           varsRemoteUpdateRef.current = true;
           flagSkipPopoutBroadcast();
-          setVariables((prev) => {
+          const next = msg.allVariables ? { ...msg.allVariables } : (() => {
             const assignments = expandVariableAssignment(varName, value, {
               preferredLanguage: (templateLanguageRef.current || "fr").toUpperCase(),
-              variables: prev
+              variables: variablesRef.current
             });
-            const next = applyAssignments$1(prev, assignments);
-            variablesRef.current = next;
-            return next;
-          });
+            return applyAssignments$1(variablesRef.current, assignments);
+          })();
+          variablesRef.current = next;
+          setVariables(next);
           const latestTemplate = selectedTemplateRef.current;
           const latestLanguage = templateLanguageRef.current || templateLanguage;
           const subjectTemplate = ((_a2 = latestTemplate == null ? void 0 : latestTemplate.subject) == null ? void 0 : _a2[latestLanguage]) || "";
@@ -21208,12 +21208,18 @@ function App() {
     const language = templateLanguageRef.current || templateLanguage || "fr";
     return String(text ?? "").replace(/<<([^>]+)>>/g, (match, varName) => {
       const resolved = resolveVariableValue(sourceValues, varName, language);
+      if (resolved === "__DELETED__") {
+        return match;
+      }
       if (resolved && resolved.trim().length) {
         return resolved;
       }
       const direct = sourceValues[varName];
       if (direct !== void 0 && direct !== null) {
         const asString = String(direct);
+        if (asString === "__DELETED__") {
+          return match;
+        }
         if (asString.trim().length) return asString;
       }
       return match;
@@ -23594,7 +23600,8 @@ function VariablesPopout({
     return `${name}_${activeLanguageCode}`;
   }, [activeLanguageCode]);
   const getVarValue = reactExports.useCallback((name = "") => {
-    return resolveVariableValue(variables2, name, templateLanguage);
+    const value = resolveVariableValue(variables2, name, templateLanguage);
+    return value === "__DELETED__" ? "" : value;
   }, [variables2, templateLanguage]);
   const [columns, setColumns] = reactExports.useState(2);
   reactExports.useEffect(() => {
@@ -23787,23 +23794,23 @@ function VariablesPopout({
     enqueueVariableUpdate(varName, value, snapshot);
   };
   const removeVariable = (varName) => {
-    const assignments = expandVariableAssignment(varName, "", {
+    const assignments = expandVariableAssignment(varName, "__DELETED__", {
       preferredLanguage: activeLanguageCode,
       variables: variables2
     });
     const snapshot = applyAssignments(variables2 || {}, assignments);
     setVariables(snapshot);
-    enqueueVariableUpdate(varName, "", snapshot);
+    enqueueVariableUpdate(varName, "__DELETED__", snapshot);
     if (!channelRef.current) return;
     try {
       channelRef.current.postMessage({
-        type: "variableRemoved",
+        type: "variableDeleted",
         varName,
         allVariables: snapshot,
         sender: senderIdRef.current
       });
     } catch (e) {
-      console.error("Failed to send variable removal:", e);
+      console.error("Failed to send variable deletion:", e);
     }
   };
   const reinitializeVariable = (varName) => {
@@ -23819,13 +23826,14 @@ function VariablesPopout({
     if (!channelRef.current) return;
     try {
       channelRef.current.postMessage({
-        type: "variableReinitialized",
+        type: "variableRestored",
         varName,
         value: exampleValue,
+        allVariables: snapshot,
         sender: senderIdRef.current
       });
     } catch (e) {
-      console.error("Failed to send variable reinitialization:", e);
+      console.error("Failed to send variable restoration:", e);
     }
   };
   reactExports.useEffect(() => () => {
@@ -23924,6 +23932,9 @@ function VariablesPopout({
         return null;
       }
       const currentValue = getVarValue(varName);
+      if (currentValue === "__DELETED__") {
+        return null;
+      }
       const isFocused = varKeysMatch(focusedVar, varName);
       const sanitizedVarId = `popout-var-${varName.replace(/[^a-z0-9_-]/gi, "-")}`;
       const langForDisplay = (templateLanguage || interfaceLanguage || "fr").toLowerCase();
@@ -24438,4 +24449,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-CC-XgLbQ.js.map
+//# sourceMappingURL=main-Dn83Hm2G.js.map
