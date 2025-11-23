@@ -645,10 +645,10 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
             ref={closeBtnRef}
             variant="ghost"
             onClick={onClose}
-            className="h-8 w-8 rounded-none border border-slate-200 text-slate-500 hover:text-slate-900 m-0"
+            className="h-9 w-9 rounded-sm m-0 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"
             aria-label={strings.contact.close}
           >
-            <X className="h-3.5 w-3.5" />
+            <span className="text-xl leading-none font-bold select-none" aria-hidden="true">×</span>
           </Button>
         </CardHeader>
         <div className="flex items-center justify-between border-b border-[#e6eef5] px-2 py-1">
