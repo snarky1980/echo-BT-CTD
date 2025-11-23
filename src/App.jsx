@@ -1141,7 +1141,7 @@ function App() {
         if (trimmed) return trimmed
       }
     } catch {}
-    return 'support@example.com'
+    return 'echo-support@jskennedy.net'
   }, [])
   const supportFormEndpoint = useMemo(() => {
     try {
