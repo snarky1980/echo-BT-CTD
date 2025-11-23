@@ -699,6 +699,10 @@
     }
   }
 
+  .m-0 {
+    margin: calc(var(--spacing) * 0);
+  }
+
   .-mx-1 {
     margin-inline: calc(var(--spacing) * -1);
   }
@@ -987,10 +991,6 @@
     height: 1px;
   }
 
-  .h-\[18px\] {
-    height: 18px;
-  }
-
   .h-\[48px\] {
     height: 48px;
   }
@@ -1133,10 +1133,6 @@
 
   .w-\[3px\] {
     width: 3px;
-  }
-
-  .w-\[18px\] {
-    width: 18px;
   }
 
   .w-\[88vw\] {
@@ -2059,6 +2055,16 @@
     background-color: var(--color-slate-200);
   }
 
+  .bg-slate-300\/60 {
+    background-color: #cad5e299;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-300\/60 {
+      background-color: color-mix(in oklab, var(--color-slate-300) 60%, transparent);
+    }
+  }
+
   .bg-slate-800 {
     background-color: var(--color-slate-800);
   }
@@ -2305,10 +2311,6 @@
     padding: calc(var(--spacing) * 8);
   }
 
-  .p-\[3px\] {
-    padding: 3px;
-  }
-
   .p-px {
     padding: 1px;
   }
@@ -2543,6 +2545,10 @@
 
   .text-\[9px\] {
     font-size: 9px;
+  }
+
+  .text-\[10px\] {
+    font-size: 10px;
   }
 
   .text-\[11px\] {
@@ -3037,6 +3043,10 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
 
+  .ring-\[\#1f8a99\]\/20 {
+    --tw-ring-color: oklab(58.3021% -.08121 -.0455391 / .2);
+  }
+
   .ring-\[\#7bd1ca\]\/30 {
     --tw-ring-color: oklab(80.4404% -.0832889 -.013074 / .3);
   }
@@ -3391,6 +3401,16 @@
       background-color: var(--color-slate-100);
     }
 
+    .hover\:bg-slate-400\/70:hover {
+      background-color: #90a1b9b3;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-slate-400\/70:hover {
+        background-color: color-mix(in oklab, var(--color-slate-400) 70%, transparent);
+      }
+    }
+
     .hover\:bg-slate-900:hover {
       background-color: var(--color-slate-900);
     }
@@ -3496,6 +3516,10 @@
 
   .focus\:ring-blue-200:focus {
     --tw-ring-color: var(--color-blue-200);
+  }
+
+  .focus\:ring-slate-300:focus {
+    --tw-ring-color: var(--color-slate-300);
   }
 
   .focus\:ring-slate-400:focus {
