@@ -474,11 +474,11 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
     document.body.style.overflow = 'hidden'
 
     requestAnimationFrame(() => {
-      // If template category is pre-selected, scroll to contact form
+      // If template category is pre-selected, scroll to contact form immediately
       if (initialCategory === 'template' && contactFormRef.current) {
         setTimeout(() => {
-          contactFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }, 300)
+          contactFormRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' })
+        }, 50)
       } else {
         closeBtnRef.current?.focus()
       }
