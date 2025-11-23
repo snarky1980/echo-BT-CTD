@@ -937,12 +937,19 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                         <button
                           key={option.value}
                           type="button"
-                          className={`group flex flex-col border text-left transition-all duration-200 ${isActive ? 'border-[#1f8a99] bg-white' : 'border-transparent bg-white/60 hover:border-[#bfe7e3] hover:bg-white'}`}
+                          className={`group relative flex flex-col border text-left transition-all duration-200 p-2 rounded-lg ${isActive ? 'border-[#1f8a99] bg-white shadow-md ring-2 ring-[#1f8a99]/20' : 'border-transparent bg-white/60 hover:border-[#bfe7e3] hover:bg-white'}`}
                           aria-pressed={isActive}
                           onClick={() => handleCategorySelect(option.value)}
                         >
-                          <span className="font-semibold text-[#0f4c55] text-xs">{option.label}</span>
-                          <span className="mt-0.5 text-[10px] text-slate-500">{option.helper}</span>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <span className="font-semibold text-[#0f4c55] text-xs">{option.label}</span>
+                              <span className="block mt-0.5 text-[10px] text-slate-500">{option.helper}</span>
+                            </div>
+                            {isActive && (
+                              <CheckCircle2 className="h-4 w-4 text-[#1f8a99] flex-shrink-0" aria-hidden="true" />
+                            )}
+                          </div>
                         </button>
                       )
                     })}
