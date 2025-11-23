@@ -398,8 +398,6 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
   const closeBtnRef = useRef(null)
   const contactFormRef = useRef(null)
   const [query, setQuery] = useState('')
-  // Compact mode: minimal by default
-  const [compact, setCompact] = useState(true)
   
   // Check URL for initial category
   const initialCategory = useMemo(() => {
@@ -415,13 +413,6 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
 
   // Direct-to-form mode: when opening directly to template submission, show only the form
   const formOnly = initialCategory === 'template'
-
-  // Auto-expand full mode when opening directly to template submission
-  useEffect(() => {
-    if (initialCategory === 'template') {
-      setCompact(false)
-    }
-  }, [initialCategory])
   
   const [formData, setFormData] = useState(() => ({
     category: initialCategory,
@@ -661,28 +652,11 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
             <span className="text-xl leading-none font-bold select-none" aria-hidden="true">×</span>
           </Button>
         </CardHeader>
-        {formOnly ? null : (
-        <div className="flex items-center justify-between border-b border-[#e6eef5] px-2 py-1">
-          <button
-            onClick={() => setCompact(c => !c)}
-            className="text-[11px] font-semibold text-[#145a64] hover:underline"
-            aria-pressed={!compact ? true : false}
-          >
-            {compact ? (language === 'fr' ? 'Mode complet' : 'Full mode') : (language === 'fr' ? 'Mode compact' : 'Compact mode')}
-          </button>
-          {compact ? null : (
-            <div className="flex gap-2 text-[10px] text-slate-600">
-              <span>{language === 'fr' ? 'Aide étendue' : 'Expanded help'}</span>
-            </div>
-          )}
-        </div>
-        )}
         <CardContent className="flex-1 m-0 p-0" style={{ minHeight: 0 }}>
           <ScrollArea className="h-full w-full">
             <div className={formOnly ? "px-2 py-2 m-0" : "space-y-4 px-2 py-0 m-0"}>
               {formOnly ? null : (
               <>
-              {compact ? null : (
               <div className="flex flex-col gap-2 border-b border-[#e6eef5] bg-transparent md:flex-row md:items-center md:justify-between m-0 p-0">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
                   <a href="#quickstart" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.quickStart.heading}</a>
@@ -717,7 +691,6 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                   />
                 </div>
               </div>
-              )}
               <section id="quickstart">
                 <SectionHeader
                   icon={Lightbulb}
@@ -832,8 +805,6 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                 </div>
               </section>
 
-              {compact ? null : (
-              <>
               <Separator className="bg-[#e6eef5]" />
               <section>
                 <SectionHeader icon={AlertTriangle} title={strings.troubleshooting.heading} />
@@ -1208,15 +1179,6 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                   </div>
                 </form>
               </section>
-              </>
-              )}
-              {compact && (
-                <div className="px-2 pb-3">
-                  <button onClick={() => setCompact(false)} className="text-[11px] text-[#145a64] font-semibold hover:underline">
-                    {language === 'fr' ? 'Afficher toute l\'aide' : 'Show full help'}
-                  </button>
-                </div>
-              )}
             </div>
           </ScrollArea>
         </CardContent>
