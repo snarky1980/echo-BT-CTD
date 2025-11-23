@@ -13311,7 +13311,18 @@ function HelpCenter({ language = "fr", onClose, supportEmail = "echo-support@jsk
   });
   const [status, setStatus] = reactExports.useState("idle");
   const [errors, setErrors] = reactExports.useState({});
-  const submissionUrl = contactEndpoint || `https://formsubmit.co/ajax/${encodeURIComponent(supportEmail)}`;
+  const envEndpoint = (() => {
+    var _a2, _b2;
+    try {
+      const v = (_b2 = (_a2 = import.meta) == null ? void 0 : _a2.env) == null ? void 0 : _b2.VITE_SUPPORT_FORM_ENDPOINT;
+      if (typeof v === "string" && v.trim()) return v.trim();
+    } catch {
+    }
+    return null;
+  })();
+  const fallbackEndpoint = `https://formsubmit.co/ajax/${encodeURIComponent(supportEmail)}`;
+  const activeEndpoint = contactEndpoint || envEndpoint || fallbackEndpoint;
+  const submissionUrl = activeEndpoint;
   const selectedCategory = contactOptions.find((option) => option.value === formData.category) || contactOptions[0] || null;
   const isSubmitting = status === "submitting";
   const feedbackMessage = status === "success" ? strings.contact.form.successMessage : status === "error" ? strings.contact.form.errorMessage() : "";
@@ -13437,6 +13448,7 @@ function HelpCenter({ language = "fr", onClose, supportEmail = "echo-support@jsk
           "Content-Type": "application/json",
           Accept: "application/json"
         },
+        // Formspree expects either form-encoded or JSON; JSON is accepted when header is set
         body: JSON.stringify(payload)
       });
       if (!response.ok) {
@@ -13903,7 +13915,18 @@ function HelpCenter({ language = "fr", onClose, supportEmail = "echo-support@jsk
                             className: "mt-2 text-xs font-semibold uppercase tracking-wide text-[#166f7b] hover:text-[#0f4c55]",
                             children: strings.contact.form.sendAnother
                           }
-                        ) : null
+                        ) : null,
+                        status === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-xs", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold mb-1", children: language === "fr" ? "Solutions de repli:" : "Fallback options:" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc pl-4 space-y-1", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: language === "fr" ? "Réessayez plus tard; l’endpoint peut être temporairement indisponible." : "Retry later; endpoint may be temporarily unavailable." }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                              language === "fr" ? "Envoyez un courriel direct:" : "Send direct email:",
+                              " ",
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "text-[#145a64] underline", href: `mailto:${supportEmail}?subject=ECHO%20Support%20(${encodeURIComponent(formData.category)})`, children: supportEmail })
+                            ] })
+                          ] })
+                        ] }) : null
                       ] })
                     ]
                   }
@@ -24466,4 +24489,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-CIOSpiFI.js.map
+//# sourceMappingURL=main-BYiwFXzZ.js.map
