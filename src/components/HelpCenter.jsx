@@ -679,7 +679,7 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
         )}
         <CardContent className="flex-1 m-0 p-0" style={{ minHeight: 0 }}>
           <ScrollArea className="h-full w-full">
-            <div className="space-y-4 m-0 p-0">
+            <div className="space-y-4 px-2 py-0 m-0">
               {formOnly ? null : (
               <>
               {compact ? null : (
