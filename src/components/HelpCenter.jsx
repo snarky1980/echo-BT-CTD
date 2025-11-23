@@ -619,7 +619,7 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
   }
 
   return (
-    <div className="fixed inset-0 z-[400] flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-[400] flex items-center justify-center">
       <div
         className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"
         onClick={onClose}
@@ -629,53 +629,52 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
         role="dialog"
         aria-modal="true"
         aria-labelledby="help-centre-title"
-        className="relative z-10 flex w-full max-w-4xl flex-col border-0 bg-white/95 shadow-2xl"
-        style={{ borderRadius: '18px', height: '88vh', maxHeight: '88vh' }}
+        className="relative z-10 flex w-full max-w-4xl flex-col border-0 bg-white shadow-2xl"
+        style={{ borderRadius: '0', height: '100vh', maxHeight: '100vh' }}
       >
-        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
-          <div>
-            {/* Removed small brand title "Email Assistant" as requested */}
-            <CardTitle id="help-centre-title" className="text-2xl font-bold text-[#0f2c33]">
+        <CardHeader className="flex flex-row items-start justify-between m-0 p-0">
+          <div className="m-0 p-0">
+            <CardTitle id="help-centre-title" className="text-xl font-bold text-[#0f2c33] m-0 p-2">
               {strings.title}
             </CardTitle>
-            <p className="mt-1 text-sm text-slate-600">{strings.subtitle}</p>
+            <p className="text-xs text-slate-600 m-0 p-2 pt-0">{strings.subtitle}</p>
           </div>
           <Button
             ref={closeBtnRef}
             variant="ghost"
             onClick={onClose}
-            className="h-9 w-9 rounded-full border border-slate-200 text-slate-500 hover:text-slate-900"
+            className="h-8 w-8 rounded-none border border-slate-200 text-slate-500 hover:text-slate-900 m-0"
             aria-label={strings.contact.close}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </Button>
         </CardHeader>
-        <CardContent className="flex-1 pt-0" style={{ minHeight: 0 }}>
-          <ScrollArea className="h-full w-full pr-2">
-            <div className="space-y-8 pb-4">
-              <div className="flex flex-col gap-3 rounded-xl border border-[#e6eef5] bg-white/70 p-3 md:flex-row md:items-center md:justify-between">
+        <CardContent className="flex-1 m-0 p-0" style={{ minHeight: 0 }}>
+          <ScrollArea className="h-full w-full">
+            <div className="space-y-4 m-0 p-0">
+              <div className="flex flex-col gap-2 border-b border-[#e6eef5] bg-transparent md:flex-row md:items-center md:justify-between m-0 p-0">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
-                  <a href="#quickstart" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.quickStart.heading}</a>
+                  <a href="#quickstart" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.quickStart.heading}</a>
                   {strings.sections?.copilot ? (
-                    <a href="#copilot" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.copilot.heading}</a>
+                    <a href="#copilot" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.copilot.heading}</a>
                   ) : null}
                   {strings.sections?.variables ? (
-                    <a href="#variables" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.variables.heading}</a>
+                    <a href="#variables" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.variables.heading}</a>
                   ) : null}
                   {strings.sections?.popout ? (
-                    <a href="#popout" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.popout.heading}</a>
+                    <a href="#popout" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.popout.heading}</a>
                   ) : null}
                   {strings.sections?.copying ? (
-                    <a href="#copying" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.copying.heading}</a>
+                    <a href="#copying" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.copying.heading}</a>
                   ) : null}
                   {strings.sections?.favorites ? (
-                    <a href="#favorites" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.favorites.heading}</a>
+                    <a href="#favorites" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.favorites.heading}</a>
                   ) : null}
                   {strings.sections?.shortcuts ? (
-                    <a href="#shortcuts" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.shortcuts.heading}</a>
+                    <a href="#shortcuts" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.shortcuts.heading}</a>
                   ) : null}
                   {strings.sections?.privacy ? (
-                    <a href="#privacy" className="rounded-full bg-[#f0fbfb] px-3 py-1 font-semibold text-[#145a64] hover:underline">{strings.sections.privacy.heading}</a>
+                    <a href="#privacy" className="font-semibold text-[#145a64] hover:underline px-2 py-1">{strings.sections.privacy.heading}</a>
                   ) : null}
                 </div>
                 <div className="md:w-60">
@@ -683,6 +682,7 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={language === 'fr' ? "Rechercher dans l'aide…" : 'Search the help…'}
+                    className="h-7 text-xs px-2"
                   />
                 </div>
               </div>
@@ -894,34 +894,34 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
 
               <Separator className="bg-[#e6eef5]" />
 
-              <section ref={contactFormRef} className="rounded-2xl border border-[#bfe7e3] bg-[#f5fffb] p-6">
+              <section ref={contactFormRef} className="border-t border-[#bfe7e3] bg-transparent">
                 <div className="flex items-center gap-2 text-[#145a64]">
-                  <Mail className="h-5 w-5" aria-hidden="true" />
-                  <h3 className="text-lg font-semibold">{strings.contact.heading}</h3>
+                  <Mail className="h-4 w-4" aria-hidden="true" />
+                  <h3 className="text-sm font-semibold m-0 p-0">{strings.contact.heading}</h3>
                 </div>
-                <p className="mt-2 text-sm text-slate-700">{strings.contact.description}</p>
+                <p className="mt-1 text-xs text-slate-600">{strings.contact.description}</p>
 
-                <form onSubmit={handleSubmit} className="mt-4 space-y-5" noValidate>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                <form onSubmit={handleSubmit} className="mt-2 space-y-3" noValidate>
+                  <div className="grid gap-1 sm:grid-cols-2">
                     {contactOptions.map((option) => {
                       const isActive = formData.category === option.value
                       return (
                         <button
                           key={option.value}
                           type="button"
-                          className={`group flex flex-col rounded-xl border px-3 py-3 text-left transition-all duration-200 ${isActive ? 'border-[#1f8a99] bg-white shadow-md' : 'border-transparent bg-white/60 hover:border-[#bfe7e3] hover:bg-white'}`}
+                          className={`group flex flex-col border text-left transition-all duration-200 ${isActive ? 'border-[#1f8a99] bg-white' : 'border-transparent bg-white/60 hover:border-[#bfe7e3] hover:bg-white'}`}
                           aria-pressed={isActive}
                           onClick={() => handleCategorySelect(option.value)}
                         >
-                          <span className="font-semibold text-[#0f4c55]">{option.label}</span>
-                          <span className="mt-1 text-xs text-slate-600">{option.helper}</span>
+                          <span className="font-semibold text-[#0f4c55] text-xs">{option.label}</span>
+                          <span className="mt-0.5 text-[10px] text-slate-500">{option.helper}</span>
                         </button>
                       )
                     })}
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <label className="flex flex-col gap-1 text-xs font-medium text-slate-700">
                       <span>{strings.contact.form.nameLabel}</span>
                       <Input
                         value={formData.name}
@@ -930,10 +930,10 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                         aria-invalid={Boolean(errors.name)}
                       />
                       {errors.name ? (
-                        <span className="text-xs font-normal text-red-600">{errors.name}</span>
+                        <span className="text-[10px] font-normal text-red-600">{errors.name}</span>
                       ) : null}
                     </label>
-                    <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+                    <label className="flex flex-col gap-1 text-xs font-medium text-slate-700">
                       <span>{strings.contact.form.emailLabel}</span>
                       <Input
                         type="email"
@@ -943,12 +943,12 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                         aria-invalid={Boolean(errors.email)}
                       />
                       {errors.email ? (
-                        <span className="text-xs font-normal text-red-600">{errors.email}</span>
+                        <span className="text-[10px] font-normal text-red-600">{errors.email}</span>
                       ) : null}
                     </label>
                   </div>
 
-                  <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+                  <label className="flex flex-col gap-1 text-xs font-medium text-slate-700">
                     <span>{selectedCategory?.messageLabel || strings.contact.form.messageLabelFallback}</span>
                     <Textarea
                       value={formData.message}
@@ -958,7 +958,7 @@ export default function HelpCenter({ language = 'fr', onClose, supportEmail = 'j
                       aria-invalid={Boolean(errors.message)}
                     />
                     {errors.message ? (
-                      <span className="text-xs font-normal text-red-600">{errors.message}</span>
+                      <span className="text-[10px] font-normal text-red-600">{errors.message}</span>
                     ) : null}
                   </label>
 
