@@ -66,10 +66,10 @@
         <h3>1. Modifier un modèle existant</h3>
         <ol>
           <li><strong>Sélection</strong> — Dans la colonne de gauche, cliquez sur la tuile du modèle. <button type="button" class="focus-btn" data-target="list">Voir</button></li>
-          <li><strong>Langue</strong> — Utilisez le sélecteur FR / EN en haut si vous devez changer la langue éditée.</li>
+          <li><strong>Langues</strong> — Éditez directement les champs FR et EN (les deux colonnes) selon vos besoins.</li>
           <li><strong>Champs</strong> — Modifiez <em>Titre</em>, <em>Description</em>, <em>Objet</em>, puis le <em>Corps</em>. <button type="button" class="focus-btn" data-target="tpl-title-fr">Titre FR</button> <button type="button" class="focus-btn" data-target="tpl-body-fr">Corps FR</button></li>
           <li><strong>Variables</strong> — Tapez les placeholders <code>&lt;&lt;NomVariable&gt;&gt;</code> dans Objet/Corps. Elles sont détectées automatiquement et listées en bas.</li>
-          <li><strong>Sauvegarde</strong> — « Exporter JSON » ou « Exporter Excel ». <button type="button" class="focus-btn" data-target="btn-export">JSON</button> <button type="button" class="focus-btn" data-target="btn-export-xlsx">Excel</button></li>
+          <li><strong>Sauvegarde</strong> — Utilisez « <strong>Publier</strong> » pour <em>Télécharger JSON</em> ou « <strong>Exporter Excel</strong> » pour un tableur. <button type="button" class="focus-btn" data-target="btn-export-menu">Publier</button> <button type="button" class="focus-btn" data-target="btn-export-xlsx">Excel</button></li>
         </ol>
       </section>
 
@@ -92,7 +92,7 @@
           <li><strong>Complétez</strong> les champs FR et EN (Titre, Description, Objet, Corps). <button type="button" class="focus-btn" data-target="tpl-id">ID</button></li>
           <li><strong>Placeholders</strong> — Insérez les variables nécessaires: <code>&lt;&lt;ClientName&gt;&gt;</code>, <code>&lt;&lt;ProjectNumber&gt;&gt;</code>, etc. Elles sont détectées automatiquement.</li>
           <li><strong>Vérifiez</strong> l’orthographe, accents, cohérence FR/EN.</li>
-          <li><strong>Exportez</strong> via « Exporter JSON » pour transmettre le nouveau modèle ou via « Exporter Excel » si vous préparez plusieurs ajouts.</li>
+          <li><strong>Publiez</strong> via « <strong>Publier</strong> » → <em>Télécharger JSON</em> pour transmettre le nouveau modèle, ou utilisez « <strong>Exporter Excel</strong> » si vous préparez plusieurs ajouts.</li>
         </ol>
         <p class="note">Besoin d’aide pour décrire les variables ? Ajoutez leur nom puis revenez plus tard compléter les descriptions.</p>
       </section>
@@ -102,9 +102,18 @@
         <ol>
           <li>Cliquez « Exporter Excel » pour obtenir tous les modèles.</li>
           <li>Ouvrez le fichier .xlsx et modifiez / ajoutez des lignes (garder la syntaxe <code>&lt;&lt;Var&gt;&gt;</code>).</li>
-          <li>Importez avec « Importer Excel » pour charger les changements en brouillon.</li>
-          <li>Revoyez chaque tuile si nécessaire puis exportez en JSON pour diffusion.</li>
+          <li>Importez avec « <strong>Importer</strong> » (JSON ou Excel auto‑détecté) pour charger les changements en brouillon. <button type="button" class="focus-btn" data-target="btn-import">Importer</button></li>
+          <li>Revoyez chaque tuile si nécessaire puis utilisez « <strong>Publier</strong> » → <em>Télécharger JSON</em> pour diffusion.</li>
         </ol>
+      </section>
+
+      <section class="card mb12">
+        <h3>5. Publier et GitHub</h3>
+        <ul>
+          <li><strong>Publier</strong> ouvre un menu : <em>Télécharger JSON</em>, <em>Publier sur GitHub</em>, <em>Configurer GitHub…</em>.</li>
+          <li><em>Publier sur GitHub</em> envoie le JSON dans le dépôt configuré (nécessite « Configurer GitHub… » la première fois).</li>
+          <li><em>Télécharger JSON</em> enregistre localement votre brouillon complet.</li>
+        </ul>
       </section>
 
       <section class="card">
