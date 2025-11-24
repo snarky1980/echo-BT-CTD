@@ -2755,6 +2755,34 @@ function App() {
     wrapper.innerHTML = ensureHtmlString(htmlText)
 
     // Convert styling to email-client-friendly format
+    const normalizeColor = (value = '') => String(value || '').replace(/\s+/g, '').toLowerCase()
+    const defaultPillBackgrounds = new Set([
+      'rgb(245,243,232)', // #f5f3e8 filled background
+      'rgba(245,243,232,1)',
+      'rgb(254,249,195)', // #fef9c3 empty background
+      'rgba(254,249,195,1)',
+      'rgb(219,234,254)', // #dbeafe focus background
+      'rgba(219,234,254,1)'
+    ])
+    const isDefaultPillBackground = (color = '') => defaultPillBackgrounds.has(normalizeColor(color))
+
+    const removeDefaultHighlights = (root) => {
+      if (!root || typeof root.querySelectorAll !== 'function') return
+      root.querySelectorAll('*').forEach((el) => {
+        const style = el.getAttribute?.('style') || ''
+        if (!style) return
+        const bgMatch = style.match(/background-color\s*:\s*([^;]+)/i)
+        if (bgMatch && isDefaultPillBackground(bgMatch[1])) {
+          const cleaned = style.replace(/background-color\s*:[^;]+;?/i, '').trim()
+          if (cleaned.length) {
+            el.setAttribute('style', cleaned.endsWith(';') ? cleaned : `${cleaned};`)
+          } else {
+            el.removeAttribute('style')
+          }
+        }
+      })
+    }
+
     const makeOutlookFriendly = (element) => {
       // Process ALL elements (not just those with style attribute)
       // because computed styles may come from CSS classes or parent elements
@@ -2797,9 +2825,10 @@ function App() {
         const bgColor = computedStyle.backgroundColor
         const bgColorRgb = bgColor.replace(/\s/g, '')
         if (bgColor && 
-            bgColorRgb !== 'rgba(0,0,0,0)' && 
-            bgColorRgb !== 'transparent' &&
-            !existingStyle.includes('background-color')) {
+          bgColorRgb !== 'rgba(0,0,0,0)' && 
+          bgColorRgb !== 'transparent' &&
+          !existingStyle.includes('background-color') &&
+          !isDefaultPillBackground(bgColor)) {
           newStyle += `background-color: ${bgColor}; `
         }
         
@@ -2936,6 +2965,7 @@ function App() {
           // Create a temporary container to parse the HTML
           const tempContainer = document.createElement('div')
           tempContainer.innerHTML = applied
+          removeDefaultHighlights(tempContainer)
           // Replace the pill node with the content (unwrapped)
           const fragment = document.createDocumentFragment()
           Array.from(tempContainer.childNodes).forEach(child => fragment.appendChild(child))
@@ -2944,6 +2974,7 @@ function App() {
           // Fallback: extract the inner content of the pill (without the wrapper)
           const tempContainer = document.createElement('div')
           tempContainer.innerHTML = node.innerHTML
+          removeDefaultHighlights(tempContainer)
           const fragment = document.createDocumentFragment()
           Array.from(tempContainer.childNodes).forEach(child => fragment.appendChild(child))
           node.replaceWith(fragment)

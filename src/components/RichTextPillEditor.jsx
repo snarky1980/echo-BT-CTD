@@ -30,6 +30,17 @@ const escapeSelector = (value = '') => {
   return String(value).replace(/[^a-zA-Z0-9_-]/g, (char) => `\\${char}`);
 };
 
+const normalizeColor = (value = '') => String(value || '').replace(/\s+/g, '').toLowerCase();
+const defaultPillBackgrounds = new Set([
+  'rgb(245,243,232)', // #f5f3e8 filled background
+  'rgba(245,243,232,1)',
+  'rgb(254,249,195)', // #fef9c3 empty background
+  'rgba(254,249,195,1)',
+  'rgb(219,234,254)', // #dbeafe focus background
+  'rgba(219,234,254,1)'
+]);
+const isDefaultPillBackground = (color = '') => defaultPillBackgrounds.has(normalizeColor(color));
+
 const createFormattingTemplate = (pill) => {
   if (!pill) return null;
 
@@ -63,10 +74,11 @@ const createFormattingTemplate = (pill) => {
     const bgColor = computedStyle.backgroundColor;
     const bgColorNormalized = bgColor?.replace(/\s/g, '');
     if (bgColor && 
-        bgColorNormalized !== 'rgba(0,0,0,0)' && 
-        bgColorNormalized !== 'transparent' &&
-        bgColorNormalized !== 'rgb(255,255,255)' &&
-        bgColorNormalized !== 'rgba(255,255,255,1)') {
+      bgColorNormalized !== 'rgba(0,0,0,0)' && 
+      bgColorNormalized !== 'transparent' &&
+      bgColorNormalized !== 'rgb(255,255,255)' &&
+      bgColorNormalized !== 'rgba(255,255,255,1)' &&
+      !isDefaultPillBackground(bgColor)) {
       inlineStyle += `background-color: ${bgColor}; `;
     }
     
