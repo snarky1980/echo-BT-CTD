@@ -21735,20 +21735,26 @@ ${htmlContent}
 </html>`;
       let success = false;
       const buildCFHtml = (html) => {
+        const enc = new TextEncoder();
         const doc = `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body><!--StartFragment-->${html}<!--EndFragment--></body>
 </html>`;
-        const enc = new TextEncoder();
-        const bytes = enc.encode(doc);
-        const startHtml = doc.indexOf("<html>");
-        const startFragment = doc.indexOf("<!--StartFragment-->") + "<!--StartFragment-->".length;
-        const endFragment = doc.indexOf("<!--EndFragment-->");
-        const startHtmlBytes = enc.encode(doc.substring(0, startHtml)).length;
-        const startFragmentBytes = enc.encode(doc.substring(0, startFragment)).length;
-        const endFragmentBytes = enc.encode(doc.substring(0, endFragment)).length;
-        const endHtmlBytes = bytes.length;
+        const startHtmlIndex = doc.indexOf("<html>");
+        const startFragmentIndex = doc.indexOf("<!--StartFragment-->") + "<!--StartFragment-->".length;
+        const endFragmentIndex = doc.indexOf("<!--EndFragment-->");
+        const headerPlaceholder = `Version:1.0\r
+StartHTML:0000000000\r
+EndHTML:0000000000\r
+StartFragment:0000000000\r
+EndFragment:0000000000\r
+`;
+        const headerPlaceholderBytes = enc.encode(headerPlaceholder).length;
+        const startHtmlBytes = headerPlaceholderBytes + enc.encode(doc.substring(0, startHtmlIndex)).length;
+        const startFragmentBytes = headerPlaceholderBytes + enc.encode(doc.substring(0, startFragmentIndex)).length;
+        const endFragmentBytes = headerPlaceholderBytes + enc.encode(doc.substring(0, endFragmentIndex)).length;
+        const endHtmlBytes = headerPlaceholderBytes + enc.encode(doc).length;
         const pad = (n) => String(n).padStart(10, "0");
         const header = `Version:1.0\r
 StartHTML:${pad(startHtmlBytes)}\r
@@ -24670,4 +24676,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-CrGiLtXZ.js.map
+//# sourceMappingURL=main-BVMB7AAi.js.map
