@@ -21368,23 +21368,6 @@ function App() {
       }
       return raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r\n|\r/g, "\n").replace(/\n/g, "<br>");
     };
-    const stripPillMetadata = (element) => {
-      var _a2;
-      if (!element || element.nodeType !== Node.ELEMENT_NODE) return;
-      (_a2 = element.classList) == null ? void 0 : _a2.remove("var-pill", "filled", "empty", "focused");
-      if (element.classList && element.classList.length === 0) {
-        element.removeAttribute("class");
-      }
-      const attrsToRemove = ["data-var", "data-value", "data-display", "data-template", "contenteditable", "spellcheck"];
-      attrsToRemove.forEach((attr) => element.removeAttribute(attr));
-      Array.from(element.children || []).forEach(stripPillMetadata);
-    };
-    const setCloneContent = (target, htmlString = "") => {
-      target.innerHTML = "";
-      if (!htmlString) return;
-      const frag = document.createRange().createContextualFragment(htmlString);
-      target.appendChild(frag);
-    };
     const PILL_TEMPLATE_TOKEN2 = "__RT_PILL_VALUE__";
     Object.entries(values || {}).forEach(([varName, value]) => {
       const nodes = wrapper.querySelectorAll(`[data-var="${cssEscape(varName)}"]`);
@@ -21392,23 +21375,24 @@ function App() {
         var _a2;
         const replacementValue = value !== void 0 && value !== null && String(value).length ? String(value) : `<<${varName}>>`;
         const placeholder = `<<${varName}>>`;
-        const pillClone = node.cloneNode(false);
-        const injectAndReplace = (htmlString) => {
-          setCloneContent(pillClone, htmlString);
-          stripPillMetadata(pillClone);
-          node.replaceWith(pillClone);
-        };
         const template = node.getAttribute("data-template") || ((_a2 = node.dataset) == null ? void 0 : _a2.template);
         if (template && replacementValue !== placeholder) {
           const sanitized = convertValueToHtml(replacementValue);
           const applied = template.replace(PILL_TEMPLATE_TOKEN2, sanitized);
-          injectAndReplace(applied);
+          const tempContainer = document.createElement("div");
+          tempContainer.innerHTML = applied;
+          const fragment = document.createDocumentFragment();
+          Array.from(tempContainer.childNodes).forEach((child) => fragment.appendChild(child));
+          node.replaceWith(fragment);
         } else if (node.innerHTML && replacementValue !== placeholder) {
-          injectAndReplace(node.innerHTML);
+          const tempContainer = document.createElement("div");
+          tempContainer.innerHTML = node.innerHTML;
+          const fragment = document.createDocumentFragment();
+          Array.from(tempContainer.childNodes).forEach((child) => fragment.appendChild(child));
+          node.replaceWith(fragment);
         } else {
-          pillClone.textContent = replacementValue;
-          stripPillMetadata(pillClone);
-          node.replaceWith(pillClone);
+          const textNode = document.createTextNode(replacementValue);
+          node.replaceWith(textNode);
         }
       });
     });
@@ -24531,4 +24515,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-BOjBUbSY.js.map
+//# sourceMappingURL=main-DnYNGRUi.js.map
