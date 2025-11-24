@@ -21626,81 +21626,142 @@ function App() {
     return () => clearTimeout(debounce);
   }, [selectedTemplate, templateLanguage, finalSubject, finalBody, syncFromText]);
   const copyToClipboard = async (type = "all") => {
-    var _a2, _b, _c, _d;
+    var _a2, _b, _c, _d, _e, _f, _g, _h;
     try {
-      const cloneWithInlineStyles = (element) => {
-        const clone = element.cloneNode(false);
-        const computed = window.getComputedStyle(element);
-        const styles = [];
-        const bgColor = computed.backgroundColor;
-        if (bgColor && bgColor !== "rgba(0, 0, 0, 0)" && bgColor !== "transparent") {
-          styles.push(`background-color: ${bgColor}`);
-        }
-        const color = computed.color;
-        if (color && color !== "rgb(0, 0, 0)") {
-          styles.push(`color: ${color}`);
-        }
-        const fontWeight = computed.fontWeight;
-        if (fontWeight === "bold" || parseInt(fontWeight) >= 600) {
-          styles.push(`font-weight: bold`);
-        }
-        if (computed.fontStyle === "italic") {
-          styles.push(`font-style: italic`);
-        }
-        const textDeco = computed.textDecoration;
-        if (textDeco && textDeco !== "none" && !textDeco.includes("none solid")) {
-          styles.push(`text-decoration: ${computed.textDecorationLine}`);
-        }
-        const fontFamily = computed.fontFamily;
-        if (fontFamily && fontFamily !== "Arial") {
-          styles.push(`font-family: ${fontFamily}`);
-        }
-        const fontSize = computed.fontSize;
-        if (fontSize && fontSize !== "16px") {
-          styles.push(`font-size: ${fontSize}`);
-        }
-        if (styles.length > 0) {
-          clone.setAttribute("style", styles.join("; "));
-        }
-        for (const child of element.childNodes) {
-          if (child.nodeType === Node.ELEMENT_NODE) {
-            clone.appendChild(cloneWithInlineStyles(child));
-          } else if (child.nodeType === Node.TEXT_NODE) {
-            clone.appendChild(child.cloneNode(false));
+      let htmlContent = "";
+      let textContent2 = "";
+      const subjectElement = (_b = (_a2 = subjectEditorRef.current) == null ? void 0 : _a2.getEditorElement) == null ? void 0 : _b.call(_a2);
+      const bodyElement = (_d = (_c = bodyEditorRef.current) == null ? void 0 : _c.getEditorElement) == null ? void 0 : _d.call(_c);
+      const subjectText = ((_f = (_e = subjectEditorRef.current) == null ? void 0 : _e.getPlainText) == null ? void 0 : _f.call(_e)) || "";
+      const bodyText = ((_h = (_g = bodyEditorRef.current) == null ? void 0 : _g.getPlainText) == null ? void 0 : _h.call(_g)) || "";
+      console.log("Copy type:", type);
+      const convertToInlineStyles = (sourceElement) => {
+        if (!sourceElement) return "";
+        const rgbToHex = (rgb) => {
+          const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+          if (!match) return rgb;
+          const r2 = parseInt(match[1]).toString(16).padStart(2, "0");
+          const g = parseInt(match[2]).toString(16).padStart(2, "0");
+          const b = parseInt(match[3]).toString(16).padStart(2, "0");
+          return `#${r2}${g}${b}`;
+        };
+        const styleMap = /* @__PURE__ */ new Map();
+        const captureStyles = (el) => {
+          if (el.nodeType !== Node.ELEMENT_NODE) return;
+          const computed = window.getComputedStyle(el);
+          const inlineStyles = [];
+          const bgColor = computed.backgroundColor;
+          if (bgColor && bgColor !== "rgba(0, 0, 0, 0)" && bgColor !== "transparent") {
+            inlineStyles.push(`background-color: ${rgbToHex(bgColor)}`);
           }
-        }
-        return clone;
+          const color = computed.color;
+          if (color && color !== "rgb(0, 0, 0)") {
+            inlineStyles.push(`color: ${rgbToHex(color)}`);
+          }
+          const fontWeight = computed.fontWeight;
+          if (parseInt(fontWeight) >= 600) {
+            inlineStyles.push(`font-weight: bold`);
+          }
+          if (computed.fontStyle === "italic") {
+            inlineStyles.push(`font-style: italic`);
+          }
+          const textDecoration = computed.textDecorationLine;
+          if (textDecoration && textDecoration !== "none") {
+            inlineStyles.push(`text-decoration: ${textDecoration}`);
+          }
+          const fontFamily = computed.fontFamily.split(",")[0].replace(/['"]/g, "");
+          if (fontFamily && fontFamily !== "Arial") {
+            inlineStyles.push(`font-family: ${fontFamily}`);
+          }
+          const fontSize = computed.fontSize;
+          if (fontSize) {
+            inlineStyles.push(`font-size: ${fontSize}`);
+          }
+          if (inlineStyles.length > 0) {
+            styleMap.set(el, inlineStyles.join("; "));
+          }
+          Array.from(el.children).forEach(captureStyles);
+        };
+        captureStyles(sourceElement);
+        const cloneWithStyles = (original) => {
+          if (original.nodeType === Node.TEXT_NODE) {
+            return original.cloneNode(false);
+          }
+          if (original.nodeType !== Node.ELEMENT_NODE) {
+            return original.cloneNode(false);
+          }
+          const clone = original.cloneNode(false);
+          const styles = styleMap.get(original);
+          if (styles) {
+            clone.setAttribute("style", styles);
+          }
+          clone.removeAttribute("class");
+          clone.removeAttribute("contenteditable");
+          clone.removeAttribute("data-var");
+          clone.removeAttribute("data-value");
+          clone.removeAttribute("data-display");
+          clone.removeAttribute("spellcheck");
+          Array.from(original.childNodes).forEach((child) => {
+            clone.appendChild(cloneWithStyles(child));
+          });
+          return clone;
+        };
+        const styledClone = cloneWithStyles(sourceElement);
+        return styledClone.innerHTML;
       };
-      let sourceElement, textContent2;
-      const subjectEditor = (_b = (_a2 = subjectEditorRef.current) == null ? void 0 : _a2.editorRef) == null ? void 0 : _b.current;
-      const bodyEditor = (_d = (_c = bodyEditorRef.current) == null ? void 0 : _c.editorRef) == null ? void 0 : _d.current;
-      if (type === "subject" && subjectEditor) {
-        sourceElement = cloneWithInlineStyles(subjectEditor);
-        textContent2 = subjectEditor.textContent || "";
-      } else if (type === "body" && bodyEditor) {
-        sourceElement = cloneWithInlineStyles(bodyEditor);
-        textContent2 = bodyEditor.textContent || "";
-      } else if (type === "all" && subjectEditor && bodyEditor) {
-        const wrapper = document.createElement("div");
-        const subjectLabel = document.createElement("strong");
-        subjectLabel.textContent = "Subject: ";
-        wrapper.appendChild(subjectLabel);
-        wrapper.appendChild(cloneWithInlineStyles(subjectEditor));
-        wrapper.appendChild(document.createElement("br"));
-        wrapper.appendChild(document.createElement("br"));
-        wrapper.appendChild(cloneWithInlineStyles(bodyEditor));
-        sourceElement = wrapper;
-        textContent2 = `Subject: ${subjectEditor.textContent || ""}
+      if (type === "subject") {
+        htmlContent = convertToInlineStyles(subjectElement);
+        textContent2 = subjectText;
+      } else if (type === "body") {
+        htmlContent = convertToInlineStyles(bodyElement);
+        textContent2 = bodyText;
+      } else if (type === "all") {
+        const subjectHtml = convertToInlineStyles(subjectElement);
+        const bodyHtml = convertToInlineStyles(bodyElement);
+        htmlContent = `<div><strong>Subject:</strong> ${subjectHtml}</div><br/>${bodyHtml}`;
+        textContent2 = `Subject: ${subjectText}
 
-${bodyEditor.textContent || ""}`;
-      } else {
-        throw new Error("Editor references not available");
+${bodyText}`;
       }
-      const htmlContent = sourceElement.innerHTML;
+      console.log("HTML to copy (first 500 chars):", htmlContent.substring(0, 500));
+      const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+${htmlContent}
+</body>
+</html>`;
       let success = false;
+      const buildCFHtml = (html) => {
+        const doc = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body><!--StartFragment-->${html}<!--EndFragment--></body>
+</html>`;
+        const enc = new TextEncoder();
+        const bytes = enc.encode(doc);
+        const startHtml = doc.indexOf("<html>");
+        const startFragment = doc.indexOf("<!--StartFragment-->") + "<!--StartFragment-->".length;
+        const endFragment = doc.indexOf("<!--EndFragment-->");
+        const startHtmlBytes = enc.encode(doc.substring(0, startHtml)).length;
+        const startFragmentBytes = enc.encode(doc.substring(0, startFragment)).length;
+        const endFragmentBytes = enc.encode(doc.substring(0, endFragment)).length;
+        const endHtmlBytes = bytes.length;
+        const pad = (n) => String(n).padStart(10, "0");
+        const header = `Version:1.0\r
+StartHTML:${pad(startHtmlBytes)}\r
+EndHTML:${pad(endHtmlBytes)}\r
+StartFragment:${pad(startFragmentBytes)}\r
+EndFragment:${pad(endFragmentBytes)}\r
+`;
+        return header + doc;
+      };
       if (navigator.clipboard && navigator.clipboard.write) {
         try {
-          const htmlBlob = new Blob([htmlContent], { type: "text/html" });
+          const cfHtml = buildCFHtml(htmlContent);
+          const htmlBlob = new Blob([cfHtml], { type: "text/html" });
           const textBlob = new Blob([textContent2], { type: "text/plain" });
           const clipboardItem = new ClipboardItem({
             "text/html": htmlBlob,
@@ -21708,14 +21769,17 @@ ${bodyEditor.textContent || ""}`;
           });
           await navigator.clipboard.write([clipboardItem]);
           success = true;
+          console.log("Clipboard API copy succeeded");
         } catch (err) {
           console.warn("Clipboard API failed:", err);
         }
       }
       if (!success) {
         const tempDiv = document.createElement("div");
+        tempDiv.contentEditable = "true";
         tempDiv.style.position = "fixed";
         tempDiv.style.left = "-9999px";
+        tempDiv.style.top = "0";
         tempDiv.innerHTML = htmlContent;
         document.body.appendChild(tempDiv);
         const range = document.createRange();
@@ -21723,7 +21787,12 @@ ${bodyEditor.textContent || ""}`;
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
-        success = document.execCommand("copy");
+        try {
+          success = document.execCommand("copy");
+          console.log("execCommand copy result:", success);
+        } catch (err) {
+          console.error("execCommand failed:", err);
+        }
         selection.removeAllRanges();
         document.body.removeChild(tempDiv);
       }
@@ -24601,4 +24670,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-BBuzze3N.js.map
+//# sourceMappingURL=main-CrGiLtXZ.js.map
