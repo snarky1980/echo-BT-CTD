@@ -21680,6 +21680,34 @@ ${bodyResult.html}
 ${bodyResult.text}`;
         break;
     }
+    const buildClipboardHtml = (fragmentHtml = "") => {
+      const docType = "<!DOCTYPE html>";
+      const htmlOpen = '<html><head><meta charset="UTF-8"></head><body>';
+      const htmlClose = "</body></html>";
+      const startFragment = "<!--StartFragment-->";
+      const endFragment = "<!--EndFragment-->";
+      const fullHtml = `${docType}${htmlOpen}${startFragment}${fragmentHtml}${endFragment}${htmlClose}`;
+      const prefix = "Version:1.0\r\n";
+      const placeholder = "0000000000";
+      let header = `StartHTML:${placeholder}\r
+EndHTML:${placeholder}\r
+StartFragment:${placeholder}\r
+EndFragment:${placeholder}\r
+`;
+      let content = prefix + header + fullHtml;
+      const startHTML = content.indexOf(docType);
+      const endHTML = startHTML + fullHtml.length;
+      const startFragmentIndex = content.indexOf(startFragment) + startFragment.length;
+      const endFragmentIndex = content.indexOf(endFragment);
+      const pad = (num) => String(num).padStart(10, "0");
+      header = `StartHTML:${pad(startHTML)}\r
+EndHTML:${pad(endHTML)}\r
+StartFragment:${pad(startFragmentIndex)}\r
+EndFragment:${pad(endFragmentIndex)}\r
+`;
+      content = prefix + header + fullHtml;
+      return content;
+    };
     try {
       const tempContainer = document.createElement("div");
       tempContainer.style.position = "fixed";
@@ -21690,6 +21718,7 @@ ${bodyResult.text}`;
       tempContainer.style.opacity = "0.01";
       tempContainer.style.overflow = "hidden";
       tempContainer.style.pointerEvents = "none";
+      tempContainer.style.whiteSpace = "pre-wrap";
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, "text/html");
       const contentToAdd = doc.body.cloneNode(true);
@@ -21698,42 +21727,72 @@ ${bodyResult.text}`;
       tempContainer.offsetHeight;
       const captureAllStyles = (element) => {
         element.querySelectorAll("*").forEach((el) => {
+          if (el.nodeType !== Node.ELEMENT_NODE) return;
           if (["BR", "HR"].includes(el.tagName)) return;
           const computed = window.getComputedStyle(el);
-          const styles = [];
+          const styleMap = /* @__PURE__ */ new Map();
+          const existingStyle = el.getAttribute("style");
+          if (existingStyle) {
+            existingStyle.split(";").forEach((part) => {
+              if (!part) return;
+              const [propRaw, valueRaw] = part.split(":");
+              if (!valueRaw) return;
+              const prop = propRaw.trim().toLowerCase();
+              const value = valueRaw.trim();
+              if (!prop || !value) return;
+              styleMap.set(prop, value);
+            });
+          }
+          const setStyle = (prop, value) => {
+            if (!value) return;
+            styleMap.set(prop, value);
+          };
           const bgColor = computed.backgroundColor;
           if (bgColor && bgColor !== "rgba(0, 0, 0, 0)" && bgColor !== "transparent") {
-            styles.push(`background-color: ${bgColor}`);
+            setStyle("background-color", bgColor);
           }
           const color = computed.color;
-          if (color && color !== "rgb(0, 0, 0)") {
-            styles.push(`color: ${color}`);
+          if (color) {
+            setStyle("color", color);
           }
           const fontWeight = computed.fontWeight;
-          if (fontWeight && (fontWeight === "bold" || parseInt(fontWeight) >= 600)) {
-            styles.push(`font-weight: ${fontWeight}`);
+          const numericWeight = parseInt(fontWeight, 10);
+          if (fontWeight === "bold" || !Number.isNaN(numericWeight) && numericWeight >= 600) {
+            setStyle("font-weight", fontWeight === "bold" ? "bold" : String(numericWeight));
           }
           if (computed.fontStyle === "italic") {
-            styles.push("font-style: italic");
+            setStyle("font-style", "italic");
           }
           const textDeco = computed.textDecoration;
           if (textDeco && !textDeco.includes("none")) {
-            styles.push(`text-decoration: ${textDeco}`);
+            setStyle("text-decoration", textDeco);
           }
           const fontFamily = computed.fontFamily;
           if (fontFamily) {
-            styles.push(`font-family: ${fontFamily}`);
+            setStyle("font-family", fontFamily);
           }
           const fontSize = computed.fontSize;
           if (fontSize) {
-            styles.push(`font-size: ${fontSize}`);
+            setStyle("font-size", fontSize);
           }
-          if (styles.length > 0) {
-            el.setAttribute("style", styles.join("; ") + ";");
+          const lineHeight = computed.lineHeight;
+          if (lineHeight && lineHeight !== "normal") {
+            setStyle("line-height", lineHeight);
+          }
+          const textAlign = computed.textAlign;
+          if (textAlign && textAlign !== "start") {
+            setStyle("text-align", textAlign);
+          }
+          if (styleMap.size > 0) {
+            const styleString = Array.from(styleMap.entries()).map(([prop, value]) => `${prop}: ${value}`).join("; ");
+            el.setAttribute("style", styleString.endsWith(";") ? styleString : `${styleString};`);
+          } else {
+            el.removeAttribute("style");
           }
         });
       };
       captureAllStyles(tempContainer);
+      const fragmentHtml = tempContainer.innerHTML;
       const range = document.createRange();
       range.selectNodeContents(tempContainer);
       const selection = window.getSelection();
@@ -21749,9 +21808,10 @@ ${bodyResult.text}`;
       document.body.removeChild(tempContainer);
       if (!success) {
         if (navigator.clipboard && navigator.clipboard.write) {
-          const styledHtml = tempContainer.innerHTML;
+          const styledHtml = fragmentHtml;
+          const clipboardHtml = buildClipboardHtml(styledHtml);
           const clipboardItem = new ClipboardItem({
-            "text/html": new Blob([styledHtml], { type: "text/html" }),
+            "text/html": new Blob([clipboardHtml], { type: "text/html" }),
             "text/plain": new Blob([textContent], { type: "text/plain" })
           });
           await navigator.clipboard.write([clipboardItem]);
@@ -24630,4 +24690,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-Rswgc32h.js.map
+//# sourceMappingURL=main-C-tqcrvJ.js.map
