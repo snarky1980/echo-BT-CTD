@@ -21764,15 +21764,111 @@ EndFragment:${pad(endFragmentBytes)}\r
 `;
         return header + doc;
       };
+      const buildRTFFromHtml = (html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+        const root = doc.body.firstChild;
+        const escapeRTF = (s) => s.replace(/\\/g, "\\\\").replace(/\{/g, "\\{").replace(/\}/g, "\\}").replace(/\n/g, "\\par ");
+        const colorTable = [];
+        const colorIndex = (r2, g, b) => {
+          const hex = `${r2},${g},${b}`;
+          let idx = colorTable.indexOf(hex);
+          if (idx === -1) {
+            colorTable.push(hex);
+            idx = colorTable.length - 1;
+          }
+          return idx + 1;
+        };
+        const parseColor = (v) => {
+          if (!v) return null;
+          v = v.trim();
+          const rgbMatch = v.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+          if (rgbMatch) return [parseInt(rgbMatch[1]), parseInt(rgbMatch[2]), parseInt(rgbMatch[3])];
+          const hexMatch = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+          if (hexMatch) {
+            let hex = hexMatch[1];
+            if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+            const r2 = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            return [r2, g, b];
+          }
+          return null;
+        };
+        const pxToRtfFs = (px) => Math.round(parseFloat(px) * 1.5);
+        const traverse = (node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            return escapeRTF(node.textContent || "");
+          }
+          if (node.nodeType !== Node.ELEMENT_NODE) return "";
+          const el = node;
+          let open = "";
+          let close = "";
+          const style = window.getComputedStyle(el);
+          const fontWeight = style.fontWeight;
+          if (fontWeight && (fontWeight === "bold" || parseInt(fontWeight) >= 600)) {
+            open += "\\b ";
+            close = "\\b0 " + close;
+          }
+          if (style.fontStyle === "italic") {
+            open += "\\i ";
+            close = "\\i0 " + close;
+          }
+          if (style.textDecorationLine && style.textDecorationLine.includes("underline")) {
+            open += "\\ul ";
+            close = "\\ul0 " + close;
+          }
+          const fg = parseColor(style.color);
+          if (fg) {
+            const idx = colorIndex(fg[0], fg[1], fg[2]);
+            open += `\\cf${idx} `;
+            close = `\\cf0 ` + close;
+          }
+          const bg = parseColor(style.backgroundColor);
+          if (bg) {
+            const idx = colorIndex(bg[0], bg[1], bg[2]);
+            open += `\\highlight${idx} `;
+            close = `\\highlight0 ` + close;
+          }
+          const fsPx = style.fontSize;
+          if (fsPx) {
+            const fs = pxToRtfFs(fsPx);
+            open += `\\fs${fs} `;
+            close = `\\fs24 ` + close;
+          }
+          let content = "";
+          for (const child of Array.from(el.childNodes)) {
+            content += traverse(child);
+          }
+          if (el.tagName === "BR") content = "\\line ";
+          return open + content + close;
+        };
+        const bodyRtf = traverse(root);
+        const colTbl = colorTable.map((c) => {
+          const [r2, g, b] = c.split(",").map(Number);
+          return `\\red${r2}\\green${g}\\blue${b};`;
+        }).join("");
+        const rtf = `{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl ;${colTbl}} ${bodyRtf}}`;
+        return rtf;
+      };
       if (navigator.clipboard && navigator.clipboard.write) {
         try {
           const cfHtml = buildCFHtml(htmlContent);
           const htmlBlob = new Blob([cfHtml], { type: "text/html" });
+          let rtfString = "";
+          try {
+            rtfString = buildRTFFromHtml(htmlContent);
+          } catch (err) {
+            console.warn("RTF generation failed", err);
+          }
+          const rtfBlob = rtfString ? new Blob([rtfString], { type: "text/rtf" }) : null;
           const textBlob = new Blob([textContent2], { type: "text/plain" });
-          const clipboardItem = new ClipboardItem({
+          const clipboardItemData = {
             "text/html": htmlBlob,
             "text/plain": textBlob
-          });
+          };
+          if (rtfBlob) clipboardItemData["text/rtf"] = rtfBlob;
+          const clipboardItem = new ClipboardItem(clipboardItemData);
           await navigator.clipboard.write([clipboardItem]);
           success = true;
           console.log("Clipboard API copy succeeded");
@@ -24676,4 +24772,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-BVMB7AAi.js.map
+//# sourceMappingURL=main-DVB55eC0.js.map
