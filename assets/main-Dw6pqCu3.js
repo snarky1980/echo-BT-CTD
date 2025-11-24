@@ -21637,7 +21637,7 @@ function App() {
       console.log("Copy type:", type);
       const convertToInlineStyles = (sourceElement) => {
         if (!sourceElement) return "";
-        const rgbToHex = (rgb) => {
+        const rgbToHex2 = (rgb) => {
           const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
           if (!match) return rgb;
           const r2 = parseInt(match[1]).toString(16).padStart(2, "0");
@@ -21652,11 +21652,11 @@ function App() {
           const inlineStyles = [];
           const bgColor = computed.backgroundColor;
           if (bgColor && bgColor !== "rgba(0, 0, 0, 0)" && bgColor !== "transparent") {
-            inlineStyles.push(`background-color: ${rgbToHex(bgColor)}`);
+            inlineStyles.push(`background-color: ${rgbToHex2(bgColor)}`);
           }
           const color = computed.color;
           if (color && color !== "rgb(0, 0, 0)") {
-            inlineStyles.push(`color: ${rgbToHex(color)}`);
+            inlineStyles.push(`color: ${rgbToHex2(color)}`);
           }
           const fontWeight = computed.fontWeight;
           if (parseInt(fontWeight) >= 600) {
@@ -21764,111 +21764,127 @@ EndFragment:${pad(endFragmentBytes)}\r
 `;
         return header + doc;
       };
-      const buildRTFFromHtml = (html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
-        const root = doc.body.firstChild;
-        const escapeRTF = (s) => s.replace(/\\/g, "\\\\").replace(/\{/g, "\\{").replace(/\}/g, "\\}").replace(/\n/g, "\\par ");
-        const colorTable = [];
-        const colorIndex = (r2, g, b) => {
-          const hex = `${r2},${g},${b}`;
-          let idx = colorTable.indexOf(hex);
-          if (idx === -1) {
-            colorTable.push(hex);
-            idx = colorTable.length - 1;
+      const rgbToHex = (rgb) => {
+        if (!rgb) return rgb;
+        const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (!m) return rgb;
+        const r2 = parseInt(m[1]).toString(16).padStart(2, "0");
+        const g = parseInt(m[2]).toString(16).padStart(2, "0");
+        const b = parseInt(m[3]).toString(16).padStart(2, "0");
+        return `#${r2}${g}${b}`;
+      };
+      const htmlToRtf = (html) => {
+        if (!html) return "";
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+        const colors = /* @__PURE__ */ new Map();
+        const fonts = /* @__PURE__ */ new Map();
+        let colorIndex = 1;
+        let fontIndex = 0;
+        const collect = (el) => {
+          if (el.nodeType !== Node.ELEMENT_NODE) return;
+          const style = el.getAttribute("style") || "";
+          const mColor = style.match(/(?:background-color|color):\s*([^;]+)/i);
+          if (mColor) {
+            const hex = mColor[1].trim().startsWith("#") ? mColor[1].trim() : rgbToHex(mColor[1].trim());
+            if (hex && !colors.has(hex)) {
+              colors.set(hex, colorIndex++);
+            }
           }
-          return idx + 1;
-        };
-        const parseColor = (v) => {
-          if (!v) return null;
-          v = v.trim();
-          const rgbMatch = v.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
-          if (rgbMatch) return [parseInt(rgbMatch[1]), parseInt(rgbMatch[2]), parseInt(rgbMatch[3])];
-          const hexMatch = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
-          if (hexMatch) {
-            let hex = hexMatch[1];
-            if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
-            const r2 = parseInt(hex.substring(0, 2), 16);
-            const g = parseInt(hex.substring(2, 4), 16);
-            const b = parseInt(hex.substring(4, 6), 16);
-            return [r2, g, b];
+          const mFont = style.match(/font-family:\s*([^;]+)/i);
+          if (mFont) {
+            const f = mFont[1].split(",")[0].replace(/['\"]/g, "").trim();
+            if (f && !fonts.has(f)) {
+              fonts.set(f, fontIndex++);
+            }
           }
-          return null;
+          Array.from(el.children).forEach(collect);
         };
-        const pxToRtfFs = (px) => Math.round(parseFloat(px) * 1.5);
-        const traverse = (node) => {
+        Array.from(temp.children).forEach(collect);
+        const fontEntries = Array.from(fonts.keys());
+        const colorEntries = Array.from(colors.keys());
+        const fonttbl = `{\\fonttbl${fontEntries.map((f, i) => `{\\f${i}\\fnil ${f};}`).join("")}}`;
+        const colortbl = `{\\colortbl;${colorEntries.map((c) => c).map((c) => c).map((c) => c).map((c) => `${c}`).join(";")};}`;
+        const escapeRtf = (s) => String(s).replace(/\\/g, "\\\\").replace(/{/g, "\\{").replace(/}/g, "\\}").replace(/\n/g, "\\par ");
+        const nodeToRtf = (node, state = {}) => {
           if (node.nodeType === Node.TEXT_NODE) {
-            return escapeRTF(node.textContent || "");
+            return escapeRtf(node.nodeValue);
           }
           if (node.nodeType !== Node.ELEMENT_NODE) return "";
-          const el = node;
-          let open = "";
-          let close = "";
-          const style = window.getComputedStyle(el);
-          const fontWeight = style.fontWeight;
-          if (fontWeight && (fontWeight === "bold" || parseInt(fontWeight) >= 600)) {
-            open += "\\b ";
-            close = "\\b0 " + close;
+          const tag = node.tagName;
+          let parts = "";
+          const style = node.getAttribute("style") || "";
+          const tokens = [];
+          const mBg = style.match(/background-color:\s*([^;]+)/i);
+          if (mBg) {
+            const hex = mBg[1].trim().startsWith("#") ? mBg[1].trim() : rgbToHex(mBg[1].trim());
+            const idx = colors.get(hex);
+            if (idx) tokens.push(`\\highlight${idx}`);
           }
-          if (style.fontStyle === "italic") {
-            open += "\\i ";
-            close = "\\i0 " + close;
+          const mColor = style.match(/color:\s*([^;]+)/i);
+          if (mColor) {
+            const hex = mColor[1].trim().startsWith("#") ? mColor[1].trim() : rgbToHex(mColor[1].trim());
+            const idx = colors.get(hex);
+            if (idx) tokens.push(`\\cf${idx}`);
           }
-          if (style.textDecorationLine && style.textDecorationLine.includes("underline")) {
-            open += "\\ul ";
-            close = "\\ul0 " + close;
+          const mFont = style.match(/font-family:\s*([^;]+)/i);
+          if (mFont) {
+            const f = mFont[1].split(",")[0].replace(/['\"]/g, "").trim();
+            const fi = fonts.get(f);
+            if (fi !== void 0) tokens.push(`\\f${fi}`);
           }
-          const fg = parseColor(style.color);
-          if (fg) {
-            const idx = colorIndex(fg[0], fg[1], fg[2]);
-            open += `\\cf${idx} `;
-            close = `\\cf0 ` + close;
+          const mSize = style.match(/font-size:\s*([^;]+)/i);
+          if (mSize) {
+            const sizePx = parseFloat(mSize[1]);
+            if (!isNaN(sizePx)) {
+              const halfPoints = Math.round(sizePx * 1.5);
+              tokens.push(`\\fs${halfPoints}`);
+            }
           }
-          const bg = parseColor(style.backgroundColor);
-          if (bg) {
-            const idx = colorIndex(bg[0], bg[1], bg[2]);
-            open += `\\highlight${idx} `;
-            close = `\\highlight0 ` + close;
-          }
-          const fsPx = style.fontSize;
-          if (fsPx) {
-            const fs = pxToRtfFs(fsPx);
-            open += `\\fs${fs} `;
-            close = `\\fs24 ` + close;
-          }
-          let content = "";
-          for (const child of Array.from(el.childNodes)) {
-            content += traverse(child);
-          }
-          if (el.tagName === "BR") content = "\\line ";
-          return open + content + close;
+          if (node.tagName === "STRONG" || node.tagName === "B") tokens.push("\\b");
+          if (node.tagName === "EM" || node.tagName === "I") tokens.push("\\i");
+          if (node.tagName === "U") tokens.push("\\ul");
+          if (tokens.length) parts += tokens.join("") + " ";
+          Array.from(node.childNodes).forEach((child) => {
+            if (child.nodeType === Node.ELEMENT_NODE && child.tagName === "BR") {
+              parts += "\\line ";
+            } else {
+              parts += nodeToRtf(child, state);
+            }
+          });
+          const close = [];
+          if (node.tagName === "STRONG" || node.tagName === "B") close.push("\\b0");
+          if (node.tagName === "EM" || node.tagName === "I") close.push("\\i0");
+          if (node.tagName === "U") close.push("\\ul0");
+          if (close.length) parts += close.join("") + " ";
+          if (mColor) parts += "\\cf0 ";
+          if (mBg) parts += "\\highlight0 ";
+          if (mFont) parts += "\\f0 ";
+          if (mSize) parts += "\\fs24 ";
+          if (tag === "DIV" || tag === "P") parts += "\\par ";
+          return parts;
         };
-        const bodyRtf = traverse(root);
-        const colTbl = colorTable.map((c) => {
-          const [r2, g, b] = c.split(",").map(Number);
-          return `\\red${r2}\\green${g}\\blue${b};`;
-        }).join("");
-        const rtf = `{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl ;${colTbl}} ${bodyRtf}}`;
+        let body = "";
+        Array.from(temp.childNodes).forEach((child) => {
+          body += nodeToRtf(child);
+        });
+        const rtf = `{\\rtf1\\ansi\\deff0 ${fonttbl} ${colortbl} ${body}}`;
         return rtf;
       };
       if (navigator.clipboard && navigator.clipboard.write) {
         try {
           const cfHtml = buildCFHtml(htmlContent);
           const htmlBlob = new Blob([cfHtml], { type: "text/html" });
-          let rtfString = "";
-          try {
-            rtfString = buildRTFFromHtml(htmlContent);
-          } catch (err) {
-            console.warn("RTF generation failed", err);
-          }
-          const rtfBlob = rtfString ? new Blob([rtfString], { type: "text/rtf" }) : null;
+          const rtfContent = htmlToRtf(htmlContent);
+          const rtfBlob = new Blob([rtfContent], { type: "text/rtf" });
           const textBlob = new Blob([textContent2], { type: "text/plain" });
-          const clipboardItemData = {
+          console.log("RTF length:", rtfContent.length);
+          console.log("RTF sample (first 200 chars):", rtfContent.substring(0, 200));
+          const clipboardItem = new ClipboardItem({
             "text/html": htmlBlob,
+            "text/rtf": rtfBlob,
             "text/plain": textBlob
-          };
-          if (rtfBlob) clipboardItemData["text/rtf"] = rtfBlob;
-          const clipboardItem = new ClipboardItem(clipboardItemData);
+          });
           await navigator.clipboard.write([clipboardItem]);
           success = true;
           console.log("Clipboard API copy succeeded");
@@ -24772,4 +24788,4 @@ const isHelpOnly = params.get("helpOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastProvider, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : isHelpOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(HelpPopout, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );
-//# sourceMappingURL=main-DVB55eC0.js.map
+//# sourceMappingURL=main-Dw6pqCu3.js.map
