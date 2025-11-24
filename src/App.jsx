@@ -2766,19 +2766,42 @@ function App() {
     ])
     const isDefaultPillBackground = (color = '') => defaultPillBackgrounds.has(normalizeColor(color))
 
+    const pillStyleStripList = new Set([
+      'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+      'border-radius', 'box-shadow', 'padding', 'padding-top', 'padding-right',
+      'padding-bottom', 'padding-left'
+    ])
+
+    const sanitizeStyleString = (style = '') => {
+      const parts = style.split(';')
+      const keep = []
+      parts.forEach((part) => {
+        if (!part) return
+        const [propRaw, valueRaw] = part.split(':')
+        if (!valueRaw) return
+        const prop = propRaw.trim().toLowerCase()
+        const value = valueRaw.trim()
+        if (!prop || !value) return
+        if (pillStyleStripList.has(prop)) return
+        if (prop.startsWith('border-') && pillStyleStripList.has('border')) return
+        if (prop.startsWith('padding-') && pillStyleStripList.has('padding')) return
+        if (prop === 'background-color' && isDefaultPillBackground(value)) return
+        if (prop === 'background' && isDefaultPillBackground(value)) return
+        keep.push(`${prop}: ${value}`)
+      })
+      return keep.join('; ')
+    }
+
     const removeDefaultHighlights = (root) => {
       if (!root || typeof root.querySelectorAll !== 'function') return
       root.querySelectorAll('*').forEach((el) => {
         const style = el.getAttribute?.('style') || ''
         if (!style) return
-        const bgMatch = style.match(/background-color\s*:\s*([^;]+)/i)
-        if (bgMatch && isDefaultPillBackground(bgMatch[1])) {
-          const cleaned = style.replace(/background-color\s*:[^;]+;?/i, '').trim()
-          if (cleaned.length) {
-            el.setAttribute('style', cleaned.endsWith(';') ? cleaned : `${cleaned};`)
-          } else {
-            el.removeAttribute('style')
-          }
+        const sanitized = sanitizeStyleString(style)
+        if (sanitized) {
+          el.setAttribute('style', sanitized.endsWith(';') ? sanitized : `${sanitized};`)
+        } else {
+          el.removeAttribute('style')
         }
       })
     }
@@ -2989,6 +3012,7 @@ function App() {
 
     // Run Outlook-friendly style conversion again to pick up inline styles on injected fragments
     makeOutlookFriendly(wrapper)
+    removeDefaultHighlights(wrapper)
 
     const htmlResult = wrapper.innerHTML
 
@@ -3232,7 +3256,7 @@ function App() {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin: 0; padding: 0;">
-<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000;">
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000; background-color: #ffffff;">
 ${bodyResult.html}
 </div>
 </body>
@@ -3248,7 +3272,7 @@ ${bodyResult.html}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin: 0; padding: 0;">
-<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000;">
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000; background-color: #ffffff;">
 <div><strong>Subject:</strong> ${subjectResult.html || toSimpleHtml(resolvedSubject)}</div>
 <br>
 <div>${bodyResult.html}</div>
