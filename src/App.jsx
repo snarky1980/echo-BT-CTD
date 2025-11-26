@@ -4297,16 +4297,27 @@ ${cleanBodyHtml}
         return true
       }
 
+      // Try anchor click first — historically the most reliable in Chrome/Edge for mailto
       const launchers = [
+        () => {
+          const a = document.createElement('a')
+          a.href = mailtoUrl
+          a.style.display = 'none'
+          document.body.appendChild(a)
+          console.log('📧 anchor click attempt, href length:', a.href.length)
+          a.click()
+          document.body.removeChild(a)
+        },
         () => { window.location.assign(mailtoUrl); },
         () => { window.location.href = mailtoUrl; },
         () => { window.open(mailtoUrl, '_self'); },
-        () => { window.open(mailtoUrl, '_blank', 'noopener'); }
+        () => { window.open(mailtoUrl, '_blank', 'noopener,noreferrer'); }
       ]
 
-      for (const launch of launchers) {
+      for (const [idx, launch] of launchers.entries()) {
         try {
           launch()
+          console.log('📧 mailto launch attempt succeeded (index):', idx)
           return true
         } catch (error) {
           console.warn('📧 mailto launch attempt failed:', error)
@@ -4315,6 +4326,8 @@ ${cleanBodyHtml}
       return false
     }
 
+    console.log('📧 mailtoUrl:', mailtoUrl)
+    console.log('📧 mailto length check: original', originalMailtoLength, 'final', mailtoUrl.length)
     const launched = tryMailLaunch()
 
     if (!launched) {
@@ -4335,7 +4348,10 @@ ${cleanBodyHtml}
           ? "Outlook ne semble pas s'ouvrir. Voulez-vous télécharger un brouillon .eml à la place?"
           : 'Outlook did not appear to open. Would you like to download an .eml draft instead?'
         if (window.confirm(confirmMsg)) {
+          console.log('📧 user confirmed fallback; downloading .eml')
           downloadEmlFallback('user requested fallback after failed launch perception')
+        } else {
+          console.log('📧 user chose not to download fallback; leaving as-is')
         }
       }
     }, 1800)
