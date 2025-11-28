@@ -2756,300 +2756,52 @@ function App() {
     const wrapper = document.createElement('div')
     wrapper.innerHTML = ensureHtmlString(htmlText)
 
-    // Convert styling to email-client-friendly format
-    const normalizeColor = (value = '') => String(value || '').replace(/\s+/g, '').toLowerCase()
-    const expandShortHex = (value = '') => {
-      if (!value || value[0] !== '#' || value.length !== 4) return value
-      return `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`
-    }
-    const defaultPillBackgrounds = new Set([
-      'rgb(245,243,232)', // #f5f3e8 filled background
-      'rgba(245,243,232,1)',
-      'rgb(254,249,195)', // #fef9c3 empty background
-      'rgba(254,249,195,1)',
-      'rgb(219,234,254)', // #dbeafe focus background
-      'rgba(219,234,254,1)',
-      '#f5f3e8',
-      '#fef9c3',
-      '#dbeafe'
-    ].map((entry) => normalizeColor(expandShortHex(entry))))
-
-    const containsDefaultPillColor = (value = '') => {
-      if (!value) return false
-      const stripped = value.replace(/!important$/i, '').trim()
-      if (!stripped) return false
-      const normalized = normalizeColor(stripped)
-      if (defaultPillBackgrounds.has(normalized)) return true
-
-      const rgbMatch = normalized.match(/rgba?\([^)]*\)/)
-      if (rgbMatch && defaultPillBackgrounds.has(normalizeColor(rgbMatch[0]))) {
-        return true
-      }
-
-      const hexMatch = normalized.match(/#[0-9a-f]{3,8}/)
-      if (hexMatch) {
-        const expandedHex = normalizeColor(expandShortHex(hexMatch[0]))
-        if (defaultPillBackgrounds.has(expandedHex)) {
-          return true
-        }
-      }
-
-      return false
-    }
-
-    const shouldStripBackgroundRule = (value = '') => {
-      if (!value) return true
-      const stripped = value.replace(/!important$/i, '').trim()
-      if (!stripped) return true
-      const lowered = stripped.toLowerCase()
-      if (lowered === 'transparent' || lowered === 'none' || lowered === 'initial' || lowered === 'inherit') {
-        return true
-      }
-      return containsDefaultPillColor(stripped)
-    }
-
-    const isDefaultPillBackground = (color = '') => containsDefaultPillColor(color)
-
-    const pillStyleStripList = new Set([
-      'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
-      'border-radius', 'box-shadow', 'padding', 'padding-top', 'padding-right',
-      'padding-bottom', 'padding-left', 'outline', 'outline-color', 'outline-style',
-      'outline-width', 'transition', 'transition-property', 'transition-duration',
-      'transition-timing-function', 'transform', 'animation', 'animation-name',
-      'animation-duration', 'animation-timing-function', 'animation-iteration-count',
-      'animation-direction', 'animation-fill-mode'
-    ])
-
-    const sanitizeStyleString = (style = '') => {
-      const parts = style.split(';')
-      const keep = []
-      parts.forEach((part) => {
-        if (!part) return
-        const [propRaw, valueRaw] = part.split(':')
-        if (!valueRaw) return
-        const prop = propRaw.trim().toLowerCase()
-        const value = valueRaw.trim()
-        if (!prop || !value) return
-        if (pillStyleStripList.has(prop)) return
-        if (prop.startsWith('border-') && pillStyleStripList.has('border')) return
-        if (prop.startsWith('padding-') && pillStyleStripList.has('padding')) return
-        if (prop.startsWith('background')) {
-          if (shouldStripBackgroundRule(value)) return
-        }
-        if (prop === 'display') {
-          const normalizedDisplay = value.toLowerCase()
-          if (normalizedDisplay === 'inline-block' || normalizedDisplay === 'inline-flex' || normalizedDisplay === 'flex') return
-        }
-        if ((prop === 'align-items' || prop === 'justify-content') && value.toLowerCase() === 'center') return
-        if (prop === 'gap' && /^(4px|6px|0.25rem|0.375rem)$/.test(value.toLowerCase())) return
-        if (prop === 'margin' || prop === 'margin-left' || prop === 'margin-right') {
-          const normalizedMargin = value.replace(/\s+/g, '').toLowerCase()
-          if (normalizedMargin === '0' || normalizedMargin === '0px' || normalizedMargin === '02px') return
-        }
-        keep.push(`${prop}: ${value}`)
-      })
-      return keep.join('; ')
-    }
-
-    const removeDefaultHighlights = (root) => {
-      if (!root || typeof root.querySelectorAll !== 'function') return
-      root.querySelectorAll('*').forEach((el) => {
-        const style = el.getAttribute?.('style') || ''
-        if (!style) return
-        const sanitized = sanitizeStyleString(style)
-        if (sanitized) {
-          el.setAttribute('style', sanitized.endsWith(';') ? sanitized : `${sanitized};`)
-        } else {
-          el.removeAttribute('style')
-        }
-      })
-    }
-
-    const normalizeHighlightWhitespace = (root) => {
-      if (!root) return
-      const highlights = root.querySelectorAll('span[style*="background-color"]')
-      highlights.forEach((el) => {
-        const style = el.getAttribute?.('style') || ''
-        if (!style || !/background-color\s*:\s*/i.test(style)) return
-        if (!el.parentNode) return
-
-        if (debug) {
-          console.log('[Highlight before trim]', el.outerHTML)
-        }
-
-        const textNodes = []
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null)
-        while (walker.nextNode()) {
-          textNodes.push(walker.currentNode)
-        }
-        if (!textNodes.length) return
-
-        let leadingBuffer = ''
-        for (const node of textNodes) {
-          const content = node.textContent || ''
-          if (!content) continue
-          const match = content.match(/^\s+/)
-          if (match) {
-            leadingBuffer += match[0]
-            const updated = content.slice(match[0].length)
-            if (updated) {
-              node.textContent = updated
-              break
-            }
-            node.parentNode?.removeChild(node)
-          } else {
-            break
-          }
-        }
-
-        let trailingBuffer = ''
-        for (let i = textNodes.length - 1; i >= 0; i -= 1) {
-          const node = textNodes[i]
-          if (!node || !node.textContent) continue
-          const match = node.textContent.match(/\s+$/)
-          if (match) {
-            trailingBuffer = match[0] + trailingBuffer
-            const updated = node.textContent.slice(0, -match[0].length)
-            if (updated) {
-              node.textContent = updated
-              break
-            }
-            node.parentNode?.removeChild(node)
-          } else {
-            break
-          }
-        }
-
-        if (leadingBuffer) {
-          el.parentNode.insertBefore(document.createTextNode(leadingBuffer), el)
-        }
-        if (trailingBuffer) {
-          if (el.nextSibling) {
-            el.parentNode.insertBefore(document.createTextNode(trailingBuffer), el.nextSibling)
-          } else {
-            el.parentNode.appendChild(document.createTextNode(trailingBuffer))
-          }
-        }
-
-        const remainingText = el.textContent?.trim()
-        if (!remainingText) {
-          el.parentNode.removeChild(el)
-        } else if (remainingText !== el.textContent) {
-          // Preserve internal markup but ensure outer text nodes trimmed
-          const temp = document.createElement('span')
-          temp.innerHTML = el.innerHTML.trim()
-          el.innerHTML = temp.innerHTML
-        }
-
-        if (debug) {
-          console.log('[Highlight after trim]', el.outerHTML)
-        }
-      })
-    }
-
-    const ensureWordHighlightCompatibility = (root) => {
-      if (!root) return
-      root.querySelectorAll('span[style*="background-color"]').forEach((el) => {
-        const style = el.getAttribute?.('style') || ''
-        const match = style.match(/background-color\s*:\s*([^;]+);?/i)
-        if (!match) return
-        const color = match[1].trim()
-        if (!color) return
-        if (!/mso-highlight\s*:/i.test(style)) {
-          el.setAttribute('style', `${style.trim().replace(/;?$/, ';')} mso-highlight: ${color};`)
-        }
-      })
-    }
-
     const makeOutlookFriendly = (element) => {
-      // Process ALL elements (not just those with style attribute)
-      // because computed styles may come from CSS classes or parent elements
       element.querySelectorAll('*').forEach((el) => {
-        // Skip if it's a structural element we don't want to style
         if (['BR', 'HR'].includes(el.tagName)) return
         
         const computedStyle = window.getComputedStyle(el)
         let newStyle = ''
         
-        // ALWAYS preserve existing inline styles first
-        const existingStyle = el.getAttribute('style') || ''
-        if (existingStyle) {
-          newStyle = existingStyle + '; '
-        }
-        
-        // Font family - capture ALL font changes
-        const fontFamily = computedStyle.fontFamily
-        if (fontFamily && fontFamily !== 'Arial, sans-serif' && !existingStyle.includes('font-family')) {
-          // Clean up font family string and use first font
-          const cleanFamily = fontFamily.split(',')[0].replace(/['"]/g, '').trim()
-          newStyle += `font-family: ${cleanFamily}, Arial, sans-serif; `
-        }
-        
-        // Font size - capture ALL size changes
         const fontSize = computedStyle.fontSize
-        if (fontSize && !existingStyle.includes('font-size')) {
+        if (fontSize && fontSize !== '16px' && fontSize !== '14px') {
           newStyle += `font-size: ${fontSize}; `
         }
         
-        // Text color - capture ALL color changes
         const color = computedStyle.color
         const colorRgb = color.replace(/\s/g, '')
-        // Include colors even if black, as they might have been explicitly set
-        if (color && !existingStyle.includes('color:')) {
+        if (color && colorRgb !== 'rgb(0,0,0)' && colorRgb !== 'rgba(0,0,0,1)') {
           newStyle += `color: ${color}; `
         }
         
-        // Background color (highlighting) - CRITICAL for highlights
         const bgColor = computedStyle.backgroundColor
         const bgColorRgb = bgColor.replace(/\s/g, '')
         if (bgColor && 
-          bgColorRgb !== 'rgba(0,0,0,0)' && 
-          bgColorRgb !== 'transparent' &&
-          !existingStyle.includes('background-color') &&
-          !isDefaultPillBackground(bgColor)) {
+            bgColorRgb !== 'rgba(0,0,0,0)' && 
+            bgColorRgb !== 'transparent' && 
+            bgColorRgb !== 'rgb(255,255,255)' && 
+            bgColorRgb !== 'rgba(255,255,255,1)') {
           newStyle += `background-color: ${bgColor}; `
         }
         
-        // Font weight (bold) - capture ALL weight changes
         const fontWeight = computedStyle.fontWeight
-        if ((fontWeight === 'bold' || parseInt(fontWeight) >= 600) && !existingStyle.includes('font-weight')) {
-          newStyle += `font-weight: ${fontWeight === 'bold' ? 'bold' : fontWeight}; `
+        if (fontWeight && (fontWeight === 'bold' || parseInt(fontWeight) >= 700)) {
+          newStyle += `font-weight: bold; `
         }
         
-        // Font style (italic)
         const fontStyle = computedStyle.fontStyle
-        if (fontStyle === 'italic' && !existingStyle.includes('font-style')) {
+        if (fontStyle === 'italic') {
           newStyle += `font-style: italic; `
         }
         
-        // Text decoration (underline, strikethrough)
         const textDecoration = computedStyle.textDecoration
-        if (textDecoration && !textDecoration.includes('none') && !existingStyle.includes('text-decoration')) {
+        if (textDecoration && !textDecoration.includes('none')) {
           newStyle += `text-decoration: ${textDecoration}; `
         }
         
-        // Line height for readability
-        const lineHeight = computedStyle.lineHeight
-        if (lineHeight && lineHeight !== 'normal' && !existingStyle.includes('line-height')) {
-          newStyle += `line-height: ${lineHeight}; `
-        }
-        
-        // Text alignment
-        const textAlign = computedStyle.textAlign
-        if (textAlign && textAlign !== 'start' && textAlign !== 'left' && !existingStyle.includes('text-align')) {
-          newStyle += `text-align: ${textAlign}; `
-        }
-        
-        // Padding and margin for block elements
-        if (['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName)) {
-          const marginTop = computedStyle.marginTop
-          const marginBottom = computedStyle.marginBottom
-          if (marginTop && marginTop !== '0px' && !existingStyle.includes('margin-top')) {
-            newStyle += `margin-top: ${marginTop}; `
-          }
-          if (marginBottom && marginBottom !== '0px' && !existingStyle.includes('margin-bottom')) {
-            newStyle += `margin-bottom: ${marginBottom}; `
-          }
+        const fontFamily = computedStyle.fontFamily
+        if (fontFamily && fontFamily !== 'Arial' && !fontFamily.startsWith('-apple-system')) {
+          newStyle += `font-family: ${fontFamily}; `
         }
         
         if (newStyle) {
@@ -3057,25 +2809,19 @@ function App() {
         }
       })
 
-      // Ensure lists have proper inline styles
       element.querySelectorAll('ul, ol').forEach((list) => {
         const currentStyle = list.getAttribute('style') || ''
-        if (!currentStyle.includes('margin')) {
-          list.setAttribute('style', (currentStyle ? currentStyle + '; ' : '') + 'margin: 0; padding-left: 40px;')
-        }
+        list.setAttribute('style', currentStyle + ' margin: 0; padding-left: 40px;')
       })
 
       element.querySelectorAll('li').forEach((li) => {
         const currentStyle = li.getAttribute('style') || ''
-        if (!currentStyle.includes('margin')) {
-          li.setAttribute('style', (currentStyle ? currentStyle + '; ' : '') + 'margin: 0; padding: 0;')
-        }
+        li.setAttribute('style', currentStyle + ' margin: 0; padding: 0;')
       })
     }
 
     makeOutlookFriendly(wrapper)
 
-    // Remove technical attributes we don't need in exported HTML
     wrapper.querySelectorAll('br[data-line-break]').forEach((node) => {
       node.removeAttribute('data-line-break')
     })
@@ -3106,7 +2852,7 @@ function App() {
 
     const stripPillMetadata = (element) => {
       if (!element || element.nodeType !== Node.ELEMENT_NODE) return
-      element.classList?.remove('var-pill', 'filled', 'empty', 'focused', 'hovered')
+      element.classList?.remove('var-pill', 'filled', 'empty', 'focused')
       if (element.classList && element.classList.length === 0) {
         element.removeAttribute('class')
       }
@@ -3122,228 +2868,40 @@ function App() {
       target.appendChild(frag)
     }
 
-    // STEP 1: Attach wrapper to DOM so we can get computed styles
-    const stagingHost = document.createElement('div')
-    stagingHost.style.position = 'fixed'
-    stagingHost.style.pointerEvents = 'none'
-    stagingHost.style.opacity = '0'
-    stagingHost.style.left = '-9999px'
-    stagingHost.style.top = '-9999px'
-    stagingHost.style.width = '0'
-    stagingHost.style.height = '0'
-    stagingHost.appendChild(wrapper)
-    document.body.appendChild(stagingHost)
+    const PILL_TEMPLATE_TOKEN = '__RT_PILL_VALUE__'
 
-    try {
-      // STEP 1: Capture computed styles from pills BEFORE any modification
-      const pillStyles = new Map()
-      wrapper.querySelectorAll('[data-var]').forEach((pill) => {
-        const varName = pill.getAttribute('data-var')
-        const computedStyle = window.getComputedStyle(pill)
+    Object.entries(values || {}).forEach(([varName, value]) => {
+      const nodes = wrapper.querySelectorAll(`[data-var="${cssEscape(varName)}"]`)
+      nodes.forEach((node) => {
+        const replacementValue = (value !== undefined && value !== null && String(value).length)
+          ? String(value)
+          : `<<${varName}>>`
+        const placeholder = `<<${varName}>>`
         
-        // Capture ONLY text formatting styles (no borders, padding, display, etc.)
-        const styles = {}
-        const propsToCapture = ['color', 'backgroundColor', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textDecoration']
+        const pillClone = node.cloneNode(false)
         
-        propsToCapture.forEach(prop => {
-          const value = computedStyle[prop]
-          if (value && value !== 'normal' && value !== 'none') {
-            // Skip default pill backgrounds
-            if (prop === 'backgroundColor') {
-              const normalized = value.replace(/\s/g, '').toLowerCase()
-              if (isDefaultPillBackground(normalized)) return
-              if (normalized === 'rgb(255,255,255)' || normalized === 'rgba(255,255,255,1)') return
-              if (normalized === 'rgba(0,0,0,0)' || normalized === 'transparent') return
-            }
-            // Skip default colors (black text)
-            if (prop === 'color') {
-              const normalized = value.replace(/\s/g, '').toLowerCase()
-              if (normalized === 'rgb(0,0,0)' || normalized === 'rgb(17,17,17)' || normalized === 'rgb(255,255,255)') return
-            }
-            styles[prop] = value
-          }
-        })
-        
-        // Only store if there are actual non-default styles
-        if (Object.keys(styles).length > 0) {
-          pillStyles.set(varName, styles)
+        const injectAndReplace = (htmlString) => {
+          setCloneContent(pillClone, htmlString)
+          stripPillMetadata(pillClone)
+          node.replaceWith(pillClone)
         }
         
-        if (debug) {
-          console.log('📋 Captured styles for', varName, ':', styles)
+        const template = node.getAttribute('data-template') || node.dataset?.template
+        if (template && replacementValue !== placeholder) {
+          const sanitized = convertValueToHtml(replacementValue)
+          const applied = template.replace(PILL_TEMPLATE_TOKEN, sanitized)
+          injectAndReplace(applied)
+        } else if (node.innerHTML && replacementValue !== placeholder) {
+          injectAndReplace(node.innerHTML)
+        } else {
+          pillClone.textContent = replacementValue
+          stripPillMetadata(pillClone)
+          node.replaceWith(pillClone)
         }
       })
-      
-      // STEP 2: Replace variable placeholders with actual values
-      const PILL_TEMPLATE_TOKEN = '__RT_PILL_VALUE__'
-      Object.entries(values || {}).forEach(([varName, value]) => {
-        const nodes = wrapper.querySelectorAll(`[data-var="${cssEscape(varName)}"]`)
-        nodes.forEach((node) => {
-          const replacementValue = value !== undefined && value !== null && String(value).length
-            ? String(value)
-            : `<<${varName}>>`
+    })
 
-          const placeholder = `<<${varName}>>`
-          
-          // Get the template if it exists
-          const template = node.getAttribute('data-template') || node.dataset?.template
-          
-          if (template && replacementValue !== placeholder && template !== '__RT_PILL_VALUE__') {
-            // Apply the rich template
-            const sanitized = convertValueToHtml(replacementValue)
-            const applied = template.replace(PILL_TEMPLATE_TOKEN, sanitized)
-            node.innerHTML = applied
-          } else if (replacementValue !== placeholder) {
-            // No template or basic template - wrap content with captured styles
-            const capturedStyles = pillStyles.get(varName)
-            if (capturedStyles && Object.keys(capturedStyles).length > 0) {
-              // Convert camelCase to kebab-case and build style string
-              const styleStr = Object.entries(capturedStyles)
-                .map(([prop, val]) => {
-                  const kebab = prop.replace(/([A-Z])/g, '-$1').toLowerCase()
-                  return `${kebab}: ${val}`
-                })
-                .join('; ')
-              node.innerHTML = `<span style="${styleStr}">${convertValueToHtml(replacementValue)}</span>`
-            } else {
-              // Just replace text without wrapping
-              node.textContent = replacementValue
-            }
-          }
-        })
-      })
-      
-      // STEP 3: Clean up ALL box-related styles and attributes from any element inside pills
-      wrapper.querySelectorAll('[data-var] *').forEach((el) => {
-        if (el.nodeType === Node.ELEMENT_NODE) {
-          // Remove all data attributes that could cause issues
-          Array.from(el.attributes).forEach(attr => {
-            if (attr.name.startsWith('data-') || attr.name === 'class' || attr.name === 'contenteditable' || attr.name === 'spellcheck') {
-              el.removeAttribute(attr.name)
-            }
-          })
-          
-          // Clean style attribute
-          if (el.hasAttribute('style')) {
-            const style = el.getAttribute('style')
-            if (style) {
-              // Remove ALL box-related and layout-related properties
-              const cleaned = style
-                .split(';')
-                .filter(rule => {
-                  const [propRaw, ...rest] = rule.split(':')
-                  const prop = propRaw?.trim().toLowerCase()
-                  if (!prop) return false
-                  if (prop.includes('border')) return false
-                  if (prop.includes('padding')) return false
-                  if (prop.includes('margin')) return false
-                  if (prop.includes('box-shadow')) return false
-                  if (prop.includes('display')) return false
-                  if (prop.includes('transition')) return false
-                  if (prop.includes('transform')) return false
-                  if (prop.includes('outline')) return false
-                  if (prop.includes('box-sizing')) return false
-                  if (prop.includes('cursor')) return false
-                  if (prop.includes('user-select')) return false
-                  if (prop.includes('line-height')) return false
-                  if (prop.includes('letter-spacing')) return false
-
-                  if (prop.startsWith('background')) {
-                    const valuePart = rest.join(':').trim()
-                    if (shouldStripBackgroundRule(valuePart)) return false
-                  }
-
-                  return true
-                })
-                .join(';')
-              
-              if (cleaned) {
-                el.setAttribute('style', cleaned)
-              } else {
-                el.removeAttribute('style')
-              }
-            }
-          }
-        }
-      })
-      
-      // STEP 4: Unwrap pills - replace each pill span with its formatted content
-      wrapper.querySelectorAll('span[data-var]').forEach((pill) => {
-        const fragment = document.createDocumentFragment()
-        Array.from(pill.childNodes).forEach(child => {
-          fragment.appendChild(child.cloneNode(true))
-        })
-        pill.replaceWith(fragment)
-      })
-      
-      // STEP 5: Final cleanup - remove any remaining problematic attributes from ALL elements
-      wrapper.querySelectorAll('*').forEach((el) => {
-        if (el.nodeType === Node.ELEMENT_NODE) {
-          // Remove any remaining data attributes, classes, etc.
-          Array.from(el.attributes).forEach(attr => {
-            if (attr.name.startsWith('data-') || 
-                attr.name === 'class' || 
-                attr.name === 'contenteditable' || 
-                attr.name === 'spellcheck' ||
-                attr.name === 'role' ||
-                attr.name === 'aria-label') {
-              el.removeAttribute(attr.name)
-            }
-          })
-        }
-      })
-      
-      // STEP 6: Strip any lingering default pill highlights
-      removeDefaultHighlights(wrapper)
-
-      // STEP 7: Make highlights compatible with both Word and Gmail
-      wrapper.querySelectorAll('span[style*="background-color"]').forEach((el) => {
-        const style = el.getAttribute('style') || ''
-        const bgMatch = style.match(/background-color\s*:\s*([^;]+)/i)
-        
-        if (bgMatch) {
-          const bgColor = bgMatch[1].trim()
-          
-          // Keep all non-background styles
-          const otherStyles = style
-            .split(';')
-            .filter(rule => {
-              const prop = rule.split(':')[0]?.trim().toLowerCase()
-              return prop && !prop.includes('background')
-            })
-            .join(';')
-          
-          // Hybrid approach: background-color for Gmail, but with Word-specific overrides
-          // border:none prevents Word from adding boxes around highlights
-          const finalStyle = `background-color: ${bgColor}; ${otherStyles}; border: none !important; box-shadow: none !important; outline: none !important; padding: 0 !important; margin: 0 !important;`
-          el.setAttribute('style', finalStyle)
-        }
-      })
-      
-      // Ensure all other styled spans also have border: none
-      wrapper.querySelectorAll('span[style]').forEach((el) => {
-        const style = el.getAttribute('style') || ''
-        if (!style.includes('border: none')) {
-          el.setAttribute('style', `${style}; border: none !important; padding: 0 !important; margin: 0 !important;`)
-        }
-      })
-
-      if (debug) {
-        console.log('🎯 AFTER cleanup, wrapper HTML:', wrapper.innerHTML.substring(0, 500))
-        const remainingStyled = wrapper.querySelectorAll('[style]')
-        console.log('📊 Remaining styled elements:', remainingStyled.length)
-        remainingStyled.forEach((el, idx) => {
-          if (idx < 5) {
-            console.log(`  [${idx}] ${el.tagName}:`, el.getAttribute('style'))
-          }
-        })
-      }
-      
-    } finally {
-      if (stagingHost.parentNode) {
-        stagingHost.parentNode.removeChild(stagingHost)
-      }
-    }
+    makeOutlookFriendly(wrapper)
 
     const htmlResult = wrapper.innerHTML
 
@@ -3570,8 +3128,6 @@ function App() {
     const bodyHtmlSource = bodyEditorRef.current?.getHtml?.() ?? bodySource
     const subjectHtmlSource = subjectEditorRef.current?.getHtml?.() ?? toSimpleHtml(resolvedSubject)
     const bodyResult = replaceVariablesInHTML(bodyHtmlSource, latestVariables, resolvedBodyText)
-
-    // Also compute subject HTML result to preserve inline pill formatting for subject copies
     const subjectResult = replaceVariablesInHTML(subjectHtmlSource, latestVariables, resolvedSubject)
 
     switch (type) {
@@ -3580,7 +3136,6 @@ function App() {
         textContent = resolvedSubject
         break
       case 'body':
-        // Wrap body in complete HTML document structure for email clients
         htmlContent = `<!DOCTYPE html>
 <html>
 <head>
@@ -3588,7 +3143,7 @@ function App() {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin: 0; padding: 0;">
-<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000; background-color: #ffffff;">
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000;">
 ${bodyResult.html}
 </div>
 </body>
@@ -3604,96 +3159,66 @@ ${bodyResult.html}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="margin: 0; padding: 0;">
-<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000; background-color: #ffffff;">
-<div>${subjectResult.html || toSimpleHtml(resolvedSubject)}</div>
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000;">
+<div><strong>Subject:</strong> ${subjectResult.html || toSimpleHtml(resolvedSubject)}</div>
 <br>
 <div>${bodyResult.html}</div>
 </div>
 </body>
 </html>`
-        textContent = `${resolvedSubject}\n\n${bodyResult.text}`
+        textContent = `${resolvedSubject}
+
+${bodyResult.text}`
         break
     }
     
     try {
-      // Use the older execCommand approach for better rich text compatibility
-      // The modern ClipboardItem API sometimes loses formatting in certain apps
-      const tempContainer = document.createElement('div')
-      tempContainer.style.position = 'fixed'
-      tempContainer.style.left = '-9999px'
-      tempContainer.style.top = '-9999px'
-      tempContainer.style.width = '1px'
-      tempContainer.style.height = '1px'
-      tempContainer.style.opacity = '0'
-      tempContainer.style.overflow = 'hidden'
-      
-      // Create a properly structured document fragment
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(htmlContent, 'text/html')
-      
-      // Extract the body content and append to temp container
-      const contentToAdd = doc.body.cloneNode(true)
-      tempContainer.appendChild(contentToAdd)
-      document.body.appendChild(tempContainer)
-      
-      // Select all content in the container
-      const range = document.createRange()
-      range.selectNodeContents(tempContainer)
-      const selection = window.getSelection()
-      selection.removeAllRanges()
-      selection.addRange(range)
-      
-      // Execute copy - this preserves rich formatting better than ClipboardItem
-      const success = document.execCommand('copy')
-      
-      // Cleanup
-      selection.removeAllRanges()
-      document.body.removeChild(tempContainer)
-      
-      if (!success) {
-        throw new Error('execCommand copy failed')
+      if (navigator.clipboard && window.isSecureContext) {
+        const clipboardItem = new ClipboardItem({
+          'text/html': new Blob([htmlContent], { type: 'text/html' }),
+          'text/plain': new Blob([textContent], { type: 'text/plain' })
+        })
+        await navigator.clipboard.write([clipboardItem])
+      } else {
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = htmlContent
+        tempDiv.style.position = 'fixed'
+        tempDiv.style.left = '-999999px'
+        tempDiv.style.top = '-999999px'
+        document.body.appendChild(tempDiv)
+        const range = document.createRange()
+        range.selectNodeContents(tempDiv)
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+        document.execCommand('copy')
+        selection.removeAllRanges()
+        document.body.removeChild(tempDiv)
       }
-      
-      // Visual success feedback (2 seconds)
       setCopySuccess(type)
       setTimeout(() => setCopySuccess(null), 2000)
     } catch (error) {
       console.error('Copy error:', error)
-      // Try modern API as fallback
       try {
-        if (navigator.clipboard && navigator.clipboard.write) {
-          const clipboardItem = new ClipboardItem({
-            'text/html': new Blob([htmlContent], { type: 'text/html' }),
-            'text/plain': new Blob([textContent], { type: 'text/plain' })
-          })
-          await navigator.clipboard.write([clipboardItem])
-          setCopySuccess(type)
-          setTimeout(() => setCopySuccess(null), 2000)
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(textContent)
         } else {
-          throw new Error('Modern clipboard API unavailable')
+          const textArea = document.createElement('textarea')
+          textArea.value = textContent
+          textArea.style.position = 'fixed'
+          textArea.style.left = '-999999px'
+          textArea.style.top = '-999999px'
+          document.body.appendChild(textArea)
+          textArea.focus()
+          textArea.select()
+          document.execCommand('copy')
+          textArea.remove()
         }
-      } catch (fallbackError) {
-        console.error('Fallback copy error:', fallbackError)
-        // Last resort: plain text only
-        try {
-          if (navigator.clipboard) {
-            await navigator.clipboard.writeText(textContent)
-          } else {
-            const textArea = document.createElement('textarea')
-            textArea.value = textContent
-            textArea.style.position = 'fixed'
-            textArea.style.left = '-999999px'
-            document.body.appendChild(textArea)
-            textArea.select()
-            document.execCommand('copy')
-            textArea.remove()
-          }
-          setCopySuccess(type)
-          setTimeout(() => setCopySuccess(null), 2000)
-        } catch (finalError) {
-          console.error('All copy methods failed:', finalError)
-          alert('Copy failed. Please select the text manually and use Ctrl+C.')
-        }
+        setCopySuccess(type)
+        setTimeout(() => setCopySuccess(null), 2000)
+      } catch (finalError) {
+        console.error('All copy methods failed:', finalError)
+        alert('Copy failed. Please select the text manually and use Ctrl+C.')
       }
     }
   }
